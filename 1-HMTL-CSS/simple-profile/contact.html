@@ -7,48 +7,72 @@
   </head>
   <body>
     <!-- NAVBAR -->
-    <nav class="navbar">
-      <div class="logo">VM</div>
-      <ul class="nav-menu">
-        <li><a href="index.html">Beranda</a></li>
-        <li><a href="about.html">Tentang Saya</a></li>
-        <li><a href="experience.html">Pengalaman Kerja</a></li>
-        <li><a href="contact.html">Kontak</a></li>
-      </ul>
-    </nav>
+    <iframe
+      src="components/navbar.html"
+      class="iframe-nav"
+      scrolling="no"
+    ></iframe>
 
     <main class="page">
+      <!-- HEADER -->
       <section class="page-header">
         <span class="badge">Kontak</span>
         <h1>Hubungi <span class="highlight">Saya</span></h1>
         <p>
-          Jika ingin berkenalan atau memberikan feedback, silakan hubungi saya
-          melalui form di bawah ini.
+          Jika ingin berkenalan atau berdiskusi lebih lanjut, silakan kirim
+          pesan melalui form di bawah ini.
         </p>
       </section>
 
-      <section class="content-card">
-        <form class="contact-form">
-          <label>Nama</label>
-          <input type="text" placeholder="Nama lengkap" />
+      <!-- CONTACT FORM -->
+      <section class="contact-wrapper">
+        <form class="contact-modern">
+          <!-- ROW 1 -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nama Depan</label>
+              <input type="text" placeholder="Nama depan" />
+            </div>
 
-          <label>Email</label>
-          <input type="email" placeholder="email@example.com" />
+            <div class="form-group">
+              <label>Nama Belakang</label>
+              <input type="text" placeholder="Nama belakang" />
+            </div>
+          </div>
 
-          <label>Jenis Pesan</label>
-          <select>
-            <option>-- Pilih --</option>
-            <option>Saran</option>
-            <option>Kritik</option>
-            <option>Pertanyaan</option>
-          </select>
+          <!-- ROW 2 -->
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="email@example.com" />
+          </div>
 
-          <label>Pesan</label>
-          <textarea placeholder="Tulis pesan..."></textarea>
+          <!-- ROW 3 -->
+          <div class="form-group">
+            <label>Jenis Pesan</label>
+            <select>
+              <option>-- Pilih --</option>
+              <option>Saran</option>
+              <option>Kritik</option>
+              <option>Pertanyaan</option>
+            </select>
+          </div>
 
-          <button>Kirim Pesan</button>
+          <!-- ROW 4 -->
+          <div class="form-group">
+            <label>Pesan</label>
+            <textarea placeholder="Tulis pesan Anda..."></textarea>
+          </div>
+
+          <!-- ACTION -->
+          <button type="submit" class="btn-primary">Kirim Pesan</button>
         </form>
       </section>
     </main>
+    <!-- FOOTER -->
+    <iframe
+      src="components/footer.html"
+      class="iframe-footer"
+      scrolling="no"
+    ></iframe>
   </body>
 </html>

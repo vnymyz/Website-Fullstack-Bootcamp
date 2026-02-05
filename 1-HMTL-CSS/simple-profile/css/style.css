@@ -1,75 +1,106 @@
-/* RESET */
+/* =========================
+   RESET
+   ========================= */
+/* Menghapus margin dan padding default browser
+   serta memastikan ukuran elemen dihitung dengan konsisten */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* GLOBAL */
+/* =========================
+   GLOBAL
+   ========================= */
+/* Style dasar untuk seluruh halaman */
 body {
+  /* Font utama website */
   font-family: "Segoe UI", Arial, sans-serif;
+
+  /* Background gradasi (radial + linear) untuk efek modern */
   background:
     radial-gradient(circle at top left, #3a4f7a, transparent 40%),
     linear-gradient(135deg, #0f172a, #020617);
+
+  /* Warna teks default */
   color: #ffffff;
+
+  /* Tinggi minimal layar penuh */
   min-height: 100vh;
 }
 
-/* NAVBAR */
+/* =========================
+   NAVBAR
+   ========================= */
+/* Container navbar */
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; /* Membuat elemen sejajar horizontal */
+  justify-content: space-between; /* Logo kiri, menu kanan */
+  align-items: center; /* Vertikal rata tengah */
   padding: 24px 60px;
 }
 
+/* Logo teks */
 .logo {
   font-size: 22px;
   font-weight: bold;
   color: #8b9cff;
 }
 
+/* List menu navbar */
 .nav-menu {
-  list-style: none;
+  list-style: none; /* Menghilangkan bullet */
   display: flex;
-  gap: 32px;
+  gap: 32px; /* Jarak antar menu */
 }
 
+/* Link navbar */
 .nav-menu a {
-  text-decoration: none;
+  text-decoration: none; /* Hilangkan garis bawah */
   color: #cbd5f5;
   font-size: 14px;
 }
 
+/* Efek hover menu */
 .nav-menu a:hover {
   color: #ffffff;
 }
 
-/* HERO */
+/* =========================
+   HERO SECTION
+   ========================= */
+/* Section utama (halaman depan) */
 .hero {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center; /* Tengah vertikal */
+  justify-content: center; /* Tengah horizontal */
   text-align: center;
   padding: 100px 20px;
 }
 
+/* Container isi hero */
 .hero-content {
   max-width: 800px;
 }
 
-/* BADGE */
+/* =========================
+   BADGE
+   ========================= */
+/* Label kecil di atas judul */
 .badge {
   display: inline-block;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: 999px; /* Bentuk kapsul */
   background-color: rgba(139, 156, 255, 0.15);
   color: #8b9cff;
   font-size: 13px;
   margin-bottom: 20px;
 }
 
-/* TITLE */
+/* =========================
+   TITLE
+   ========================= */
+/* Judul utama */
 .hero h1 {
   font-size: 56px;
   font-weight: 700;
@@ -77,25 +108,33 @@ body {
   margin-bottom: 24px;
 }
 
+/* Warna teks highlight */
 .highlight {
   color: #8b9cff;
 }
 
-/* SUBTITLE */
+/* =========================
+   SUBTITLE
+   ========================= */
+/* Paragraf deskripsi */
 .subtitle {
   font-size: 16px;
-  color: #cbd5f5;
+  color: #d2ddff;
   line-height: 1.8;
   margin-bottom: 40px;
 }
 
-/* ACTION BUTTONS */
+/* =========================
+   ACTION BUTTONS
+   ========================= */
+/* Container tombol di hero */
 .hero-actions {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
+/* Style dasar tombol */
 .btn {
   padding: 14px 28px;
   border-radius: 999px;
@@ -104,79 +143,100 @@ body {
   font-weight: 600;
 }
 
-/* PRIMARY BUTTON */
+/* Tombol utama */
 .btn.primary {
   background-color: #6366f1;
   color: #ffffff;
 }
 
+/* Hover tombol utama */
 .btn.primary:hover {
   background-color: #4f46e5;
 }
 
-/* SECONDARY BUTTON */
+/* Tombol sekunder */
 .btn.secondary {
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Hover tombol sekunder */
 .btn.secondary:hover {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* PAGE LAYOUT */
+/* =========================
+   PAGE LAYOUT
+   ========================= */
+/* Wrapper halaman selain hero */
 .page {
   max-width: 1000px;
   margin: 80px auto;
   padding: 0 20px;
 }
 
+/* Header halaman */
 .page-header {
   text-align: center;
   margin-bottom: 60px;
 }
 
-.page-header p {
-  max-width: 600px;
-  margin: 0 auto;
+.page-header h1 {
+  margin-bottom: 20px;
 }
 
-/* CARD */
+/* Paragraf header */
+.page-header p {
+  margin-top: 0;
+}
+
+/* =========================
+   CARD
+   ========================= */
+/* Box/card konten */
 .content-card {
   background: rgba(255, 255, 255, 0.04);
   border-radius: 16px;
   padding: 40px;
 }
 
-/* EXPERIENCE */
+/* =========================
+   EXPERIENCE SECTION
+   ========================= */
+/* Grid pengalaman kerja */
 .experience-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  gap: 100px;
 }
 
+/* Card pengalaman */
 .experience-card {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   overflow: hidden;
 }
 
+/* Gambar pengalaman */
 .experience-card img {
   width: 100%;
   height: 180px;
   object-fit: cover;
 }
 
+/* Konten dalam card */
 .experience-content {
-  padding: 24px;
+  padding: 30px;
 }
 
+/* Metadata pengalaman */
 .meta {
   color: #a5b4fc;
   font-size: 14px;
   margin-bottom: 10px;
 }
 
+/* Tag skill */
 .tags span {
   display: inline-block;
   background: rgba(99, 102, 241, 0.15);
@@ -187,7 +247,9 @@ body {
   margin-right: 6px;
 }
 
-/* CONTACT */
+/* =========================
+   CONTACT (OLD)
+   ========================= */
 .contact-form {
   max-width: 500px;
   margin: 0 auto;
@@ -198,7 +260,10 @@ body {
   width: 100%;
 }
 
-/* ABOUT LAYOUT */
+/* =========================
+   ABOUT SECTION
+   ========================= */
+/* Layout dua kolom about */
 .about-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -207,25 +272,26 @@ body {
   margin-top: 60px;
 }
 
-/* TEXT */
+/* Judul about */
 .about-text h2 {
   font-size: 32px;
   margin-bottom: 20px;
 }
 
+/* Paragraf about */
 .about-text p {
   margin-bottom: 16px;
   line-height: 1.8;
 }
 
-/* IMAGE */
+/* Gambar about */
 .about-image img {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
 }
 
-/* RESPONSIVE */
+/* Responsive about */
 @media (max-width: 900px) {
   .about-layout {
     grid-template-columns: 1fr;
@@ -234,4 +300,189 @@ body {
   .about-image {
     order: -1;
   }
+}
+
+/* =========================
+   CONTACT MODERN
+   ========================= */
+/* Wrapper form kontak */
+.contact-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+/* Card form modern */
+.contact-modern {
+  width: 100%;
+  max-width: 640px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* Baris form dua kolom */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Group input */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+/* Label input */
+.form-group label {
+  font-size: 14px;
+  color: #c7d2fe;
+  margin-bottom: 8px;
+}
+
+/* Input, select, textarea */
+.contact-modern input,
+.contact-modern select,
+.contact-modern textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* FIX dropdown option */
+.contact-modern select option {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+/* Option terpilih */
+.contact-modern select option:checked {
+  background-color: #e5e7eb;
+}
+
+/* Placeholder */
+.contact-modern input::placeholder,
+.contact-modern textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Textarea */
+.contact-modern textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* =========================
+   BUTTON
+   ========================= */
+.btn-primary {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+/* Hover button */
+.btn-primary:hover {
+  background: #4f46e5;
+}
+
+/* =========================
+   RESPONSIVE FORM
+   ========================= */
+@media (max-width: 720px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-modern {
+    padding: 30px 24px;
+  }
+}
+
+/* IFRAME RESET */
+.iframe-nav,
+.iframe-footer {
+  width: 100%;
+  border: none;
+  display: block;
+}
+
+/* NAV HEIGHT */
+.iframe-nav {
+  height: 90px;
+}
+
+/* FOOTER HEIGHT */
+.iframe-footer {
+  height: 280px;
+}
+
+/* FOOTER STYLE */
+.footer {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 60px 80px 30px;
+  color: #cbd5f5;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+}
+
+.footer h3,
+.footer h4 {
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.footer a {
+  display: block;
+  color: #cbd5f5;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.footer a:hover {
+  color: #ffffff;
+}
+
+.social-links a {
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.footer p {
+  margin-bottom: 30px;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 40px;
+  padding-top: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.social-links a {
+  font-size: 20px;
+  color: #cbd5f5;
+  margin-right: 14px;
+  transition: color 0.2s ease;
+}
+
+.social-links a:hover {
+  color: #ffffff;
 }
