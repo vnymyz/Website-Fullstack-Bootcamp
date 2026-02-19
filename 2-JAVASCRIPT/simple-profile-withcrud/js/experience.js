@@ -21,8 +21,15 @@ function renderExperiences() {
                         <span>${exp.category}</span>
                     </div>
                     <br>
-                    <button onclick="editExperience(${index})">Edit</button>
-                    <button onclick="deleteExperience(${index})">Delete</button>
+                    <div class="card-actions">
+                        <button onclick="editExperience(${index})" class="icon-btn edit">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button onclick="deleteExperience(${index})" class="icon-btn delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>    
                 </div>
             </div>
         `;

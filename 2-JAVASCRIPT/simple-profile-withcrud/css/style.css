@@ -229,6 +229,22 @@ body {
   padding: 30px;
 }
 
+.experience-content h3 {
+  margin-bottom: 8px;
+}
+
+.experience-content .meta {
+  margin-bottom: 14px;
+}
+
+.experience-content p {
+  margin-bottom: 16px;
+}
+
+.tags {
+  margin-bottom: 18px;
+}
+
 /* Metadata pengalaman */
 .meta {
   color: #a5b4fc;
@@ -541,4 +557,39 @@ body {
 
 .navbar {
   position: relative;
+}
+
+/* styling icon buttons */
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #cbd5f5;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.icon-btn.edit:hover {
+  color: #60a5fa;
+}
+
+.icon-btn.delete:hover {
+  color: #f87171;
+}
+
+/* DATE INPUT TO WHITE */
+/* Date input khusus */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
