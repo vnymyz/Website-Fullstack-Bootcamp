@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD Sederhana</title>
+    <!-- Menghubungkan file CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>CRUD Data Siswa</h1>
+
+    <!-- Form input data -->
+    <div class="form-container">
+      <!-- Input nama siswa -->
+      <input type="text" id="nama" placeholder="Masukkan Nama" />
+
+      <!-- Input umur siswa -->
+      <input type="number" id="umur" placeholder="Masukkan Umur" />
+
+      <!-- Tombol untuk menambahkan data -->
+      <button onclick="tambahData()">Tambah</button>
+
+      <!-- Tombol update (disembunyikan dulu) -->
+      <button onclick="updateData()" id="btnUpdate" style="display: none">
+        Update
+      </button>
+    </div>
+
+    <!-- Tabel untuk menampilkan data -->
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Umur</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <!-- Isi tabel akan di-generate dari JavaScript -->
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <!-- Menghubungkan file JavaScript -->
+    <script src="script.js"></script>
+  </body>
+</html>

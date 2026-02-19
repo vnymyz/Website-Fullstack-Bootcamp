@@ -1,0 +1,50 @@
+/* Mengatur tampilan dasar halaman */
+body {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+  background-color: #f4f4f4;
+}
+
+/* Judul di tengah */
+h1 {
+  text-align: center;
+}
+
+/* Container form */
+.form-container {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Styling input */
+input {
+  padding: 8px;
+  margin: 5px;
+}
+
+/* Styling tombol */
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* Styling tabel */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+/* Styling garis dan isi tabel */
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Header tabel */
+th {
+  background-color: #333;
+  color: white;
+}
