@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="admin-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <h2>Admin</h2>
+        <a href="admin.html">Dashboard</a>
+        <a href="../index.html">Home</a>
+        <button onclick="logout()">Logout</button>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="admin-content">
+        <div class="admin-header">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search..."
+            onkeyup="searchData()"
+          />
+          <button onclick="openAddForm()">+ Tambah</button>
+        </div>
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Author</th>
+              <th>Category</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </main>
+    </div>
+
+    <script src="/js/admin.js"></script>
+  </body>
+</html>
