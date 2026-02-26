@@ -1,116 +1,98 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pengalaman | Profile</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
-  </head>
-  <body>
-    <!-- NAVBAR -->
-    <iframe
-      src="components/navbar.html"
-      class="iframe-nav"
-      scrolling="no"
-    ></iframe>
 
-    <!--  -->
-    <main class="page">
-      <section class="page-header">
-        <span class="badge">Pengalaman</span>
-        <h1>Pengalaman <span class="highlight">Kerja</span></h1>
-        <p>
-          Beberapa pengalaman yang pernah saya jalani dalam dunia teknologi dan
-          pengembangan web.
-        </p>
-      </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengalaman | Profile</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
 
-      <!-- form tambah data experience -->
-      <section class="contact-wrapper" style="margin-bottom: 60px">
-        <form class="contact-modern">
-          <h2 style="margin-bottom: 30px">Tambah Experience</h2>
+<body>
+  <!-- NAVBAR -->
+  <iframe src="components/navbar.html" class="iframe-nav" scrolling="no"></iframe>
 
-          <!-- ROW 1 -->
-          <div class="form-row">
-            <div class="form-group">
-              <label>Title</label>
-              <input type="text" id="title" placeholder="Masukkan judul" />
-            </div>
+  <!--  -->
+  <main class="page">
+    <section class="page-header">
+      <span class="badge">Pengalaman</span>
+      <h1>Pengalaman <span class="highlight">Kerja</span></h1>
+      <p>
+        Beberapa pengalaman yang pernah saya jalani dalam dunia teknologi dan
+        pengembangan web.
+      </p>
+    </section>
 
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="date" />
-            </div>
-          </div>
+    <!-- form tambah data experience -->
+    <section class="contact-wrapper" style="margin-bottom: 60px">
+      <form class="contact-modern">
+        <h2 style="margin-bottom: 30px">Tambah Experience</h2>
 
-          <!-- ROW 2 -->
-          <div class="form-row">
-            <div class="form-group">
-              <label>Author</label>
-              <input type="text" id="author" placeholder="Nama penulis" />
-            </div>
-
-            <div class="form-group">
-              <label>Category</label>
-              <select id="category">
-                <option value="Website">Website</option>
-                <option value="Coding">Coding</option>
-                <option value="Hobbies">Hobbies</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- ROW 3 -->
+        <!-- ROW 1 -->
+        <div class="form-row">
           <div class="form-group">
-            <label>Image Link (Unsplash)</label>
-            <input
-              type="text"
-              id="image"
-              placeholder="https://images.unsplash.com/..."
-            />
+            <label>Title</label>
+            <input type="text" id="title" placeholder="Masukkan judul" />
           </div>
 
-          <!-- ROW 4 -->
           <div class="form-group">
-            <label>Description</label>
-            <textarea
-              id="description"
-              placeholder="Tulis deskripsi pengalaman..."
-            ></textarea>
+            <label>Date</label>
+            <input type="date" id="date" />
+          </div>
+        </div>
+
+        <!-- ROW 2 -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Author</label>
+            <input type="text" id="author" placeholder="Nama penulis" />
           </div>
 
-          <button type="button" class="btn-primary" onclick="addExperience()">
-            Tambah
-          </button>
-          <button
-            type="button"
-            class="btn-primary"
-            onclick="updateExperience()"
-            id="updateBtn"
-            style="display: none"
-          >
-            Update
-          </button>
-        </form>
-      </section>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="category">
+              <option value="Website">Website</option>
+              <option value="Coding">Coding</option>
+              <option value="Hobbies">Hobbies</option>
+            </select>
+          </div>
+        </div>
 
-      <!-- end of form data experience -->
+        <!-- ROW 3 -->
+        <div class="form-group">
+          <label>Image Link (Unsplash)</label>
+          <input type="text" id="image" placeholder="https://images.unsplash.com/..." />
+        </div>
 
-      <!-- EXPERIENCE CARD -->
-      <section class="experience-grid" id="experienceGrid">
-        <!-- experience card di render oleh javascript -->
-      </section>
-    </main>
-    <!-- FOOTER -->
-    <iframe
-      src="components/footer.html"
-      class="iframe-footer"
-      scrolling="no"
-    ></iframe>
-    <script src="js/experience.js"></script>
-  </body>
+        <!-- ROW 4 -->
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" placeholder="Tulis deskripsi pengalaman..."></textarea>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="addExperience()">
+          Tambah
+        </button>
+        <button type="button" class="btn-primary" onclick="updateExperience()" id="updateBtn" style="display: none">
+          Update
+        </button>
+      </form>
+    </section>
+
+    <!-- end of form data experience -->
+    <p></p>
+    <h1></h1>
+    <a href="https://youtube.com">YouTube</a>
+
+    <!-- EXPERIENCE CARD -->
+    <section class="experience-grid" id="experienceGrid">
+      <!-- experience card di render oleh javascript -->
+    </section>
+  </main>
+  <!-- FOOTER -->
+  <iframe src="components/footer.html" class="iframe-footer" scrolling="no"></iframe>
+  <script src="js/experience.js"></script>
+</body>
+
 </html>

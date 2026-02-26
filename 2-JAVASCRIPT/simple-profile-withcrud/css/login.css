@@ -1,0 +1,91 @@
+/* Reset default */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Background full gelap */
+body {
+    height: 100vh;
+    background-color: #0d0d0d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container luar (border besar seperti gambar) */
+.container {
+    width: 90%;
+    height: 90vh;
+    border: 2px solid #ffffff;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Box login */
+.login-box {
+    width: 350px;
+    padding: 40px;
+    border: 2px solid #ffffff;
+    border-radius: 20px;
+    background: transparent;
+}
+
+/* Judul */
+.login-box h2 {
+    color: #ffffff;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+/* Group input */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Label */
+.input-group label {
+    color: #cccccc;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Input */
+.input-group input {
+    padding: 10px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background: transparent;
+    color: #ffffff;
+    outline: none;
+    transition: 0.3s;
+}
+
+/* Efek focus */
+.input-group input:focus {
+    border-color: #3b82f6;
+}
+
+/* Tombol */
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #2b6cb0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    float: right;
+    transition: 0.3s;
+}
+
+/* Hover tombol */
+button:hover {
+    background-color: #1e4f8a;
+}
