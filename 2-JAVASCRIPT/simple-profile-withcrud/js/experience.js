@@ -39,15 +39,15 @@ function renderExperiences() {
 // pindah ke admin.js aja ya, biar lebih rapi
 
 // buat delete data berdasarkan index yang dikasih
-// kalo di admin.js juga ya, biar lebih rapi
+// di admin.js juga ya, biar lebih rapi
 
 // buat edit data berdasarkan index yang dikasih
-// kalo di admin.js juga ya, biar lebih rapi
+// di admin.js juga ya, biar lebih rapi
 
 // ini buat update data juga
-// kalo di admin.js juga ya, biar lebih rapi
+// di admin.js juga ya, biar lebih rapi
 
 // buat kosongin form setelah data ditambah atau diupdate
-// kalo di admin.js juga ya, biar lebih rapi
+// di admin.js juga ya, biar lebih rapi
 
 renderExperiences();
