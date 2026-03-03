@@ -10,10 +10,6 @@ if (localStorage.getItem("isAdminLoggedIn") !== "true") {
 // localstorage
 // kalau misal data nya ada berarti di render semua || enggak ada berarti
 // buat array baru yang kosong
-// AND OR NOT
-// AND &&
-// OR ||
-// NOT !
 let experiences = JSON.parse(localStorage.getItem("experiences")) || [];
 
 // constanta itu permanen enggak bisa diubah
@@ -43,6 +39,8 @@ if (editIndex !== null && experiences[editIndex]) {
   document.getElementById("category").value = data.category;
 }
 
+// FUNCTION SAVE DATA
+// kita ubah dengan toast
 function saveData() {
   const title = document.getElementById("title").value;
   const date = document.getElementById("date").value;
@@ -74,6 +72,13 @@ function saveData() {
   // selanjutnya disimpan di local storage,
   // biar data nya enggak hilang pas di refresh atau ditutup browsernya
   localStorage.setItem("experiences", JSON.stringify(experiences));
+
+  // kirim pesan toast ke admin.html
+  localStorage.setItem(
+    "toastMessage",
+    editIndex !== null ? "Data berhasil diubah" : "Data berhasil ditambahkan",
+  );
+
   window.location.href = "admin.html";
 }
 

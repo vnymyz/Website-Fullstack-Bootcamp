@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kontak | Profile</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <iframe
+      src="components/navbar.html"
+      class="iframe-nav"
+      scrolling="no"
+    ></iframe>
+
+    <main class="page">
+      <!-- HEADER -->
+      <section class="page-header">
+        <span class="badge">Kontak</span>
+        <h1>Hubungi <span class="highlight">Saya</span></h1>
+        <p>
+          Jika ingin berkenalan atau berdiskusi lebih lanjut, silakan kirim
+          pesan melalui form di bawah ini.
+        </p>
+      </section>
+
+      <!-- CONTACT FORM -->
+      <section class="contact-wrapper">
+        <form class="contact-modern">
+          <!-- ROW 1 -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nama Depan</label>
+              <input type="text" placeholder="Nama depan" />
+            </div>
+
+            <div class="form-group">
+              <label>Nama Belakang</label>
+              <input type="text" placeholder="Nama belakang" />
+            </div>
+          </div>
+
+          <!-- ROW 2 -->
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="email@example.com" />
+          </div>
+
+          <!-- ROW 3 -->
+          <div class="form-group">
+            <label>Jenis Pesan</label>
+            <select>
+              <option>-- Pilih --</option>
+              <option>Saran</option>
+              <option>Kritik</option>
+              <option>Pertanyaan</option>
+            </select>
+          </div>
+
+          <!-- ROW 4 -->
+          <div class="form-group">
+            <label>Pesan</label>
+            <textarea placeholder="Tulis pesan Anda..."></textarea>
+          </div>
+
+          <!-- ACTION -->
+          <button type="submit" class="btn-primary">Kirim Pesan</button>
+        </form>
+      </section>
+    </main>
+    <!-- FOOTER -->
+    <iframe
+      src="components/footer.html"
+      class="iframe-footer"
+      scrolling="no"
+    ></iframe>
+  </body>
+</html>
