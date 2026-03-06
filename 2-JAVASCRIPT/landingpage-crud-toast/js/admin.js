@@ -7,8 +7,8 @@ let experiences = JSON.parse(localStorage.getItem("experiences")) || [];
 let deleteIndex = null;
 
 // LOGIKA BUAT PAGINATION
-let currentPage = 1;
-const rowsPerPage = 3; // 🔥 bisa kamu ubah jadi 4 atau 5
+let currentPage = 1; // halaman awal atau default
+const rowsPerPage = 3; // batas data per halaman
 
 // nampilin data di tabel berdasarkan halaman yang aktif
 // menggunakan pagination
@@ -19,7 +19,7 @@ function renderTable(data = experiences) {
   tbody.innerHTML = "";
   pagination.innerHTML = "";
 
-  // hitung total halaman
+  // hitung total halaman jumlah data dibagi baris per halaman
   const totalPages = Math.ceil(data.length / rowsPerPage);
 
   // ambil data sesuai page

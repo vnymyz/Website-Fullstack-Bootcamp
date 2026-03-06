@@ -14,12 +14,7 @@
   <body>
     <div class="admin-layout">
       <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <h2>Admin</h2>
-        <a href="admin.html">Dashboard</a>
-        <a href="../index.html">Home</a>
-        <button onclick="logout()">Logout</button>
-      </aside>
+      <div id="adminSidebar"></div>
 
       <!-- CONTENT -->
       <main class="admin-content">
@@ -77,6 +72,7 @@
     <!-- toast container -->
     <div id="toastContainer"></div>
     <!-- script -->
+    <script src="/js/admin-sidebar.js"></script>
     <script src="/js/admin.js"></script>
   </body>
 </html>

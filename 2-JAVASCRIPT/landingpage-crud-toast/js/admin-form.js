@@ -22,7 +22,7 @@ const editParam = params.get("edit");
 // kalau enggak berarti parseInt buat ubah string ke number
 const editIndex = editParam !== null ? parseInt(editParam) : null;
 
-//
+// edit data berdasarkan index yang kita pilih
 if (editIndex !== null && experiences[editIndex]) {
   const data = experiences[editIndex];
 
@@ -55,6 +55,7 @@ function saveData() {
   }
 
   // if edit index semisal kalau kita mau edit
+  // semisal kita mau edit
   if (editIndex !== null) {
     experiences[editIndex] = {
       title,
