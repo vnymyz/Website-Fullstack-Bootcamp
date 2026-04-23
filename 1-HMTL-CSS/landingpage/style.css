@@ -1,0 +1,165 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* THEME COLORS */
+:root {
+  --primary: #81a6c6;
+  --secondary: #aacddc;
+  --accent: #f3e3d0;
+  --text: #333;
+}
+
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--accent);
+  color: var(--text);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background-color: var(--primary);
+}
+
+.logo {
+  color: white;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+}
+
+/* HERO */
+.hero {
+  height: 90vh;
+  background-color: var(--secondary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  margin-bottom: 30px;
+}
+
+/* BUTTON */
+.btn {
+  padding: 12px 24px;
+  background-color: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: #6b8fae;
+}
+
+/* SECTION TITLE */
+.section-title {
+  text-align: center;
+  margin: 60px 0 30px;
+}
+
+/* MENU */
+.menu-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 40px;
+}
+
+.menu-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 220px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px);
+}
+
+/* MENU IMAGE */
+.menu-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* ABOUT */
+.about {
+  padding: 40px 20px;
+}
+
+.about-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.about-text {
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* MAP */
+.map iframe {
+  width: 300px;
+  height: 250px;
+  border: 0;
+  border-radius: 10px;
+}
+
+/* FOOTER */
+.footer {
+  background-color: var(--primary);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* SOCIAL */
+.social {
+  margin-top: 10px;
+}
+
+.social a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+}
+
+.social a:hover {
+  text-decoration: underline;
+}
