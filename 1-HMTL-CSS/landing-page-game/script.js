@@ -1,4 +1,4 @@
-const slides = document.querySelectorAll(".slide");
+const slides = document.querySelectorAll(".slide"); // deklarasi variabel
 const nextBtn = document.querySelector(".next");
 const prevBtn = document.querySelector(".prev");
 
