@@ -8,9 +8,3 @@ mysqli_query($conn, $query);
 
 header("Location: dashboard.php");
 ?>
-
-<a href="delete.php?id=<?= $row['id']; ?>" 
-   onclick="return confirm('Yakin mau hapus?')"
-   class="text-red-500 ml-2">
-   Delete
-</a>

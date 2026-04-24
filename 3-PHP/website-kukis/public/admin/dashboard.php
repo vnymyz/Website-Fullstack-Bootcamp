@@ -34,6 +34,7 @@ $result = mysqli_query($conn, $query);
           <tr class="border-b">
             <th class="py-2">No</th>
             <th>Nama</th>
+            <th>Gambar</th>
             <th>Harga</th>
             <th>Aksi</th>
           </tr>
@@ -45,10 +46,15 @@ $result = mysqli_query($conn, $query);
           <tr class="border-b">
             <td class="py-2"><?= $no++; ?></td>
             <td><?= $row['name']; ?></td>
+            <td><img src="<?= $row['image']; ?>" alt="<?= $row['name']; ?>" class="w-16 h-16 object-cover"></td>
             <td>Rp <?= number_format($row['price']); ?></td>
             <td>
-              <button class="text-blue-500">Edit</button>
-              <!-- delete button -->
+              <!-- EDIT BUTTON -->
+                <a href="form.php?id=<?= $row['id']; ?>" 
+                   class="text-blue-500">
+                   Edit
+                </a>
+              <!-- DELETE BUTTON -->
                 <a href="delete.php?id=<?= $row['id']; ?>" 
                      onclick="return confirm('Yakin mau hapus?')"
                      class="text-red-500 ml-2">
