@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Menu Program</title>
+  </head>
+  <body>
+    <button onclick="startMenu()">Start Menu</button>
+
+    <script>
+      function startMenu() {
+        let isRunning = true;
+
+        while (isRunning) {
+          let choice = prompt(
+            "=== MENU ===\n" +
+              "1. Say Hello\n" +
+              "2. Show Date\n" +
+              "3. Simple Math (2 + 2)\n" +
+              "4. Exit\n\n" +
+              "Choose menu:",
+          );
+
+          switch (choice) {
+            case "1":
+              alert("Hello Student 👋");
+              break;
+
+            case "2":
+              alert("Today is: " + new Date());
+              break;
+
+            case "3":
+              alert("Result: " + (2 + 2));
+              break;
+
+            case "4":
+              alert("Exiting program...");
+              isRunning = false;
+              break;
+
+            default:
+              alert("Invalid choice!");
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

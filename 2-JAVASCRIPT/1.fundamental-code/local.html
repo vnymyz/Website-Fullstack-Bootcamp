@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Store Data</title>
+  </head>
+  <body>
+    <input type="text" id="dataInput" />
+    <button onclick="saveData()">Save</button>
+    <button onclick="loadData()">Load</button>
+
+    <div id="output"></div>
+
+    <script>
+      function saveData() {
+        const value = document.getElementById("dataInput").value;
+
+        let dataList;
+
+        try {
+          dataList = JSON.parse(localStorage.getItem("myData")) || [];
+        } catch (e) {
+          dataList = []; // fallback kalau error
+        }
+
+        dataList.push(value);
+
+        localStorage.setItem("myData", JSON.stringify(dataList));
+      }
+
+      function loadData() {
+        let dataList;
+
+        try {
+          dataList = JSON.parse(localStorage.getItem("myData")) || [];
+        } catch (e) {
+          dataList = [];
+        }
+
+        const output = document.getElementById("output");
+        output.innerHTML = "";
+
+        dataList.forEach((data) => {
+          output.innerHTML += "<p>" + data + "</p>";
+        });
+      }
+    </script>
+  </body>
+</html>

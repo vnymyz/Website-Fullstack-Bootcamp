@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Array</title>
+  </head>
+  <body>
+    <div id="list"></div>
+
+    <script>
+      // list adalah sekumpulan array atau data dalam satu variabel
+      let fruits = ["Apple", "Banana", "Mango", 100, true, null, "Hello"];
+
+      function showData() {
+        const container = document.getElementById("list");
+        container.innerHTML = "";
+
+        fruits.forEach((fruit) => {
+          container.innerHTML += "<p>" + fruit + "</p>";
+        });
+      }
+
+      showData();
+    </script>
+  </body>
+</html>

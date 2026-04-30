@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Form</title>
+  </head>
+  <body>
+    <h2 id="titleForm">Add Article</h2>
+
+    <input type="text" id="title" placeholder="Title" /><br /><br />
+    <textarea id="content" placeholder="Content"></textarea><br /><br />
+    <input type="file" id="imageFile" /><br /><br />
+
+    <input
+      type="text"
+      id="imageUrl"
+      placeholder="Or paste image URL"
+    /><br /><br />
+
+    <button onclick="save()">Save</button>
+
+    <div id="toastContainer"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
