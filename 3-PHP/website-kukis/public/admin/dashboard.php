@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user'])) {
+  header("Location: ../login.php");
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +18,7 @@
 <body>
 
 <?php 
-include '../../config/database.php';
+require_once '../../config/database.php';
 
 // ambil data
 $query = "SELECT * FROM product ORDER BY id DESC";

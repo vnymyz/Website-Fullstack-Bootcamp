@@ -11,11 +11,12 @@
 
 <?php include '../components/navbar.php'; ?>
 
-<?php include '../config/database.php'; ?>
+<?php require_once '../config/database.php'; ?>
 
 <?php
 $query = "SELECT * FROM product ORDER BY id DESC";
 $result = mysqli_query($conn, $query);
+/** @var mysqli $conn */
 ?>
 
 <section class="px-10 py-16">
