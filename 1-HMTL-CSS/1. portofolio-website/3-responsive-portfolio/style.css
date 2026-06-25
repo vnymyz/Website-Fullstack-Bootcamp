@@ -1,0 +1,206 @@
+/* ===========================================================
+   LEVEL 3 — new concepts on top of folder 2:
+   CSS variables, position:sticky, pseudo-elements,
+   forms, images, media queries (responsive design)
+   =========================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS VARIABLES — define once, reuse everywhere with var(--name).
+   Change a value here, it updates everywhere it's used. */
+:root {
+  --color-primary: #3498db;
+  --color-dark: #2c3e50;
+  --color-bg: #f4f4f4;
+  --spacing: 20px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background-color: var(--color-bg);
+}
+
+/* POSITION: STICKY — header stays at top of viewport while scrolling,
+   instead of scrolling away with the page content. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10; /* keeps header above other content when overlapping */
+  background-color: var(--color-dark);
+  color: white;
+  padding: var(--spacing);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center; /* vertically centers avatar + text */
+  gap: var(--spacing);
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* turns a square image into a circle */
+  object-fit: cover;   /* crops image to fill the box without distortion */
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: var(--spacing);
+  margin-top: 15px;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  position: relative; /* needed so the ::after underline can be positioned */
+}
+
+/* PSEUDO-ELEMENT — ::after generates a fake element after the content,
+   used here to draw an animated underline without extra HTML. */
+.navbar a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width 0.2s;
+}
+
+.navbar a:hover::after {
+  width: 100%;
+}
+
+.section {
+  max-width: 800px;
+  margin: 0 auto;
+  /* calc() lets you do math with variables/units, e.g. double the spacing */
+  padding: calc(var(--spacing) * 2) 20px;
+}
+
+.section h2 {
+  margin-bottom: 15px;
+  border-bottom: 3px solid var(--color-primary);
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* SKILL TAGS — flexbox with wrap so tags flow onto multiple lines
+   on small screens instead of overflowing. */
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin-top: 15px;
+}
+
+.skill-list li {
+  background: var(--color-primary);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 999px; /* large radius = pill shape */
+  font-size: 0.9rem;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing);
+  margin-top: var(--spacing);
+}
+
+.card {
+  background: white;
+  padding: var(--spacing);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* FORM STYLING — inputs/textarea/button need explicit width and
+   display:block (or flex) because their default display is inline. */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  margin-top: var(--spacing);
+}
+
+.contact-form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit; /* inputs don't inherit font by default in some browsers */
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary); /* visual feedback when focused */
+}
+
+.contact-form button {
+  margin-top: 15px;
+  padding: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.contact-form button:hover {
+  background: var(--color-dark);
+}
+
+.site-footer {
+  text-align: center;
+  padding: var(--spacing);
+  background-color: var(--color-dark);
+  color: white;
+  margin-top: var(--spacing);
+}
+
+/* ===========================================================
+   MEDIA QUERY — responsive design.
+   Below 600px width (phones), stack the header content
+   and nav items vertically instead of in a row.
+   =========================================================== */
+@media (max-width: 600px) {
+  .header-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr; /* single column on small screens */
+  }
+}

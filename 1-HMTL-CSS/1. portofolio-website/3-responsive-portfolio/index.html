@@ -1,0 +1,100 @@
+<!doctype html>
+<!--
+  Level 3: builds on 2-html-css.
+  New things here: <img>, a real <form>, CSS variables,
+  media queries (responsive), position: sticky, pseudo-elements.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vanya - Responsive Portfolio</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- position: sticky in CSS keeps this visible while scrolling -->
+    <header class="site-header">
+      <div class="header-inner">
+        <!-- ALT TEXT: describes the image for screen readers / if image fails to load -->
+        <img
+          class="avatar"
+          src="https://placehold.co/100x100"
+          alt="Vanya's profile photo"
+        />
+        <div>
+          <h1>Vanya</h1>
+          <p>Web Developer</p>
+        </div>
+      </div>
+
+      <nav class="navbar">
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="about" class="section">
+      <h2>About Me</h2>
+      <p>
+        I'm Vanya, learning HTML and CSS step by step. This page adds
+        images, a contact form, and responsive layout on top of what
+        I learned in folder 2.
+      </p>
+    </section>
+
+    <!-- SKILLS: flexbox with wrap, styled as "tags/pills" -->
+    <section id="skills" class="section">
+      <h2>Skills</h2>
+      <ul class="skill-list">
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>Flexbox</li>
+        <li>Grid</li>
+        <li>Responsive Design</li>
+      </ul>
+    </section>
+
+    <section id="projects" class="section">
+      <h2>Projects</h2>
+      <div class="project-grid">
+        <article class="card">
+          <h3>Project One</h3>
+          <p>A simple calculator app built with JavaScript.</p>
+        </article>
+        <article class="card">
+          <h3>Project Two</h3>
+          <p>A to-do list app to practice DOM manipulation.</p>
+        </article>
+        <article class="card">
+          <h3>Project Three</h3>
+          <p>This very portfolio website you are looking at.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM: real form elements, not just a mailto link -->
+    <section id="contact" class="section">
+      <h2>Contact</h2>
+      <form class="contact-form">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="4" placeholder="Say hello..."></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Vanya. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
