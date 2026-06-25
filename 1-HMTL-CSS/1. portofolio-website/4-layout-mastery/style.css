@@ -1,0 +1,316 @@
+/* ===========================================================
+   LEVEL 4 — Layout Mastery
+   New concepts on top of folder 3:
+   - Flexbox deep dive (align-items vs justify-content, flex-grow/shrink/basis)
+   - Grid deep dive (grid-template-areas, explicit vs implicit grid)
+   - position: relative / absolute / fixed + z-index stacking
+   - MOBILE-FIRST media queries (base = mobile, queries ADD for bigger screens)
+   =========================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-primary: #3498db;
+  --color-dark: #2c3e50;
+  --color-bg: #f4f4f4;
+  --spacing: 20px;
+  /* room reserved for the sticky header so an anchor jump doesn't bury
+     the section heading underneath it. Mobile nav stacks into 4 lines,
+     so it needs more room than the tablet/desktop single-row nav. */
+  --header-offset: 260px;
+}
+
+html {
+  scroll-behavior: smooth; /* animates the jump instead of snapping instantly */
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background-color: var(--color-bg);
+}
+
+/* ---------- HEADER ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-dark);
+  color: white;
+  padding: var(--spacing);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center; /* CROSS axis (vertical, since row direction): centers avatar + text */
+  gap: var(--spacing);
+}
+
+/* POSITION: RELATIVE — this box doesn't move, but it becomes the
+   "anchor" that any position:absolute child inside it measures from. */
+.avatar-wrap {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* POSITION: ABSOLUTE — positioned relative to .avatar-wrap (the nearest
+   ancestor with position:relative), NOT relative to the page.
+   z-index makes sure it draws ON TOP of the avatar (stacking context). */
+.status-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #2ecc71;
+  border: 2px solid var(--color-dark);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* ---------- NAV: flexbox deep dive ---------- */
+.navbar ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column; /* mobile-first: stacked vertically by default */
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.navbar li {
+  /* flex-grow: 0, flex-shrink: 1, flex-basis: auto (shorthand: flex: 0 1 auto)
+     — on mobile each item just takes its natural size, no stretching */
+  flex: 0 1 auto;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navbar a:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- PAGE LAYOUT: Grid with named areas ---------- */
+/* MOBILE FIRST: one column, each section gets its own row in source order. */
+.layout {
+  display: grid;
+  gap: var(--spacing);
+  padding: var(--spacing);
+  max-width: 1100px;
+  margin: 0 auto;
+  grid-template-areas:
+    "about"
+    "skills"
+    "projects"
+    "contact";
+}
+
+/* Every section is a DIRECT grid item with its own named area —
+   this is what keeps each #anchor at a distinct, predictable
+   scroll position regardless of screen size. */
+.section-about {
+  grid-area: about;
+}
+.section-skills {
+  grid-area: skills;
+}
+.section-projects {
+  grid-area: projects;
+}
+.section-contact {
+  grid-area: contact;
+}
+
+.section {
+  margin-bottom: var(--spacing);
+  /* SCROLL-MARGIN-TOP — leaves space above the section when an anchor
+     link scrolls it into view, so it doesn't land hidden under the
+     sticky header. */
+  /* extra var(--spacing) buffer so the heading isn't flush against
+     the header edge, gives it breathing room */
+  scroll-margin-top: calc(var(--header-offset) + var(--spacing));
+}
+
+.section h2 {
+  margin-bottom: 15px;
+  border-bottom: 3px solid var(--color-primary);
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin-top: 15px;
+}
+
+.skill-list li {
+  background: var(--color-primary);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+/* EXPLICIT GRID — we explicitly define how many/which columns exist. */
+.project-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile-first: 1 explicit column */
+  /* IMPLICIT GRID — we never said how many ROWS exist. Grid creates new
+     rows automatically as items overflow the defined column(s). That's
+     the "implicit" part — auto-generated tracks, not explicitly written. */
+  grid-auto-rows: auto;
+  gap: var(--spacing);
+  margin-top: var(--spacing);
+}
+
+.card {
+  background: white;
+  padding: var(--spacing);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  margin-top: var(--spacing);
+}
+
+.contact-form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.contact-form button {
+  margin-top: 15px;
+  padding: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.contact-form button:hover {
+  background: var(--color-dark);
+}
+
+.site-footer {
+  text-align: center;
+  padding: var(--spacing);
+  background-color: var(--color-dark);
+  color: white;
+  margin-top: var(--spacing);
+}
+
+/* POSITION: FIXED — glued to the viewport (the browser window),
+   stays in place even while the page scrolls. Unlike sticky, it
+   never moves with the content at all. */
+.back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 20; /* above sticky header (10) so it's never hidden */
+  background: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.back-to-top:hover {
+  background: var(--color-dark);
+}
+
+/* ===========================================================
+   MOBILE-FIRST MEDIA QUERIES
+   Base CSS above = phone layout. Each query below uses
+   min-width to ADD/upgrade layout as screen gets bigger.
+   Order matters: tablet first, then desktop (larger overrides).
+   =========================================================== */
+
+/* TABLET — nav becomes a horizontal row, items share space evenly */
+@media (min-width: 600px) {
+  /* header is much shorter now that nav is one row instead of 4 stacked lines */
+  :root {
+    --header-offset: 120px;
+  }
+
+  .navbar ul {
+    flex-direction: row;
+    justify-content: center; /* MAIN axis (row direction): spaces items horizontally */
+  }
+
+  .navbar li {
+    flex: 1 1 auto; /* now allowed to grow, sharing available width equally */
+    text-align: center;
+  }
+
+  /* still 1 explicit column for projects at tablet, but cards get
+     room to breathe via the .layout max-width */
+}
+
+/* DESKTOP — About and Contact stay full-width (their own unique row),
+   Skills pairs up beside Projects like a sidebar. Each named area still
+   has ONE clear owner, so every #anchor keeps a distinct scroll position —
+   no two nav links land on the same row start. */
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 280px 1fr;
+    grid-template-areas:
+      "about about"
+      "skills projects"
+      "contact contact";
+    align-items: start; /* prevents skills from stretching to projects's height */
+  }
+
+  /* explicit grid grows to 2 columns; extra cards still wrap into
+     implicit rows automatically */
+  .project-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

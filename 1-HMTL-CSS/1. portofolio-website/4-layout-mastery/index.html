@@ -1,0 +1,122 @@
+<!doctype html>
+<!--
+  Level 4: builds on 3-responsive-portfolio.
+  Same content, but the whole PAGE is now laid out with CSS Grid
+  named areas, and we add position:relative/absolute/fixed +
+  deeper flexbox control. Mobile-first: base CSS = mobile,
+  media queries ADD layout for bigger screens.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vanya - Layout Mastery</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <!-- avatar-wrap is position:relative so the badge below
+             can be position:absolute INSIDE it -->
+        <div class="avatar-wrap">
+          <img
+            class="avatar"
+            src="https://placehold.co/100x100"
+            alt="Vanya's profile photo"
+          />
+          <span class="status-badge" title="Available for work"></span>
+        </div>
+        <div>
+          <h1>Vanya</h1>
+          <p>Web Developer</p>
+        </div>
+      </div>
+
+      <nav class="navbar">
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!--
+      LAYOUT WRAPPER: CSS Grid with named areas.
+      Each section below is a DIRECT grid item with its own grid-area —
+      that's what gives every nav anchor (#about, #skills, #projects,
+      #contact) its own distinct vertical position. Nesting About+Skills
+      inside one <aside> and Projects+Contact inside one <main> would
+      put both columns in the SAME grid row (same starting Y), which is
+      why About used to jump to the same scroll spot as Projects.
+    -->
+    <main class="layout">
+      <section id="about" class="section section-about">
+        <h2>About Me</h2>
+        <p>
+          I'm Vanya, learning HTML and CSS step by step. This page adds
+          page-level grid layout, deeper flexbox, and positioning on top
+          of folder 3.
+        </p>
+      </section>
+
+      <section id="skills" class="section section-skills">
+        <h2>Skills</h2>
+        <ul class="skill-list">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>Flexbox</li>
+          <li>Grid</li>
+          <li>Responsive Design</li>
+        </ul>
+      </section>
+
+      <section id="projects" class="section section-projects">
+        <h2>Projects</h2>
+        <!-- explicit grid: we DEFINE the columns ourselves below -->
+        <div class="project-grid">
+          <article class="card">
+            <h3>Project One</h3>
+            <p>A simple calculator app built with JavaScript.</p>
+          </article>
+          <article class="card">
+            <h3>Project Two</h3>
+            <p>A to-do list app to practice DOM manipulation.</p>
+          </article>
+          <article class="card">
+            <h3>Project Three</h3>
+            <p>This very portfolio website you are looking at.</p>
+          </article>
+          <article class="card">
+            <h3>Project Four</h3>
+            <p>A weather app fetching data from a public API.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="section section-contact">
+        <h2>Contact</h2>
+        <form class="contact-form">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required />
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="4" placeholder="Say hello..."></textarea>
+
+          <button type="submit">Send Message</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Vanya. All rights reserved.</p>
+    </footer>
+
+    <!-- position:fixed — stays glued to viewport corner regardless of scroll -->
+    <a href="#about" class="back-to-top">↑ Top</a>
+  </body>
+</html>

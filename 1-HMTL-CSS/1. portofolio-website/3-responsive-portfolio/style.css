@@ -17,6 +17,13 @@
   --color-dark: #2c3e50;
   --color-bg: #f4f4f4;
   --spacing: 20px;
+  /* room reserved for the sticky header so jumping to a section
+     doesn't bury its heading underneath it */
+  --header-offset: 130px;
+}
+
+html {
+  scroll-behavior: smooth; /* animates the jump instead of snapping instantly */
 }
 
 body {
@@ -47,7 +54,7 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 50%; /* turns a square image into a circle */
-  object-fit: cover;   /* crops image to fill the box without distortion */
+  object-fit: cover; /* crops image to fill the box without distortion */
 }
 
 .navbar ul {
@@ -86,6 +93,12 @@ body {
   margin: 0 auto;
   /* calc() lets you do math with variables/units, e.g. double the spacing */
   padding: calc(var(--spacing) * 2) 20px;
+  /* SCROLL-MARGIN-TOP — when this element is scrolled into view via an
+     anchor link, the browser leaves this much space above it instead of
+     jamming it right under the sticky header. */
+  /* extra var(--spacing) buffer so the heading isn't flush against
+     the header edge, gives it breathing room */
+  scroll-margin-top: calc(var(--header-offset) + var(--spacing));
 }
 
 .section h2 {
@@ -190,6 +203,12 @@ body {
    and nav items vertically instead of in a row.
    =========================================================== */
 @media (max-width: 600px) {
+  /* header stacks taller on phones (avatar above text), so it needs
+     more reserved scroll space than the desktop value above */
+  :root {
+    --header-offset: 200px;
+  }
+
   .header-inner {
     flex-direction: column;
     text-align: center;

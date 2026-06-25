@@ -18,6 +18,7 @@ Builds on `../2-html-css`. Same portfolio idea, new HTML elements and CSS techni
 - **Flexbox `flex-wrap: wrap`**: lets items (skill tags) flow onto multiple lines instead of overflowing or shrinking.
 - **Media queries** (`@media (max-width: 600px) { ... }`): apply different CSS rules depending on screen width — this is what makes a page "responsive." Below 600px, the header stacks vertically and the grid becomes one column.
 - **`:focus`** pseudo-class: visual feedback when a form field is actively selected, important for usability and accessibility.
+- **`scroll-margin-top`** (gotcha fix): since the header is `sticky`, clicking a nav link used to scroll the section heading right underneath it (hidden). `scroll-margin-top: var(--header-offset)` on `.section` reserves space above the section so the heading lands fully visible. `--header-offset` is bigger on mobile (header stacks taller) and smaller on desktop, switched via the media query. Added `scroll-behavior: smooth` too, so the jump animates.
 
 ## Try this
 
