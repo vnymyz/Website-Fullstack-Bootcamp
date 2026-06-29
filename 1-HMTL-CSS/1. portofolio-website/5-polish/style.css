@@ -52,20 +52,28 @@ body {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0px); /* ends at original position */
   }
 }
 
 /* Pulsing glow for the status badge */
 @keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.6); }
-  70%  { box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(46, 204, 113, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+  }
 }
 
 /* Spinning loader — used on button :active state */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Class that triggers the fade-in animation */
@@ -153,10 +161,18 @@ body {
     "contact";
 }
 
-.section-about   { grid-area: about; }
-.section-skills  { grid-area: skills; }
-.section-projects{ grid-area: projects; }
-.section-contact { grid-area: contact; }
+.section-about {
+  grid-area: about;
+}
+.section-skills {
+  grid-area: skills;
+}
+.section-projects {
+  grid-area: projects;
+}
+.section-contact {
+  grid-area: contact;
+}
 
 .section {
   margin-bottom: var(--spacing);
@@ -222,7 +238,9 @@ body {
   border-radius: 10px;
   border: 2px solid transparent;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   position: relative; /* for the .badge inside */
 }
 
@@ -288,10 +306,28 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
+  /* needed so the ::after spinner can be positioned inside */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-submit:hover {
   background: var(--color-dark);
+}
+
+/* SPINNER via ::after pseudo-element — no extra HTML needed.
+   Shows only while button is actively being clicked (:active). */
+.btn-submit:active::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white; /* only top side is opaque = spinner arc */
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
 }
 
 /* ---------- FOOTER ---------- */
@@ -355,7 +391,13 @@ body {
   }
 
   /* stagger the fade-in delay for sidebar vs main content */
-  .section-skills  { animation-delay: 0.1s; }
-  .section-projects{ animation-delay: 0.2s; }
-  .section-contact { animation-delay: 0.3s; }
+  .section-skills {
+    animation-delay: 0.1s;
+  }
+  .section-projects {
+    animation-delay: 0.2s;
+  }
+  .section-contact {
+    animation-delay: 0.3s;
+  }
 }

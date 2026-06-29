@@ -133,8 +133,10 @@
             placeholder="Say hello..."
           ></textarea>
 
-          <!-- LOADING SPINNER: button shows spinner animation on :active state -->
-          <button type="submit" class="btn-submit">Send Message</button>
+          <!-- type="button" prevents form from redirecting to page top.
+               A real submit needs JavaScript — that's a later stage.
+               :active spinner is pure CSS using ::after pseudo-element. -->
+          <button type="button" class="btn-submit">Send Message</button>
         </form>
       </section>
     </main>
