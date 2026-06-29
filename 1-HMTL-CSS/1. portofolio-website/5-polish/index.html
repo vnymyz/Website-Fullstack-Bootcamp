@@ -1,0 +1,148 @@
+<!doctype html>
+<!--
+  Level 5: builds on 4-layout-mastery.
+  New things: @keyframes animations, clamp() fluid sizing,
+  CSS specificity, custom Google Font, favicon, Open Graph meta tags.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- FAVICON — the small icon shown in browser tab -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+    <!-- OPEN GRAPH META TAGS — controls how the page looks when
+         shared as a link on WhatsApp, Twitter, Discord, etc. -->
+    <meta property="og:title" content="Vanya - Web Developer Portfolio" />
+    <meta
+      property="og:description"
+      content="Learning HTML and CSS step by step."
+    />
+    <meta property="og:type" content="website" />
+
+    <!-- GOOGLE FONT — one <link> loads the font from Google's servers.
+         font-display:swap in CSS prevents invisible text while loading. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Vanya - Polish</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="avatar-wrap">
+          <img class="avatar" src="komeng.jpg" alt="Vanya's profile photo" />
+          <span class="status-badge" title="Available for work"></span>
+        </div>
+        <div>
+          <h1>Vanya</h1>
+          <p>Web Developer</p>
+        </div>
+      </div>
+
+      <nav class="navbar">
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <!-- FADE-IN ANIMATION: class "animate-fade-in" triggers @keyframes -->
+      <section id="about" class="section section-about animate-fade-in">
+        <h2>About Me</h2>
+        <p>
+          I'm Vanya, learning HTML and CSS step by step. This page adds
+          animations, fluid typography, custom fonts, and meta tags on top of
+          folder 4.
+        </p>
+      </section>
+
+      <section id="skills" class="section section-skills animate-fade-in">
+        <h2>Skills</h2>
+        <ul class="skill-list">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>Flexbox</li>
+          <li>Grid</li>
+          <li>Responsive Design</li>
+          <li>Animations</li>
+        </ul>
+      </section>
+
+      <section id="projects" class="section section-projects">
+        <h2>Projects</h2>
+        <div class="project-grid">
+          <!-- SPECIFICITY DEMO: .card.featured overrides .card because
+               two classes beat one class in specificity score -->
+          <article class="card featured">
+            <span class="badge">Featured</span>
+            <h3>Project One</h3>
+            <p>A simple calculator app built with JavaScript.</p>
+          </article>
+          <article class="card">
+            <h3>Project Two</h3>
+            <p>A to-do list app to practice DOM manipulation.</p>
+          </article>
+          <article class="card">
+            <h3>Project Three</h3>
+            <p>This very portfolio website you are looking at.</p>
+          </article>
+          <article class="card">
+            <h3>Project Four</h3>
+            <p>A weather app fetching data from a public API.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="section section-contact">
+        <h2>Contact</h2>
+        <form class="contact-form">
+          <label for="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Your name"
+            required
+          />
+
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+          />
+
+          <label for="message">Message</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="4"
+            placeholder="Say hello..."
+          ></textarea>
+
+          <!-- LOADING SPINNER: button shows spinner animation on :active state -->
+          <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Vanya. All rights reserved.</p>
+    </footer>
+
+    <a href="#about" class="back-to-top">↑ Top</a>
+  </body>
+</html>

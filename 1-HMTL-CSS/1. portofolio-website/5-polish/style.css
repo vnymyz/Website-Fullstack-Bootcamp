@@ -1,0 +1,361 @@
+/* ===========================================================
+   LEVEL 5 — Polish
+   New concepts on top of folder 4:
+   - @keyframes animations (fade-in, pulse, spin)
+   - clamp() / min() / max() for fluid sizing
+   - CSS specificity (why one rule beats another)
+   - Custom font via Google Fonts
+   - favicon + Open Graph (in HTML head)
+   =========================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-primary: #3498db;
+  --color-dark: #2c3e50;
+  --color-bg: #f4f4f4;
+  --color-accent: #e74c3c;
+  --spacing: 20px;
+  --header-offset: 260px; /* mobile: nav stacks vertically */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* CUSTOM FONT — "Inter" loaded from Google Fonts in <head>.
+   font-display: swap is handled by Google's URL (?display=swap param),
+   which means browser shows fallback font first, swaps when Inter loads
+   instead of showing blank/invisible text. */
+body {
+  font-family: "Inter", Arial, sans-serif; /* Inter first, Arial fallback */
+  line-height: 1.6;
+  color: #222;
+  background-color: var(--color-bg);
+}
+
+/* ===========================================================
+   @KEYFRAMES — define a named multi-step animation.
+   "from" = start state, "to" = end state (can also use 0%/50%/100%).
+   Apply with: animation: name duration timing-function;
+   =========================================================== */
+
+/* Fade + slide up on page load */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px); /* starts 30px below */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulsing glow for the status badge */
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+/* Spinning loader — used on button :active state */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Class that triggers the fade-in animation */
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease both;
+}
+
+/* ---------- HEADER ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-dark);
+  color: white;
+  padding: var(--spacing);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing);
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.status-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #2ecc71;
+  border: 2px solid var(--color-dark);
+  border-radius: 50%;
+  z-index: 1;
+  /* apply the pulse animation — infinite = loops forever */
+  animation: pulse 2s infinite;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.navbar li {
+  flex: 0 1 auto;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.navbar a:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- PAGE LAYOUT ---------- */
+.layout {
+  display: grid;
+  gap: var(--spacing);
+  padding: var(--spacing);
+  max-width: 1100px;
+  margin: 0 auto;
+  grid-template-areas:
+    "about"
+    "skills"
+    "projects"
+    "contact";
+}
+
+.section-about   { grid-area: about; }
+.section-skills  { grid-area: skills; }
+.section-projects{ grid-area: projects; }
+.section-contact { grid-area: contact; }
+
+.section {
+  margin-bottom: var(--spacing);
+  scroll-margin-top: calc(var(--header-offset) + var(--spacing));
+}
+
+.section h2 {
+  /* CLAMP(min, preferred, max) — font scales with viewport width
+     but never smaller than 1.2rem and never larger than 2rem.
+     No media query needed just for font size. */
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  margin-bottom: 15px;
+  border-bottom: 3px solid var(--color-primary);
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* ---------- SPECIFICITY EXPLAINED ----------
+   Every CSS selector has a score: id > class > element
+
+   Score breakdown (id, class, element):
+     p           → (0, 0, 1)
+     .card       → (0, 1, 0)
+     .card.featured → (0, 2, 0)  ← TWO classes = higher score = wins
+     #about      → (1, 0, 0)  ← id always beats class
+
+   So .card.featured { } OVERRIDES .card { } for any element
+   that has BOTH classes. That's how the featured card gets
+   a different border/background without needing !important.
+*/
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin-top: 15px;
+}
+
+.skill-list li {
+  background: var(--color-primary);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 999px;
+  /* clamp() on font-size too: min 0.8rem, scales, max 1rem */
+  font-size: clamp(0.8rem, 2vw, 1rem);
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: var(--spacing);
+  margin-top: var(--spacing);
+}
+
+/* SPECIFICITY DEMO:
+   .card has score (0,1,0).
+   .card.featured has score (0,2,0) — beats .card for same property. */
+.card {
+  background: white;
+  padding: var(--spacing);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* for the .badge inside */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* (0,2,0) — overrides .card's transparent border */
+.card.featured {
+  border-color: var(--color-primary);
+  background: #eaf4fd;
+}
+
+/* Badge pinned top-right of the featured card */
+.badge {
+  position: absolute;
+  top: -12px;
+  right: 16px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+/* ---------- CONTACT FORM ---------- */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  margin-top: var(--spacing);
+}
+
+.contact-form label {
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.btn-submit {
+  margin-top: 15px;
+  padding: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-submit:hover {
+  background: var(--color-dark);
+}
+
+/* ---------- FOOTER ---------- */
+.site-footer {
+  text-align: center;
+  padding: var(--spacing);
+  background-color: var(--color-dark);
+  color: white;
+  margin-top: var(--spacing);
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 20;
+  background: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.back-to-top:hover {
+  background: var(--color-dark);
+}
+
+/* ===========================================================
+   MEDIA QUERIES — mobile-first
+   =========================================================== */
+@media (min-width: 600px) {
+  :root {
+    --header-offset: 120px;
+  }
+
+  .navbar ul {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .navbar li {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 280px 1fr;
+    grid-template-areas:
+      "about about"
+      "skills projects"
+      "contact contact";
+    align-items: start;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* stagger the fade-in delay for sidebar vs main content */
+  .section-skills  { animation-delay: 0.1s; }
+  .section-projects{ animation-delay: 0.2s; }
+  .section-contact { animation-delay: 0.3s; }
+}
