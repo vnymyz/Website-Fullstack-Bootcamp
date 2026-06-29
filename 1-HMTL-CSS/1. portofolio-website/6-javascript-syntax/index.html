@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript Basics</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>JavaScript Syntax Basics</h1>
+      <p>Click each "Run" button to see the result. Open DevTools (F12) to also see console.log output.</p>
+    </header>
+
+    <main>
+
+      <!-- 1. VARIABLES -->
+      <section class="lesson">
+        <h2>1. Variables</h2>
+        <p>Variables are boxes that store information. Use <code>let</code> for values that can change, <code>const</code> for values that never change.</p>
+        <pre><code>let name = "Vanya";
+const age = 20;
+let isStudent = true;</code></pre>
+        <button onclick="runVariables()">Run</button>
+        <div class="output" id="output-variables"></div>
+      </section>
+
+      <!-- 2. DATA TYPES -->
+      <section class="lesson">
+        <h2>2. Data Types</h2>
+        <p>JavaScript has different types of data: text (string), number, and true/false (boolean).</p>
+        <pre><code>let text    = "Hello";       // string — always in quotes
+let number  = 42;            // number — no quotes
+let isTrue  = true;          // boolean — true or false
+let nothing = null;          // null — empty on purpose</code></pre>
+        <button onclick="runDataTypes()">Run</button>
+        <div class="output" id="output-datatypes"></div>
+      </section>
+
+      <!-- 3. INPUT & OUTPUT -->
+      <section class="lesson">
+        <h2>3. Input &amp; Output</h2>
+        <p><code>console.log()</code> prints to DevTools. <code>alert()</code> shows a popup. <code>prompt()</code> asks the user to type something.</p>
+        <pre><code>let answer = prompt("What is your name?");
+alert("Hello, " + answer + "!");</code></pre>
+        <button onclick="runInputOutput()">Run</button>
+        <div class="output" id="output-io"></div>
+      </section>
+
+      <!-- 4. IF / ELSE -->
+      <section class="lesson">
+        <h2>4. If / Else</h2>
+        <p>Make decisions in code. "If this is true, do this. Otherwise, do that."</p>
+        <pre><code>let score = 75;
+
+if (score >= 90) {
+  console.log("Grade: A");
+} else if (score >= 70) {
+  console.log("Grade: B");
+} else {
+  console.log("Grade: C");
+}</code></pre>
+        <button onclick="runIfElse()">Run</button>
+        <div class="output" id="output-ifelse"></div>
+      </section>
+
+      <!-- 5. FOR LOOP -->
+      <section class="lesson">
+        <h2>5. For Loop</h2>
+        <p>Repeat something a set number of times. "Start at 1, keep going while less than or equal to 5, add 1 each time."</p>
+        <pre><code>for (let i = 1; i &lt;= 5; i++) {
+  console.log("Number: " + i);
+}</code></pre>
+        <button onclick="runForLoop()">Run</button>
+        <div class="output" id="output-for"></div>
+      </section>
+
+      <!-- 6. WHILE LOOP -->
+      <section class="lesson">
+        <h2>6. While Loop</h2>
+        <p>Keep repeating as long as something is true. Useful when you don't know how many times upfront.</p>
+        <pre><code>let count = 1;
+
+while (count &lt;= 3) {
+  console.log("Count is: " + count);
+  count++;   // count++ means count = count + 1
+}</code></pre>
+        <button onclick="runWhileLoop()">Run</button>
+        <div class="output" id="output-while"></div>
+      </section>
+
+      <!-- 7. FUNCTIONS -->
+      <section class="lesson">
+        <h2>7. Functions</h2>
+        <p>A function is a reusable block of code. Give it a name, call it whenever you need it. Can accept input (parameters) and give back a result (return).</p>
+        <pre><code>function greet(name) {
+  return "Hello, " + name + "!";
+}
+
+let message = greet("Vanya");
+console.log(message);</code></pre>
+        <button onclick="runFunctions()">Run</button>
+        <div class="output" id="output-functions"></div>
+      </section>
+
+      <!-- 8. ARRAYS -->
+      <section class="lesson">
+        <h2>8. Arrays</h2>
+        <p>An array is a list of items inside square brackets <code>[]</code>. Each item has a position number starting from 0 (not 1).</p>
+        <pre><code>let fruits = ["apple", "banana", "mango"];
+
+console.log(fruits[0]);        // "apple" (position 0)
+console.log(fruits.length);    // 3 (total items)
+
+fruits.push("grape");          // add item to end
+console.log(fruits);</code></pre>
+        <button onclick="runArrays()">Run</button>
+        <div class="output" id="output-arrays"></div>
+      </section>
+
+      <!-- 9. OBJECTS -->
+      <section class="lesson">
+        <h2>9. Objects</h2>
+        <p>An object stores related information together using <code>key: value</code> pairs — like a contact card.</p>
+        <pre><code>let person = {
+  name: "Vanya",
+  age: 20,
+  isStudent: true
+};
+
+console.log(person.name);   // "Vanya"
+console.log(person.age);    // 20</code></pre>
+        <button onclick="runObjects()">Run</button>
+        <div class="output" id="output-objects"></div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Open DevTools (F12 → Console) to see all console.log output too.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
