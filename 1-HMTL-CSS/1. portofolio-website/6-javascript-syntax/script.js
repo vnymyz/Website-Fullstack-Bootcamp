@@ -1,3 +1,38 @@
+// ─────────────────────────────────────────
+// PLAYGROUND — runs whatever code the student types
+// ─────────────────────────────────────────
+function runPlayground() {
+  const code = document.getElementById("playground-input").value;
+  const outputEl = document.getElementById("playground-output");
+  const errorEl = document.getElementById("playground-error");
+
+  outputEl.innerText = "";
+  errorEl.innerText = "";
+
+  // capture console.log calls so output appears on the page
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function (...args) {
+    logs.push(args.map(a => (typeof a === "object" ? JSON.stringify(a, null, 2) : String(a))).join(" "));
+    originalLog.apply(console, args); // still shows in DevTools too
+  };
+
+  try {
+    // eval() runs a string as JS code — safe here since student runs their own code
+    eval(code);
+    outputEl.innerText = logs.length > 0 ? logs.join("\n") : "(no console.log output)";
+  } catch (err) {
+    errorEl.innerText = err.message;
+  } finally {
+    console.log = originalLog; // restore original console.log
+  }
+}
+
+function clearPlayground() {
+  document.getElementById("playground-output").innerText = "";
+  document.getElementById("playground-error").innerText = "";
+}
+
 // HOW TO USE THIS FILE:
 // Each function below runs when you click a button on the page.
 // Results appear in the box below each button.

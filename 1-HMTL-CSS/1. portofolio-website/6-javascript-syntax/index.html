@@ -134,6 +134,63 @@ console.log(person.age);    // 20</code></pre>
         <div class="output" id="output-objects"></div>
       </section>
 
+      <!-- DEVTOOLS GUIDE -->
+      <section class="lesson">
+        <h2>💡 How to Use DevTools Console</h2>
+        <p>Press <strong>F12</strong> → click the <strong>Console</strong> tab. Type any JavaScript and press <strong>Enter</strong> to run it instantly. Try these one by one:</p>
+        <pre><code>// Type these in the Console tab and press Enter after each one
+
+console.log("Hello from console!")
+
+let x = 10
+let y = 20
+console.log(x + y)
+
+"hello".toUpperCase()
+
+typeof "Vanya"
+
+[1, 2, 3].length</code></pre>
+        <p class="tip">Tip: the console remembers variables you type. Type <code>let name = "Vanya"</code> → press Enter → then type <code>name</code> → press Enter again to see the value.</p>
+      </section>
+
+      <!-- PLAYGROUND -->
+      <section class="lesson playground">
+        <h2>✏️ Try It Yourself — Code Playground</h2>
+        <p>Write any JavaScript in the box below and click <strong>Run Code</strong>. Edit the example or delete it and write something new. Mistakes are okay — that's how you learn.</p>
+
+        <textarea id="playground-input" spellcheck="false">// Write your code here and click Run Code!
+// You can change anything below and try again.
+
+let myName = "Vanya";
+let myAge = 20;
+
+console.log("My name is " + myName);
+console.log("I am " + myAge + " years old");
+
+if (myAge >= 18) {
+  console.log("I am an adult.");
+} else {
+  console.log("I am still young.");
+}
+
+// Try: change myName to your own name
+// Try: change myAge to a different number
+// Try: add a new console.log("...")
+</textarea>
+
+        <div class="playground-buttons">
+          <button onclick="runPlayground()">▶ Run Code</button>
+          <button class="btn-clear" onclick="clearPlayground()">Clear Output</button>
+        </div>
+
+        <div class="output-label">Output:</div>
+        <div class="output playground-output" id="playground-output"></div>
+
+        <div class="output-label error-label">Error (if any):</div>
+        <div class="output error-output" id="playground-error"></div>
+      </section>
+
     </main>
 
     <footer>
