@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-
     <header>
       <h1>JavaScript DOM</h1>
       <p>Belajar cara JavaScript ngobrol sama HTML</p>
@@ -16,13 +15,15 @@
     </header>
 
     <main>
-
       <!-- ================================================
            LESSON 1: MENGAMBIL ELEMENT HTML
       ================================================ -->
       <section class="lesson">
         <h2>1. Mengambil Element HTML</h2>
-        <p>JavaScript perlu "menemukan" element HTML dulu sebelum bisa mengubahnya. Caranya pakai <code>document.querySelector()</code>.</p>
+        <p>
+          JavaScript perlu "menemukan" element HTML dulu sebelum bisa
+          mengubahnya. Caranya pakai <code>document.querySelector()</code>.
+        </p>
         <div class="demo-box">
           <p id="teks-demo">Teks ini bisa diubah oleh JavaScript!</p>
           <button onclick="ubahTeks()">Ubah Teks</button>
@@ -35,7 +36,9 @@
       ================================================ -->
       <section class="lesson">
         <h2>2. Mengubah Isi & Warna</h2>
-        <p>Setelah ketemu element-nya, bisa ubah teks, warna, atau style apapun.</p>
+        <p>
+          Setelah ketemu element-nya, bisa ubah teks, warna, atau style apapun.
+        </p>
         <div class="demo-box">
           <h3 id="judul-warna">Judul ini bisa ganti warna</h3>
           <div class="button-row">
@@ -53,9 +56,14 @@
       ================================================ -->
       <section class="lesson">
         <h2>3. Show / Hide Element</h2>
-        <p>Pakai <code>classList.toggle()</code> untuk nambahin atau hapus class CSS. Ini cara paling umum bikin sesuatu muncul/hilang.</p>
+        <p>
+          Pakai <code>classList.toggle()</code> untuk nambahin atau hapus class
+          CSS. Ini cara paling umum bikin sesuatu muncul/hilang.
+        </p>
         <div class="demo-box">
-          <button id="btn-toggle" onclick="toggleKotak()">Tampilkan Kotak</button>
+          <button id="btn-toggle" onclick="toggleKotak()">
+            Tampilkan Kotak
+          </button>
           <div id="kotak-tersembunyi" class="hidden-box">
             <p>🎉 Hei! Aku muncul dari JavaScript!</p>
             <p>Class <code>hidden</code> ditambah/dihapus dari element ini.</p>
@@ -68,7 +76,10 @@
       ================================================ -->
       <section class="lesson">
         <h2>4. Event — Reaksi Saat Diklik</h2>
-        <p><code>addEventListener("click", function)</code> menjalankan kode setiap kali sesuatu diklik. Ini dasar dari semua interaksi di website.</p>
+        <p>
+          <code>addEventListener("click", function)</code> menjalankan kode
+          setiap kali sesuatu diklik. Ini dasar dari semua interaksi di website.
+        </p>
         <div class="demo-box counter-demo">
           <p>Tombol diklik sebanyak:</p>
           <span id="angka-counter">0</span>
@@ -85,9 +96,16 @@
       ================================================ -->
       <section class="lesson">
         <h2>5. Ambil Nilai dari Input</h2>
-        <p>Pakai <code>element.value</code> untuk mengambil apa yang diketik user di dalam input atau textarea.</p>
+        <p>
+          Pakai <code>element.value</code> untuk mengambil apa yang diketik user
+          di dalam input atau textarea.
+        </p>
         <div class="demo-box">
-          <input type="text" id="input-nama" placeholder="Ketik namamu di sini..." />
+          <input
+            type="text"
+            id="input-nama"
+            placeholder="Ketik namamu di sini..."
+          />
           <button onclick="sapaUser()">Sapa Saya</button>
           <p id="hasil-sapa"></p>
         </div>
@@ -98,15 +116,26 @@
       ================================================ -->
       <section class="lesson">
         <h2>6. Buat & Tambah Element Baru</h2>
-        <p><code>createElement()</code> bikin element HTML baru. <code>appendChild()</code> taruh di halaman. Ini yang dipakai buat todo list, komentar, dll.</p>
+        <p>
+          <code>createElement()</code> bikin element HTML baru.
+          <code>appendChild()</code> taruh di halaman. Ini yang dipakai buat
+          todo list, komentar, dll.
+        </p>
         <div class="demo-box">
+          <ul id="daftar-item">
+            <li>
+              Item pertama (sudah ada dari HTML)
+              <button class="btn-hapus" onclick="hapusItem(this)">✕</button>
+            </li>
+          </ul>
           <div class="input-row">
-            <input type="text" id="input-item" placeholder="Ketik item baru..." />
+            <input
+              type="text"
+              id="input-item"
+              placeholder="Ketik item baru..."
+            />
             <button onclick="tambahItem()">+ Tambah</button>
           </div>
-          <ul id="daftar-item">
-            <li>Item pertama (sudah ada dari HTML) <button class="btn-hapus" onclick="hapusItem(this)">✕</button></li>
-          </ul>
         </div>
       </section>
 
@@ -115,7 +144,10 @@
       ================================================ -->
       <section class="lesson">
         <h2>7. Form Validation</h2>
-        <p>Cek apakah user sudah isi semua field sebelum submit. Ini yang bikin form lebih pintar dari HTML <code>required</code> biasa.</p>
+        <p>
+          Cek apakah user sudah isi semua field sebelum submit. Ini yang bikin
+          form lebih pintar dari HTML <code>required</code> biasa.
+        </p>
         <div class="demo-box">
           <form id="form-login" class="mini-form">
             <input type="text" id="input-username" placeholder="Username" />
@@ -125,7 +157,6 @@
           </form>
         </div>
       </section>
-
     </main>
 
     <footer>

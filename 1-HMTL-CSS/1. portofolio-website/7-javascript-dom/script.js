@@ -62,25 +62,26 @@ function toggleKotak() {
 // querySelector cari tombol, simpan ke variabel
 const tombolTambah = document.querySelector("#btn-tambah");
 const tombolKurang = document.querySelector("#btn-kurang");
-const tombolReset  = document.querySelector("#btn-reset");
-const angkaEl      = document.querySelector("#angka-counter");
+const tombolReset = document.querySelector("#btn-reset");
+const angkaEl = document.querySelector("#angka-counter");
 
 let nilaiCounter = 0; // variabel untuk menyimpan angka counter
 
-tombolTambah.addEventListener("click", function() {
-  nilaiCounter++;                          // tambah 1
-  angkaEl.textContent = nilaiCounter;      // tampilkan ke halaman
+tombolTambah.addEventListener("click", function () {
+  nilaiCounter++; // tambah 1, increment
+  angkaEl.textContent = nilaiCounter; // tampilkan ke halaman
   updateWarnaCounter();
   console.log("Counter sekarang:", nilaiCounter);
 });
 
-tombolKurang.addEventListener("click", function() {
-  nilaiCounter--;                          // kurang 1
+tombolKurang.addEventListener("click", function () {
+  nilaiCounter--; // kurang 1, decrement
   angkaEl.textContent = nilaiCounter;
   updateWarnaCounter();
+  console.log("Counter sekarang:", nilaiCounter);
 });
 
-tombolReset.addEventListener("click", function() {
+tombolReset.addEventListener("click", function () {
   nilaiCounter = 0;
   angkaEl.textContent = 0;
   angkaEl.style.color = "";
@@ -106,6 +107,11 @@ function sapaUser() {
   const hasil = document.querySelector("#hasil-sapa");
 
   const nama = input.value; // .value = ambil teks yang diketik
+
+  // = untuk ngasih nilai atau value
+  // a = 10, b = 12 maka a * b = 120
+  // == untuk ngecek apakah nilainya sama
+  // === untuk ngecek apakah nilainya sama & tipe datanya sama
 
   if (nama === "") {
     hasil.textContent = "Eh, nama kamu siapa? Isi dulu dong!";
@@ -145,7 +151,7 @@ function tambahItem() {
   const tombolHapus = document.createElement("button");
   tombolHapus.textContent = "✕";
   tombolHapus.className = "btn-hapus";
-  tombolHapus.onclick = function() {
+  tombolHapus.onclick = function () {
     hapusItem(tombolHapus);
   };
 
@@ -167,7 +173,7 @@ function hapusItem(tombol) {
 }
 
 // Enter key juga bisa tambah item
-document.querySelector("#input-item").addEventListener("keydown", function(e) {
+document.querySelector("#input-item").addEventListener("keydown", function (e) {
   if (e.key === "Enter") {
     tambahItem();
   }
@@ -179,15 +185,44 @@ document.querySelector("#input-item").addEventListener("keydown", function(e) {
 // ================================================
 
 function cekForm() {
+  // value username
   const username = document.querySelector("#input-username").value.trim();
+  // value password
   const password = document.querySelector("#input-password").value;
-  const pesan    = document.querySelector("#pesan-form");
+  // value pesan error/sukses
+  const pesan = document.querySelector("#pesan-form");
 
   // Reset dulu
   pesan.className = "";
 
+  // BOOLEAN LOGIC
+  // OR operator → salah satu kondisi benar = ||
+  // AND operator → semua kondisi harus benar = &&
+  // NOT operator → kebalikan dari kondisi = !
+  // !TRUE = FALSE, !FALSE = TRUE
   if (username === "" || password === "") {
     pesan.textContent = "❌ Username dan password harus diisi!";
+    pesan.className = "pesan-error";
+    return;
+  }
+
+  // kondisi AND jika username dan password benar
+  if (username === "admin" && password === "123456") {
+    pesan.textContent = "✅ Login berhasil! Halo, " + username + "!";
+    pesan.className = "pesan-sukses";
+    return;
+  }
+
+  // kondisi jika username benar tapi password salah
+  if (username === "admin" && password !== "123456") {
+    pesan.textContent = "❌ Password salah!";
+    pesan.className = "pesan-error";
+    return;
+  }
+
+  // kondisi jika username salah tapi password benar
+  if (username !== "admin" && password === "123456") {
+    pesan.textContent = "❌ Username salah!";
     pesan.className = "pesan-error";
     return;
   }
@@ -210,7 +245,7 @@ function cekForm() {
 
 const tombolDarkMode = document.querySelector("#btn-darkmode");
 
-tombolDarkMode.addEventListener("click", function() {
+tombolDarkMode.addEventListener("click", function () {
   document.body.classList.toggle("dark");
 
   if (document.body.classList.contains("dark")) {
