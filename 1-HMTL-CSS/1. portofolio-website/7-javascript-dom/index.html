@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript DOM</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>JavaScript DOM</h1>
+      <p>Belajar cara JavaScript ngobrol sama HTML</p>
+      <!-- DARK MODE: tombol ini dicontrol JS di script.js -->
+      <button id="btn-darkmode">🌙 Dark Mode</button>
+    </header>
+
+    <main>
+
+      <!-- ================================================
+           LESSON 1: MENGAMBIL ELEMENT HTML
+      ================================================ -->
+      <section class="lesson">
+        <h2>1. Mengambil Element HTML</h2>
+        <p>JavaScript perlu "menemukan" element HTML dulu sebelum bisa mengubahnya. Caranya pakai <code>document.querySelector()</code>.</p>
+        <div class="demo-box">
+          <p id="teks-demo">Teks ini bisa diubah oleh JavaScript!</p>
+          <button onclick="ubahTeks()">Ubah Teks</button>
+          <button onclick="kembalikanTeks()">Kembalikan</button>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 2: MENGUBAH ISI TEKS
+      ================================================ -->
+      <section class="lesson">
+        <h2>2. Mengubah Isi & Warna</h2>
+        <p>Setelah ketemu element-nya, bisa ubah teks, warna, atau style apapun.</p>
+        <div class="demo-box">
+          <h3 id="judul-warna">Judul ini bisa ganti warna</h3>
+          <div class="button-row">
+            <button onclick="gantiWarna('red')">Merah</button>
+            <button onclick="gantiWarna('blue')">Biru</button>
+            <button onclick="gantiWarna('green')">Hijau</button>
+            <button onclick="gantiWarna('#e74c3c')">Salmon</button>
+            <button onclick="gantiWarna('')">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 3: SHOW / HIDE ELEMENT
+      ================================================ -->
+      <section class="lesson">
+        <h2>3. Show / Hide Element</h2>
+        <p>Pakai <code>classList.toggle()</code> untuk nambahin atau hapus class CSS. Ini cara paling umum bikin sesuatu muncul/hilang.</p>
+        <div class="demo-box">
+          <button id="btn-toggle" onclick="toggleKotak()">Tampilkan Kotak</button>
+          <div id="kotak-tersembunyi" class="hidden-box">
+            <p>🎉 Hei! Aku muncul dari JavaScript!</p>
+            <p>Class <code>hidden</code> ditambah/dihapus dari element ini.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 4: CLICK COUNTER
+      ================================================ -->
+      <section class="lesson">
+        <h2>4. Event — Reaksi Saat Diklik</h2>
+        <p><code>addEventListener("click", function)</code> menjalankan kode setiap kali sesuatu diklik. Ini dasar dari semua interaksi di website.</p>
+        <div class="demo-box counter-demo">
+          <p>Tombol diklik sebanyak:</p>
+          <span id="angka-counter">0</span>
+          <div class="button-row">
+            <button id="btn-tambah">+ Tambah</button>
+            <button id="btn-kurang">- Kurang</button>
+            <button id="btn-reset">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 5: AMBIL VALUE DARI INPUT
+      ================================================ -->
+      <section class="lesson">
+        <h2>5. Ambil Nilai dari Input</h2>
+        <p>Pakai <code>element.value</code> untuk mengambil apa yang diketik user di dalam input atau textarea.</p>
+        <div class="demo-box">
+          <input type="text" id="input-nama" placeholder="Ketik namamu di sini..." />
+          <button onclick="sapaUser()">Sapa Saya</button>
+          <p id="hasil-sapa"></p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 6: BUAT & TAMBAH ELEMENT BARU
+      ================================================ -->
+      <section class="lesson">
+        <h2>6. Buat & Tambah Element Baru</h2>
+        <p><code>createElement()</code> bikin element HTML baru. <code>appendChild()</code> taruh di halaman. Ini yang dipakai buat todo list, komentar, dll.</p>
+        <div class="demo-box">
+          <div class="input-row">
+            <input type="text" id="input-item" placeholder="Ketik item baru..." />
+            <button onclick="tambahItem()">+ Tambah</button>
+          </div>
+          <ul id="daftar-item">
+            <li>Item pertama (sudah ada dari HTML) <button class="btn-hapus" onclick="hapusItem(this)">✕</button></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 7: FORM & INPUT VALIDATION
+      ================================================ -->
+      <section class="lesson">
+        <h2>7. Form Validation</h2>
+        <p>Cek apakah user sudah isi semua field sebelum submit. Ini yang bikin form lebih pintar dari HTML <code>required</code> biasa.</p>
+        <div class="demo-box">
+          <form id="form-login" class="mini-form">
+            <input type="text" id="input-username" placeholder="Username" />
+            <input type="password" id="input-password" placeholder="Password" />
+            <button type="button" onclick="cekForm()">Login</button>
+            <p id="pesan-form"></p>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Buka DevTools (F12) untuk lihat console.log</p>
+    </footer>
+
+    <!-- script.js diletakkan di BAWAH body supaya HTML sudah
+         selesai dibaca browser sebelum JS dijalankan -->
+    <script src="script.js"></script>
+  </body>
+</html>
