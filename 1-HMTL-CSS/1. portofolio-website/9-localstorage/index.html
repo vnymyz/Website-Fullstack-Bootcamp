@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>localStorage</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>localStorage</h1>
+      <p>Nyimpen data di browser, nggak hilang pas refresh</p>
+    </header>
+
+    <main>
+
+      <!-- ================================================
+           LESSON 1: setItem & getItem dasar
+      ================================================ -->
+      <section class="lesson">
+        <h2>1. Simpan & Ambil Teks</h2>
+        <p><code>localStorage.setItem(key, value)</code> nyimpen data. <code>localStorage.getItem(key)</code> ambil lagi. Coba isi, refresh halaman (F5), lihat teksnya masih ada.</p>
+        <div class="demo-box">
+          <input type="text" id="input-nama" placeholder="Ketik nama kamu..." />
+          <button id="btn-simpan-nama">Simpan</button>
+          <p id="hasil-nama"></p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 2: removeItem & clear
+      ================================================ -->
+      <section class="lesson">
+        <h2>2. Hapus Data</h2>
+        <p><code>localStorage.removeItem(key)</code> hapus satu data. <code>localStorage.clear()</code> hapus semua data localStorage punya website ini.</p>
+        <div class="demo-box">
+          <button id="btn-hapus-nama">Hapus Nama Tersimpan</button>
+          <button id="btn-clear">Clear Semua</button>
+          <p id="hasil-hapus"></p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 3: simpan array/object pakai JSON
+      ================================================ -->
+      <section class="lesson">
+        <h2>3. Simpan Array / Object (JSON)</h2>
+        <p>localStorage cuma bisa nyimpen <b>string</b>. Buat nyimpen array/object, harus diubah jadi string dulu pakai <code>JSON.stringify()</code>, dan diubah balik pakai <code>JSON.parse()</code>.</p>
+        <div class="demo-box">
+          <div class="input-row">
+            <input type="text" id="input-warna" placeholder="Ketik warna favorit..." />
+            <button id="btn-tambah-warna">+ Tambah</button>
+          </div>
+          <ul id="daftar-warna"></ul>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Buka DevTools (F12) → tab Application → Local Storage untuk lihat data mentahnya</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
