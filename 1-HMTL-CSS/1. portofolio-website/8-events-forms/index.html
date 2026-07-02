@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events & Forms — fetch()</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>Events & Forms</h1>
+      <p>Form yang bener + ngambil data dari internet</p>
+    </header>
+
+    <main>
+
+      <!-- ================================================
+           LESSON 1: preventDefault
+      ================================================ -->
+      <section class="lesson">
+        <h2>1. preventDefault() — Stop Form Reload</h2>
+        <p>Default-nya, form yang di-submit akan <b>reload halaman</b>. <code>e.preventDefault()</code> menghentikan itu supaya JavaScript yang ambil alih.</p>
+        <div class="demo-box">
+          <form id="form-demo1">
+            <input type="text" id="input-demo1" placeholder="Ketik apa saja..." />
+            <button type="submit">Submit</button>
+          </form>
+          <p id="hasil-demo1"></p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 2: submit event (bukan click di button)
+      ================================================ -->
+      <section class="lesson">
+        <h2>2. Event "submit" — Cara yang Benar</h2>
+        <p>Dengar event <code>submit</code> di form-nya, bukan <code>click</code> di button. Ini juga aktif kalau user tekan Enter, bukan cuma klik tombol.</p>
+        <div class="demo-box">
+          <form id="form-login" class="mini-form">
+            <input type="text" id="input-username2" placeholder="Username" />
+            <input type="password" id="input-password2" placeholder="Password" />
+            <button type="submit">Login</button>
+          </form>
+          <p id="pesan-login"></p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 3: fetch() dasar
+      ================================================ -->
+      <section class="lesson">
+        <h2>3. fetch() — Ambil Data dari Internet</h2>
+        <p><code>fetch()</code> minta data dari server lain (API). Di sini kita ambil <b>fakta kucing random</b> dari API gratis.</p>
+        <div class="demo-box">
+          <button id="btn-fakta">🐱 Ambil Fakta Kucing</button>
+          <p id="hasil-fakta">Klik tombol untuk mulai...</p>
+        </div>
+      </section>
+
+      <!-- ================================================
+           LESSON 4: fetch() + loading + error handling
+      ================================================ -->
+      <section class="lesson">
+        <h2>4. Loading State & Error Handling</h2>
+        <p>Internet bisa lambat atau gagal. Tampilkan "Loading..." saat nunggu, dan tangkap error kalau gagal pakai <code>try/catch</code>.</p>
+        <div class="demo-box">
+          <button id="btn-advice">💡 Kasih Saran Random</button>
+          <p id="hasil-advice">Klik tombol untuk mulai...</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Buka DevTools (F12) → tab Network untuk lihat request fetch()</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
