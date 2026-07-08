@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* TODO: styling profile card kamu di sini.
+   Ingat pakai: :root buat CSS variable, display:flex buat skill pills,
+   :hover di tombol, dan @media (max-width: 500px) buat responsive. */

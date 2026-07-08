@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Cart — Bug Hunt</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>🛒 Simple Cart</h1>
+      <button id="btn-darkmode">🌙 Dark Mode</button>
+    </header>
+
+    <main>
+
+      <section class="box">
+        <h2>Item (Rp 10.000 / item)</h2>
+        <button id="btn-tambah-item">+ Tambah Item</button>
+        <p>Jumlah item: <span id="jumlah-item">0</span></p>
+        <p>Total harga: Rp <span id="total-harga">0</span></p>
+        <button id="btn-reset">Reset</button>
+      </section>
+
+      <section class="box">
+        <h2>Tambah Item Custom</h2>
+        <form id="form-item-custom">
+          <input type="text" id="input-nama-item" placeholder="Nama item..." />
+          <button type="submit">Tambah</button>
+        </form>
+        <ul id="daftar-item-custom"></ul>
+      </section>
+
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

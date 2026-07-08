@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List — Capstone</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>📝 My Todo List</h1>
+      <p>Capstone project — gabungan semua stage 1-10</p>
+    </header>
+
+    <main>
+
+      <form id="form-todo">
+        <input type="text" id="input-todo" placeholder="Mau ngapain hari ini?" autocomplete="off" />
+        <button type="submit">+ Tambah</button>
+      </form>
+
+      <div class="filter-row">
+        <button class="btn-filter active" data-filter="semua">Semua</button>
+        <button class="btn-filter" data-filter="aktif">Aktif</button>
+        <button class="btn-filter" data-filter="selesai">Selesai</button>
+      </div>
+
+      <ul id="daftar-todo"></ul>
+
+      <div class="footer-row">
+        <span id="sisa-todo">0 item tersisa</span>
+        <button id="btn-hapus-selesai">Hapus yang selesai</button>
+      </div>
+
+      <p id="pesan-kosong" class="pesan-kosong hidden">Belum ada todo. Tambahin satu di atas! 👆</p>
+
+    </main>
+
+    <footer>
+      <p>Data tersimpan otomatis lewat localStorage — coba refresh halaman</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

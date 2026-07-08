@@ -1,0 +1,94 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #222;
+  line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* dark mode style — dipicu lewat class "dark" di body */
+body.dark {
+  background: #1a1a2e;
+  color: #eee;
+}
+
+body.dark .box {
+  background: #16213e;
+}
+
+header {
+  background: #2c3e50;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+main {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.box h2 {
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+}
+
+button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 4px 0;
+}
+
+button:hover {
+  background: #2c3e50;
+}
+
+#form-item-custom {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#input-nama-item {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+}
+
+#daftar-item-custom {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#daftar-item-custom li {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
