@@ -28,6 +28,22 @@
             <textarea name="body" rows="4" class="w-full border rounded px-3 py-2"></textarea>
         </div>
 
+        {{-- upload image --}}
+        <div>
+            <label class="block text-sm font-medium mb-1">Upload Gambar (opsional)</label>
+            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2">
+        </div>
+
+        {{-- link image --}}
+        <div>
+            <label class="block text-sm font-medium mb-1">Atau isi Link Gambar (opsional)</label>
+            <input type="url" name="image_url" placeholder="https://images.unsplash.com/..."
+                class="w-full border rounded px-3 py-2">
+        </div>
+
+        <p class="text-xs text-gray-400">Isi salah satu aja — upload file ATAU link. Kalau dua-duanya diisi, file upload
+            yang dipakai.</p>
+
         <button type="submit" class="bg-blue-600 text-white 
         px-4 py-2 rounded hover:bg-blue-700">
             Simpan

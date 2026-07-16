@@ -19,6 +19,10 @@ Project ini buat latihan belajar Laravel. Catatan di bawah dibuat buat pemula ya
 - [Praktik Kedelapan: Login/Register pakai Laravel Breeze](#praktik-kedelapan-loginregister-pakai-laravel-breeze)
 - [Praktik Kesembilan: Relasi Post-User](#praktik-kesembilan-relasi-post-user)
 - [Praktik Kesepuluh: Role Admin vs User](#praktik-kesepuluh-role-admin-vs-user)
+- [Praktik Kesebelas: Lengkapi CRUD User Management (Tambah & Hapus User)](#praktik-kesebelas-lengkapi-crud-user-management-tambah--hapus-user)
+- [Praktik Kedua Belas: Slug + Single Post View](#praktik-kedua-belas-slug--single-post-view)
+- [Praktik Ketiga Belas: Upload/Link Gambar](#praktik-ketiga-belas-uploadlink-gambar)
+- [Praktik Keempat Belas: Database Seeder](#praktik-keempat-belas-database-seeder)
 - [Roadmap Belajar Selanjutnya](#roadmap-belajar-selanjutnya)
 
 ## Apa itu Laravel?
@@ -2094,18 +2098,1123 @@ public function destroy(Post $post)
 
 > Ini nutup topik Authentication & Authorization dasar. Next yang udah direncanain: **slug + halaman single post** (`/posts/judul-post` ganti `/posts/{id}`), lalu **upload/link gambar** buat tiap Post.
 
+## Praktik Kesebelas: Lengkapi CRUD User Management (Tambah & Hapus User)
+
+Praktik 10 baru bikin **Read** (list user) dan **Update** (ubah role). Sekarang lengkapin jadi CRUD penuh — admin bisa **Create** (tambah user baru manual) dan **Delete** (hapus akun user).
+
+### 1. Tambah Route
+
+**📁 File: `routes/web.php`** — tambah 2 route baru di dalam group `admin`:
+
+```php
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+    Route::patch('/users/{user}', [AdminUserController::class, 'updateRole'])->name('users.updateRole');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+});
+```
+
+### 2. Update Controller — tambah `create()`, `store()`, `destroy()`
+
+**📁 File: `app/Http/Controllers/Admin/UserController.php`**:
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+
+        return view('admin.users.index', ['users' => $users]);
+    }
+
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:user,admin',
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        User::create($validated);
+
+        return redirect('/admin/users');
+    }
+
+    public function updateRole(Request $request, User $user)
+    {
+        $request->validate([
+            'role' => 'required|in:user,admin',
+        ]);
+
+        $user->role = $request->role;
+        $user->save();
+
+        return redirect('/admin/users');
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect('/admin/users')->with('error', 'Gak bisa hapus akun sendiri.');
+        }
+
+        $user->delete();
+
+        return redirect('/admin/users');
+    }
+}
+```
+
+Penjelasan:
+- `Hash::make($validated['password'])` — password **wajib** di-hash sebelum disimpan, jangan pernah simpan password mentah/plain text ke database.
+- `'email' => 'required|email|unique:users,email'` — validasi `unique` mastiin gak ada 2 user pakai email yang sama.
+- Method `store()` di sini pakai `User::create($validated)` langsung, termasuk `role`. Ini **beda** dari form `/register` biasa (yang gak boleh terima `role` dari user biasa) — di sini aman karena yang akses cuma admin (udah dijaga middleware `admin`), jadi khusus di Controller ini boleh set `role` manual.
+- `destroy()` ada pengecekan `$user->id === auth()->id()` — biar admin gak bisa gak sengaja hapus akunnya sendiri (bisa bikin gak ada admin sama sekali).
+
+> ⚠️ Ingat dari Praktik 9: kolom `user_id` di tabel `posts` pakai `->cascadeOnDelete()`. Artinya kalau User dihapus di sini, **semua Post miliknya ikut kehapus otomatis**. Ini perilaku yang disengaja (biar gak ada Post "yatim"), tapi penting buat dipahami sebelum klik Hapus.
+
+### 3. Bikin View Form Tambah User
+
+**📁 File: `resources/views/admin/users/create.blade.php`**:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Tambah User')
+
+@section('content')
+    <h1 class="text-2xl font-bold mb-4">Tambah User</h1>
+
+    @if ($errors->any())
+        <ul class="bg-red-50 text-red-600 text-sm rounded p-3 mb-4">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+
+    <form method="POST" action="/admin/users" class="space-y-4">
+        @csrf
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Nama</label>
+            <input type="text" name="name" value="{{ old('name') }}" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <input type="email" name="email" value="{{ old('email') }}" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <input type="password" name="password" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Role</label>
+            <select name="role" class="w-full border rounded px-3 py-2">
+                <option value="user">user</option>
+                <option value="admin">admin</option>
+            </select>
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Simpan
+        </button>
+    </form>
+@endsection
+```
+
+`old('name')` / `old('email')` — kalau validasi gagal (misal email udah kepake), form ke-render ulang dengan **data yang tadi diketik tetep ada** (Laravel otomatis nyimpen input lama), jadi admin gak perlu ngetik ulang dari nol. (Sengaja gak dipakai buat `password`, alasan keamanan — password gak pernah "diinget balik".)
+
+### 4. Update View List — tambah tombol Tambah User & Hapus
+
+**📁 File: `resources/views/admin/users/index.blade.php`** — update jadi:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Kelola User')
+
+@section('content')
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Kelola User</h1>
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-500">{{ $users->count() }} user terdaftar</span>
+            <a href="/admin/users/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                + Tambah User
+            </a>
+        </div>
+    </div>
+
+    @if (session('error'))
+        <div class="bg-red-50 text-red-600 text-sm rounded p-3 mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="bg-white border rounded-lg shadow-sm overflow-hidden">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
+                <tr>
+                    <th class="px-4 py-3">Nama</th>
+                    <th class="px-4 py-3">Email</th>
+                    <th class="px-4 py-3">Role</th>
+                    <th class="px-4 py-3 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @foreach ($users as $user)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ $user->name }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ $user->email }}</td>
+                        <td class="px-4 py-3">
+                            <span
+                                class="inline-block px-2 py-1 rounded-full text-xs font-medium {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600' }}">
+                                {{ $user->role }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2 items-center">
+                                <form method="POST" action="/admin/users/{{ $user->id }}"
+                                    class="flex gap-2 items-center">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <select name="role"
+                                        class="border rounded text-sm pl-2 pr-6 py-1.5 bg-white min-w-[90px]">
+                                        <option value="user" @selected($user->role === 'user')>user</option>
+                                        <option value="admin" @selected($user->role === 'admin')>admin</option>
+                                    </select>
+
+                                    <button type="submit"
+                                        class="text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700">
+                                        Simpan
+                                    </button>
+                                </form>
+
+                                @if ($user->id !== auth()->id())
+                                    <form method="POST" action="/admin/users/{{ $user->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" onclick="return confirm('Yakin hapus user ini? Semua post miliknya ikut kehapus.')"
+                                            class="text-sm bg-red-100 text-red-700 px-3 py-1.5 rounded hover:bg-red-200">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endsection
+```
+
+Penjelasan:
+- `@if ($user->id !== auth()->id())` — tombol Hapus disembunyiin buat baris akun diri sendiri (selaras sama pengecekan di Controller step 2 — dua lapis proteksi, sama kayak pola di Praktik 9).
+- `session('error')` — nampilin pesan error dari `->with('error', ...)` di Controller (misal pas gagal hapus akun sendiri).
+- `confirm('Yakin hapus...')` — dialog konfirmasi browser sebelum submit form Delete, mencegah klik gak sengaja.
+
+### 5. Cek hasilnya
+
+1. Buka `/admin/users` — ada tombol **+ Tambah User** di kanan atas.
+2. Klik, isi form (nama, email, password, role), submit — user baru harus muncul di list.
+3. Coba submit form kosong / email yang udah kepake — harus muncul pesan error validasi.
+4. Klik **Hapus** di salah satu user (bukan akun sendiri) — konfirmasi — user hilang dari list.
+5. Cek baris akun kamu sendiri — tombol **Hapus** gak ada di situ.
+6. (Opsional) Coba bikin user baru dari akun ini punya beberapa Post, terus hapus usernya — cek di phpMyAdmin tabel `posts`, post-post itu harus ikut hilang (`cascadeOnDelete`).
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kesebelas
+
+| File | Perubahan |
+|---|---|
+| `routes/web.php` | Tambah route `GET /admin/users/create`, `POST /admin/users`, `DELETE /admin/users/{user}` |
+| `app/Http/Controllers/Admin/UserController.php` | Tambah method `create()`, `store()`, `destroy()` |
+| `resources/views/admin/users/create.blade.php` | View baru — form tambah user |
+| `resources/views/admin/users/index.blade.php` | Tambah tombol "+ Tambah User" dan tombol "Hapus" per baris |
+
+### Ringkasan Praktik Kesebelas
+
+| Sebelum (Praktik 10) | Sesudah (Praktik 11) |
+|---|---|
+| User Management cuma Read + Update | User Management jadi CRUD penuh (Create, Read, Update, Delete) |
+| User baru cuma bisa masuk lewat `/register` | Admin bisa tambah user manual, termasuk langsung set role |
+| Gak ada cara hapus akun dari UI | Admin bisa hapus user (kecuali akunnya sendiri) |
+
+## Praktik Kedua Belas: Slug + Single Post View
+
+Sekarang `/posts` cuma nampilin list, klik judulnya gak ngapa-ngapain. URL detail kalau ada juga bakal pakai angka (`/posts/5`). Praktik ini nambah halaman detail 1 post, dengan URL yang lebih enak dibaca pakai **slug** (`/posts/belajar-laravel-itu-seru`).
+
+Konsep baru: **slug** (versi URL-friendly dari judul, huruf kecil + strip), dan **route model binding custom** (`{post:slug}` — Laravel resolve Model berdasarkan kolom `slug`, bukan `id`).
+
+### 1. Migration — tambah kolom `slug`
+
+```bash
+php artisan make:migration add_slug_to_posts_table --table=posts
+```
+
+**📁 File: `database/migrations/..._add_slug_to_posts_table.php`**:
+
+```php
+public function up(): void
+{
+    Schema::table('posts', function (Blueprint $table) {
+        $table->string('slug')->unique()->after('title');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('posts', function (Blueprint $table) {
+        $table->dropColumn('slug');
+    });
+}
+```
+
+`->unique()` — mastiin gak ada 2 post dengan slug yang sama (soalnya slug dipakai buat cari post di URL, harus unik).
+
+### 2. Jalankan migration
+
+```bash
+php artisan migrate
+```
+
+> ⚠️ Kalau ada Post lama yang udah ada sebelum kolom `slug` ditambah, migration ini bisa gagal (mirip kejadian di Praktik 9) karena MySQL nyoba isi slug kosong buat semua baris, tapi `unique()` nolak kalau lebih dari 1 baris sama-sama kosong. Kalau gagal: kosongin tabel `posts` di phpMyAdmin dulu, baru migrate ulang. Atau paling gampang `php artisan migrate:fresh` (inget: ini reset semua tabel, harus `/register` ulang).
+
+### 3. Update Model — auto-generate slug dari title
+
+**📁 File: `app/Models/Post.php`**:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
+class Post extends Model
+{
+    protected $fillable = ['title', 'body', 'user_id'];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Post $post) {
+            $post->slug = static::generateUniqueSlug($post->title);
+        });
+    }
+
+    protected static function generateUniqueSlug(string $title): string
+    {
+        $slug = Str::slug($title);
+        $original = $slug;
+        $count = 1;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $original . '-' . $count;
+            $count++;
+        }
+
+        return $slug;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+
+Penjelasan:
+- `static::creating(function (Post $post) { ... })` — ini **Model Event**: kode di dalamnya otomatis kejalan tiap kali ada Post baru mau disimpan (`Post::create(...)`), sebelum data masuk database. Gak perlu manggil manual di Controller.
+- `Str::slug($title)` — helper Laravel, ubah teks jadi format URL: lowercase, spasi jadi strip. Contoh: `"Belajar Laravel Itu Seru!"` → `"belajar-laravel-itu-seru"`.
+- `generateUniqueSlug()` — ngecek slug udah dipakai apa belum. Kalau ada 2 post judulnya sama persis (misal 2x "Hello World"), slug kedua otomatis jadi `hello-world-1`, bukan dobel `hello-world`.
+
+### 4. Tambah Route buat halaman detail
+
+**📁 File: `routes/web.php`** — tambah route baru **setelah** `/posts/create` (biar gak ketuker sama route lain):
+
+```php
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/create', [PostController::class, 'create']);
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::get('/posts/{post:slug}', [PostController::class, 'show']);
+    Route::get('/posts/{post}/edit', [PostController::class, 'edit']);
+    Route::put('/posts/{post}', [PostController::class, 'update']);
+    Route::delete('/posts/{post}', [PostController::class, 'destroy']);
+});
+```
+
+Penjelasan:
+- `{post:slug}` — sintaks route model binding custom. Biasanya `{post}` nyari Post berdasarkan `id` (primary key default), tapi `{post:slug}` bilang ke Laravel "cari berdasarkan kolom `slug`, bukan `id`".
+- Route ini **harus** ditaruh setelah `/posts/create` (URL statis) — kalau kebalik, Laravel bakal nganggep `create` itu isi dari `{post:slug}` dan coba nyari Post dengan slug `"create"` (gak ketemu, error 404). Route `{post}/edit` aman di posisi manapun karena punya 2 segment URL, beda pola sama `{post:slug}` yang cuma 1 segment.
+
+### 5. Tambah Controller method `show()`
+
+**📁 File: `app/Http/Controllers/PostController.php`** — tambah method baru:
+
+```php
+public function show(Post $post)
+{
+    return view('posts.show', ['post' => $post]);
+}
+```
+
+Karena route-nya udah pakai `{post:slug}`, Laravel otomatis nyariin Post yang slug-nya cocok sama URL, terus dikirim jadi `$post` — gak perlu nulis query manual.
+
+### 6. Bikin View halaman detail
+
+**📁 File: `resources/views/posts/show.blade.php`**:
+
+```blade
+@extends('layouts.app')
+
+@section('title', $post->title)
+
+@section('content')
+    <a href="/posts" class="text-sm text-blue-600 hover:underline">&larr; Kembali ke Daftar Post</a>
+
+    <div class="bg-white border rounded-lg p-6 shadow-sm mt-4">
+        <h1 class="text-2xl font-bold">{{ $post->title }}</h1>
+        <p class="text-xs text-gray-400 mt-1">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+        <p class="text-gray-700 mt-4 whitespace-pre-line">{{ $post->body }}</p>
+
+        @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+            <div class="mt-6 flex gap-2 border-t pt-4">
+                <a href="/posts/{{ $post->id }}/edit"
+                    class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                    Edit
+                </a>
+
+                <form method="POST" action="/posts/{{ $post->id }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" onclick="return confirm('Yakin hapus?')"
+                        class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                        Hapus
+                    </button>
+                </form>
+            </div>
+        @endif
+    </div>
+@endsection
+```
+
+`whitespace-pre-line` — class Tailwind biar baris baru (enter) yang diketik di textarea `body` tetep kebaca sebagai baris baru pas ditampilin (biasanya HTML "meratain" semua whitespace jadi 1 spasi).
+
+### 7. Update Halaman List — judul post jadi link ke detail
+
+**📁 File: `resources/views/posts/index.blade.php`** — ubah `<h2>` biasa jadi link:
+
+```blade
+<h2 class="font-semibold text-lg">
+    <a href="/posts/{{ $post->slug }}" class="hover:underline hover:text-blue-600">
+        {{ $post->title }}
+    </a>
+</h2>
+```
+
+### 8. Cek hasilnya
+
+1. Bikin post baru lewat `/posts/create`, judul misal "Belajar Laravel Itu Seru".
+2. Buka `/posts` — klik judul post itu.
+3. URL harus berubah jadi `/posts/belajar-laravel-itu-seru` (bukan `/posts/6` atau semacamnya).
+4. Halaman detail harus nampilin judul, nama penulis, isi lengkap, dan tombol Edit/Hapus (kalau kamu pemiliknya).
+5. Coba bikin post baru lagi dengan judul **persis sama** — slug-nya harus otomatis jadi `belajar-laravel-itu-seru-1`.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Error pas migrate: `Duplicate entry '' for key 'posts_slug_unique'` | Ada post lama dengan slug kosong. Kosongin tabel `posts` di phpMyAdmin, atau `php artisan migrate:fresh` |
+| Klik judul post, muncul 404 | Pastiin route `{post:slug}` ditaruh **sebelum** `{post}/edit` tapi **setelah** `/posts/create` di `routes/web.php` |
+| Slug kosong / `NULL` pas bikin post baru | Cek `app/Models/Post.php` — method `booted()` harus ada dan `static::creating(...)` gak typo |
+| Akses `/posts/create` malah kena error "Post not found" | Route `{post:slug}` ketaruh **sebelum** route `/posts/create` — balik urutannya |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kedua Belas
+
+| File | Perubahan |
+|---|---|
+| `database/migrations/..._add_slug_to_posts_table.php` | Migration baru, tambah kolom `slug` (unique) |
+| `app/Models/Post.php` | Tambah `booted()` + `generateUniqueSlug()`, auto-generate slug dari title |
+| `routes/web.php` | Tambah route `GET /posts/{post:slug}` |
+| `app/Http/Controllers/PostController.php` | Tambah method `show()` |
+| `resources/views/posts/show.blade.php` | View baru — halaman detail 1 post |
+| `resources/views/posts/index.blade.php` | Judul post jadi link ke halaman detail |
+
+### Ringkasan Praktik Kedua Belas
+
+| Sebelum (Praktik 1-11) | Sesudah (Praktik 12) |
+|---|---|
+| Belum ada halaman detail post | Ada `/posts/{slug}` — halaman detail lengkap |
+| URL bakal pakai angka (`/posts/5`) | URL pakai slug (`/posts/judul-post`) |
+| Judul post di list gak bisa diklik | Judul jadi link ke halaman detail |
+
+> Slug ini juga jadi dasar penting buat SEO kalau nanti project di-deploy beneran — URL yang pakai kata-kata jelas lebih gampang di-index Google dibanding URL angka doang.
+
+## Praktik Ketiga Belas: Upload/Link Gambar
+
+Sekarang tiap Post cuma punya title + body, belum ada gambar. Praktik ini nambah gambar buat tiap Post, dengan **dua cara ngisi**: upload file dari komputer, ATAU tempel link URL (misal dari Unsplash) — user pilih salah satu.
+
+Gambar bakal muncul di dua tempat: **thumbnail** di list `/posts`, dan **full-size** di halaman detail `/posts/{slug}` (yang dibikin di Praktik 12).
+
+Konsep baru: **file upload** (`$request->file(...)`), **Laravel Storage** (nyimpen file ke disk), dan **symbolic link** (biar file yang disimpen bisa diakses dari browser).
+
+### 1. Migration — tambah kolom `image`
+
+```bash
+php artisan make:migration add_image_to_posts_table --table=posts
+```
+
+**📁 File: `database/migrations/..._add_image_to_posts_table.php`**:
+
+```php
+public function up(): void
+{
+    Schema::table('posts', function (Blueprint $table) {
+        $table->string('image')->nullable()->after('body');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('posts', function (Blueprint $table) {
+        $table->dropColumn('image');
+    });
+}
+```
+
+`->nullable()` — kolom ini **boleh kosong** (beda dari `title`/`body` yang wajib diisi), soalnya gambar bersifat opsional.
+
+Jalankan:
+
+```bash
+php artisan migrate
+```
+
+### 2. Bikin Symbolic Link buat Storage
+
+File yang di-upload user nanti disimpen di `storage/app/public/`, tapi folder itu **gak bisa diakses langsung** dari browser (di luar `public/`, demi keamanan). Laravel punya solusi: bikin "jembatan" (symbolic link) dari `public/storage` ke `storage/app/public`.
+
+```bash
+php artisan storage:link
+```
+
+Jalankan **sekali aja** (gak perlu diulang tiap ganti kode). Kalau berhasil, muncul folder baru `public/storage` (ini cuma shortcut, bukan folder asli).
+
+> Kalau nanti pindah project (misal `git clone` di komputer lain), command ini harus dijalanin ulang — command ini gak ikut ke-commit di git.
+
+### 3. Update Model — tambah `image` ke fillable + helper URL
+
+**📁 File: `app/Models/Post.php`**:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
+class Post extends Model
+{
+    protected $fillable = ['title', 'body', 'image', 'user_id'];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Post $post) {
+            $post->slug = static::generateUniqueSlug($post->title);
+        });
+    }
+
+    protected static function generateUniqueSlug(string $title): string
+    {
+        $slug = Str::slug($title);
+        $original = $slug;
+        $count = 1;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $original . '-' . $count;
+            $count++;
+        }
+
+        return $slug;
+    }
+
+    public function imageUrl(): ?string
+    {
+        if (! $this->image) {
+            return null;
+        }
+
+        return Str::startsWith($this->image, ['http://', 'https://'])
+            ? $this->image
+            : asset('storage/' . $this->image);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+
+Penjelasan `imageUrl()`:
+- Kolom `image` di database nyimpen 2 kemungkinan isi: **path file lokal** (misal `posts/abc123.jpg`, hasil upload) atau **link URL penuh** (misal `https://images.unsplash.com/...`, hasil user tempel link).
+- Method ini yang mutusin cara nampilinnya: kalau udah `http://`/`https://` (link luar), pakai apa adanya. Kalau bukan (path lokal), bungkus pakai `asset('storage/...')` biar jadi URL lengkap yang bisa diakses browser.
+- View (`index.blade.php`, `show.blade.php`) tinggal manggil `$post->imageUrl()`, gak perlu mikirin logic-nya lagi.
+
+### 4. Update Controller — handle upload & link URL
+
+**📁 File: `app/Http/Controllers/PostController.php`** — update `store()` dan `update()`:
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'body' => 'required|string',
+        'image' => 'nullable|image|max:2048',
+        'image_url' => 'nullable|url',
+    ]);
+
+    if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')->store('posts', 'public');
+    } elseif ($request->filled('image_url')) {
+        $validated['image'] = $request->image_url;
+    }
+
+    unset($validated['image_url']);
+    $validated['user_id'] = auth()->id();
+
+    Post::create($validated);
+
+    return redirect('/posts');
+}
+```
+
+```php
+public function update(Request $request, Post $post)
+{
+    if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+        abort(403);
+    }
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'body' => 'required|string',
+        'image' => 'nullable|image|max:2048',
+        'image_url' => 'nullable|url',
+    ]);
+
+    if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')->store('posts', 'public');
+    } elseif ($request->filled('image_url')) {
+        $validated['image'] = $request->image_url;
+    } else {
+        unset($validated['image']);
+    }
+
+    unset($validated['image_url']);
+
+    $post->update($validated);
+
+    return redirect('/posts');
+}
+```
+
+Penjelasan:
+- `'image' => 'nullable|image|max:2048'` — validasi: kalau diisi, harus file gambar beneran (jpg/png/dll), maksimal 2MB (`2048` KB).
+- `'image_url' => 'nullable|url'` — validasi: kalau diisi, harus format URL yang valid.
+- `$request->hasFile('image')` — true kalau user pilih file lewat `<input type="file">`.
+- `->store('posts', 'public')` — simpen file ke `storage/app/public/posts/`, otomatis kasih nama file unik, return path-nya (misal `posts/abc123.jpg`).
+- `$request->filled('image_url')` — true kalau field `image_url` diisi teks (gak kosong).
+- Urutan prioritas: kalau user upload file **dan** isi link bareng-bareng, file yang dipakai (upload menang).
+- Di `update()`, ada `else { unset($validated['image']); }` — kalau edit post tapi gak ganti gambar sama sekali (gak upload, gak isi link baru), field `image` dibuang dari `$validated` biar gambar lama **gak ketimpa jadi kosong**.
+
+### 5. Update Form Create — tambah input gambar
+
+**📁 File: `resources/views/posts/create.blade.php`** — tambah `enctype` di `<form>` (wajib buat upload file) + 2 field baru:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Tambah Post')
+
+@section('content')
+    <h1 class="text-2xl font-bold mb-4">Tambah Post</h1>
+
+    @if ($errors->any())
+        <ul class="bg-red-50 text-red-600 text-sm rounded p-3 mb-4">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+
+    <form method="POST" action="/posts" enctype="multipart/form-data" class="space-y-4">
+        @csrf
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Title</label>
+            <input type="text" name="title" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Body</label>
+            <textarea name="body" rows="4" class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Upload Gambar (opsional)</label>
+            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Atau isi Link Gambar (opsional)</label>
+            <input type="url" name="image_url" placeholder="https://images.unsplash.com/..."
+                class="w-full border rounded px-3 py-2">
+        </div>
+
+        <p class="text-xs text-gray-400">Isi salah satu aja — upload file ATAU link. Kalau dua-duanya diisi, file upload yang dipakai.</p>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Simpan
+        </button>
+    </form>
+@endsection
+```
+
+> `enctype="multipart/form-data"` **wajib** ditambah di `<form>` kalau ada `<input type="file">` — tanpa ini, file gak bakal ke-upload sama sekali (form cuma ngirim nama filenya doang, bukan isi file-nya).
+
+### 6. Update Form Edit — sama, plus preview gambar lama
+
+**📁 File: `resources/views/posts/edit.blade.php`**:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Edit Post')
+
+@section('content')
+    <h1 class="text-2xl font-bold mb-4">Edit Post</h1>
+
+    @if ($errors->any())
+        <ul class="bg-red-50 text-red-600 text-sm rounded p-3 mb-4">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+
+    <form method="POST" action="/posts/{{ $post->id }}" enctype="multipart/form-data" class="space-y-4">
+        @csrf
+        @method('PUT')
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Title</label>
+            <input type="text" name="title" value="{{ $post->title }}" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Body</label>
+            <textarea name="body" rows="4" class="w-full border rounded px-3 py-2">{{ $post->body }}</textarea>
+        </div>
+
+        @if ($post->imageUrl())
+            <div>
+                <label class="block text-sm font-medium mb-1">Gambar saat ini</label>
+                <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-40 rounded border">
+            </div>
+        @endif
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Ganti Upload Gambar (opsional)</label>
+            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Atau ganti Link Gambar (opsional)</label>
+            <input type="url" name="image_url" placeholder="https://images.unsplash.com/..."
+                class="w-full border rounded px-3 py-2">
+        </div>
+
+        <p class="text-xs text-gray-400">Kosongin dua-duanya kalau gambar lama gak mau diganti.</p>
+
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            Update
+        </button>
+    </form>
+@endsection
+```
+
+### 7. Tampilin Gambar di Halaman List
+
+**📁 File: `resources/views/posts/index.blade.php`** — tambah thumbnail:
+
+```blade
+@foreach ($posts as $post)
+    <div class="bg-white border rounded-lg p-4 shadow-sm flex gap-4">
+        @if ($post->imageUrl())
+            <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}"
+                class="w-24 h-24 object-cover rounded shrink-0">
+        @endif
+
+        <div class="flex-1">
+            <h2 class="font-semibold text-lg">
+                <a href="/posts/{{ $post->slug }}" class="hover:underline hover:text-blue-600">
+                    {{ $post->title }}
+                </a>
+            </h2>
+            <p class="text-gray-600">{{ $post->body }}</p>
+            <p class="text-xs text-gray-400 mt-1">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+            @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+                <div class="mt-2 flex gap-2">
+                    <a href="/posts/{{ $post->id }}/edit"
+                        class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                        Edit
+                    </a>
+
+                    <form method="POST" action="/posts/{{ $post->id }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" onclick="return confirm('Yakin hapus?')"
+                            class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            @endif
+        </div>
+    </div>
+@endforeach
+```
+
+`object-cover` — class Tailwind biar gambar gak gepeng/melar, tetep proporsional walau dipaksa jadi kotak `w-24 h-24`.
+
+### 8. Tampilin Gambar di Halaman Detail (Single Post)
+
+**📁 File: `resources/views/posts/show.blade.php`** — tambah gambar full-size di atas judul:
+
+```blade
+@extends('layouts.app')
+
+@section('title', $post->title)
+
+@section('content')
+    <a href="/posts" class="text-sm text-blue-600 hover:underline">&larr; Kembali ke Daftar Post</a>
+
+    <div class="bg-white border rounded-lg p-6 shadow-sm mt-4">
+        @if ($post->imageUrl())
+            <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}"
+                class="w-full max-h-96 object-cover rounded mb-4">
+        @endif
+
+        <h1 class="text-2xl font-bold">{{ $post->title }}</h1>
+        <p class="text-xs text-gray-400 mt-1">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+        <p class="text-gray-700 mt-4 whitespace-pre-line">{{ $post->body }}</p>
+
+        @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+            <div class="mt-6 flex gap-2 border-t pt-4">
+                <a href="/posts/{{ $post->id }}/edit"
+                    class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                    Edit
+                </a>
+
+                <form method="POST" action="/posts/{{ $post->id }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" onclick="return confirm('Yakin hapus?')"
+                        class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                        Hapus
+                    </button>
+                </form>
+            </div>
+        @endif
+    </div>
+@endsection
+```
+
+### 9. Cek hasilnya
+
+1. Buka `/posts/create`, isi title/body, **upload file gambar** dari komputer, submit.
+2. Cek `/posts` — thumbnail gambar harus muncul di sebelah kiri post itu.
+3. Klik judul post itu — di halaman detail (`/posts/{slug}`), gambar full-size harus muncul di atas judul.
+4. Bikin post baru lagi, kali ini **isi link URL** (misal dari [unsplash.com](https://unsplash.com), klik kanan gambar → copy image address) di field "Link Gambar", jangan upload file. Submit — gambar dari link itu harus muncul juga.
+5. Edit salah satu post, coba **ganti** gambarnya (upload baru / link baru) — gambar lama harus keganti.
+6. Edit post lain, **kosongin** dua-duanya (jangan upload, jangan isi link) — gambar lama harus **tetep ada**, gak ilang.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| File ke-upload tapi gambar gak muncul (404/broken image) | Belum jalanin `php artisan storage:link` |
+| Error `The image failed to upload` / validasi gagal terus | Cek ekstensi file (harus jpg/png/gif/dll) dan ukuran (maks 2MB sesuai `max:2048`) |
+| Field `image` kebawa kosong padahal udah pilih file | `<form>` lupa ditambah `enctype="multipart/form-data"` |
+| Gambar dari link URL gak muncul, padahal link-nya valid | Cek `imageUrl()` di Model — pastiin `Str::startsWith` ngecek `http://`/`https://`, dan link yang ditempel emang link gambar langsung (bukan link halaman web biasa) |
+| Edit post tapi gambar lama malah ilang padahal gak diganti | Cek logic `update()` di Controller — bagian `else { unset($validated['image']); }` harus ada |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Ketiga Belas
+
+| File | Perubahan |
+|---|---|
+| `database/migrations/..._add_image_to_posts_table.php` | Migration baru, tambah kolom `image` (nullable) |
+| `app/Models/Post.php` | Tambah `image` ke `$fillable`, tambah method `imageUrl()` |
+| `app/Http/Controllers/PostController.php` | `store()` & `update()` — handle upload file dan link URL |
+| `resources/views/posts/create.blade.php` | Tambah `enctype`, input upload file + input link URL |
+| `resources/views/posts/edit.blade.php` | Sama kayak create, plus preview gambar lama |
+| `resources/views/posts/index.blade.php` | Tambah thumbnail gambar di tiap baris post |
+| `resources/views/posts/show.blade.php` | Tambah gambar full-size di halaman detail |
+
+### Ringkasan Praktik Ketiga Belas
+
+| Sebelum (Praktik 1-12) | Sesudah (Praktik 13) |
+|---|---|
+| Post cuma punya title + body | Post bisa punya gambar (opsional) |
+| Belum ada file upload | Ada upload file (`storage/app/public/posts/`) |
+| — | Bisa juga isi link URL gambar langsung (misal Unsplash) |
+
+> Ini nutup fitur inti CRUD Post. Sisa roadmap (search, pagination, Form Request, Policy, dst) lebih ke **rapiin & scale-up**, bukan fitur baru yang keliatan di UI.
+
+## Praktik Keempat Belas: Database Seeder
+
+Selama ini tiap kali `migrate:fresh`, kamu harus `/register` ulang + isi post manual satu-satu. **Seeder** benerin ini — sekali command, database otomatis keisi data dummy (user + post) lengkap.
+
+Konsep baru: **Seeder** (script isi data), **Factory** (template generate data palsu/dummy, udah disinggung sekilas di [Struktur Folder](#struktur-folder-laravel-catatan-belajar)), dan `recycle()` (numpang data yang udah ada, biar gak generate berlebihan).
+
+### 1. Bikin Seeder buat User
+
+```bash
+php artisan make:seeder UserSeeder
+```
+
+**📁 File: `database/seeders/UserSeeder.php`**:
+
+```php
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Seeder;
+
+class UserSeeder extends Seeder
+{
+    public function run(): void
+    {
+        User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'role' => 'admin',
+        ]);
+
+        User::factory(5)->create();
+    }
+}
+```
+
+Penjelasan:
+- `User::factory()->create([...])` — bikin 1 user, tapi field yang dikasih manual (`name`, `email`, `role`) nimpa nilai random dari Factory. Field lain (`password`, dll) tetep pakai default Factory.
+- `User::factory(5)->create()` — bikin 5 user random sekaligus, semua field (nama, email) di-generate otomatis pakai [Faker](https://fakerphp.github.io/) (library data dummy).
+- `UserFactory.php` (`database/factories/`) udah otomatis dibuat sama Breeze — cek isinya, default password semua user hasil factory adalah `password` (plain text, di-hash otomatis).
+
+### 2. Bikin Factory buat Post
+
+Beda dari User (udah ada Factory-nya dari Breeze), Post belum punya. Bikin dulu:
+
+```bash
+php artisan make:factory PostFactory --model=Post
+```
+
+**📁 File: `database/factories/PostFactory.php`**:
+
+```php
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<\App\Models\Post>
+ */
+class PostFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'title' => fake()->sentence(4),
+            'body' => fake()->paragraphs(3, true),
+            'image' => fake()->boolean(70) ? fake()->imageUrl(640, 480, 'nature') : null,
+        ];
+    }
+}
+```
+
+Penjelasan:
+- `fake()->sentence(4)` — bikin kalimat random 4 kata, dipakai buat title.
+- `fake()->paragraphs(3, true)` — bikin 3 paragraf random, digabung jadi 1 string (`true` = return string, bukan array), dipakai buat body.
+- `fake()->boolean(70) ? fake()->imageUrl(...) : null` — 70% kemungkinan post punya gambar (placeholder dari [Picsum](https://picsum.photos)), 30% kemungkinan gambarnya kosong (`null`) — biar data dummy-nya bervariasi, gak semua post seragam ada gambar.
+- Gak perlu isi `slug` di sini — inget dari [Praktik Kedua Belas](#praktik-kedua-belas-slug--single-post-view), slug otomatis ke-generate lewat Model Event (`static::creating(...)`) di `Post.php`, jadi Factory/Seeder otomatis kebagian efeknya juga.
+- `user_id` juga gak diisi di sini — nanti diisi dari Seeder (step 3), bukan dari Factory.
+
+### 3. Bikin Seeder buat Post
+
+```bash
+php artisan make:seeder PostSeeder
+```
+
+**📁 File: `database/seeders/PostSeeder.php`**:
+
+```php
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Post;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+
+class PostSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $users = User::all();
+
+        Post::factory(15)->recycle($users)->create();
+    }
+}
+```
+
+Penjelasan:
+- `$users = User::all()` — ambil semua user yang udah ke-seed dari `UserSeeder` (step 1).
+- `->recycle($users)` — biar tiap Post yang dibikin "numpang" salah satu User yang udah ada (dipilih random), bukan bikin User baru lagi buat tiap Post. Tanpa ini, Laravel defaultnya bikin 1 User baru per Post yang butuh relasi (boros & gak realistis).
+- `Post::factory(15)->create()` — bikin 15 Post dummy.
+
+### 4. Daftarin Seeder ke `DatabaseSeeder`
+
+**📁 File: `database/seeders/DatabaseSeeder.php`** — ini "pintu masuk" utama, dipanggil kalau jalanin `php artisan db:seed`:
+
+```php
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $this->call([
+            UserSeeder::class,
+            PostSeeder::class,
+        ]);
+    }
+}
+```
+
+> Urutan di `$this->call([...])` penting — `UserSeeder` **harus** duluan, soalnya `PostSeeder` butuh data User yang udah ada (buat `recycle()`).
+>
+> File asli `DatabaseSeeder.php` bawaan Laravel ada baris `User::factory()->create([...])` langsung di situ — boleh dihapus/diganti kayak di atas, soalnya sekarang urusan bikin User udah dipindah ke `UserSeeder`.
+
+### 5. Jalankan Seeder
+
+Ada 2 cara:
+
+**Cara A — reset database + seed sekaligus** (paling umum dipakai pas development):
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+**Cara B — seed doang, tanpa reset tabel** (kalau tabel udah ada, cuma mau nambah data):
+
+```bash
+php artisan db:seed
+```
+
+### 6. Cek hasilnya
+
+1. Buka phpMyAdmin — tabel `users` harus ada 6 baris (1 admin + 5 random), tabel `posts` harus ada 15 baris.
+2. Login pakai `admin@example.com` / password `password` — harus masuk sebagai admin (cek navbar ada link **User Management**).
+3. Buka `/posts` — harus langsung ada 15 post dummy, sebagian ada gambar (placeholder), sebagian kosong.
+4. Klik salah satu post — halaman detail (`/posts/{slug}`) harus tampil normal, slug-nya otomatis ke-generate dari title random.
+5. Buka `/admin/users` — cek 5 user random tadi, role-nya default `user` (kecuali yang di-set manual `admin`).
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Error `Class "Database\Factories\PostFactory" not found` | Jalankan ulang `composer dump-autoload`, atau pastiin nama file & class-nya `PostFactory` (persis) |
+| Semua Post bikin User baru, jumlah `users` meledak jadi ratusan | `->recycle($users)` kelewat / typo — cek lagi `PostSeeder.php` |
+| `SQLSTATE... role` gak ke-set pas seed admin | Pastiin `role` udah ada di `#[Fillable(...)]` di `User.php` (fix dari [Praktik Kesebelas](#praktik-kesebelas-lengkapi-crud-user-management-tambah--hapus-user)) |
+| Password login admin salah terus | Default password Factory adalah `password` (bukan `Password123` dll) — cek `UserFactory.php` kalau lupa |
+| Gambar placeholder gak muncul (403/gagal load) | Wajar kalau lagi offline — `fake()->imageUrl()` generate link ke Picsum (butuh internet buat nge-load gambarnya) |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Keempat Belas
+
+| File | Perubahan |
+|---|---|
+| `database/seeders/UserSeeder.php` | Seeder baru — bikin 1 admin + 5 user random |
+| `database/factories/PostFactory.php` | Factory baru — template data dummy Post |
+| `database/seeders/PostSeeder.php` | Seeder baru — bikin 15 Post dummy, numpang User yang ada |
+| `database/seeders/DatabaseSeeder.php` | Update — panggil `UserSeeder` & `PostSeeder` lewat `$this->call([...])` |
+
+### Ringkasan Praktik Keempat Belas
+
+| Sebelum (Praktik 1-13) | Sesudah (Praktik 14) |
+|---|---|
+| Isi data dummy manual (register + isi form satu-satu) | `php artisan migrate:fresh --seed` — sekali command, semua keisi |
+| Belum ada Factory buat Post | Ada `PostFactory`, bisa generate berapa aja post dummy |
+| Testing app butuh isi data manual tiap reset | Reset + isi data cuma 1 command, testing jadi jauh lebih cepat |
+
+> Ini bukan cuma buat belajar — di kerjaan beneran, Seeder & Factory juga dipakai buat **automated testing** (nanti di poin 19 Roadmap), biar test gak perlu database production asli.
+
 ## Roadmap Belajar Selanjutnya
 
 Catatan urutan topik dari sini sampai siap bikin project Laravel sendiri / ujian praktik. Belum jadi Praktik detail, ini cuma daftar rencana biar gak lupa.
 
-11. **Slug + Single Post View** — ganti `/posts/{id}` jadi `/posts/{slug}` (URL pakai judul, bukan angka), plus halaman detail satu post (`/posts/judul-post`, terpisah dari halaman list).
-12. **Upload/Link Gambar** — Post bisa punya gambar, dua cara: upload file (`storage/`) atau isi link URL (misal dari Unsplash).
-13. **Search & Filter** — cari post berdasarkan judul (`Post::where('title', 'like', ...)`).
-14. **Pagination** — batesin jumlah post yang tampil per halaman (`Post::paginate(10)`), penting kalau datanya udah banyak.
-15. **Form Request** — pindahin validasi dari Controller ke class terpisah (`php artisan make:request StorePostRequest`), lebih rapi buat form yang makin kompleks.
-16. **Policy** — ganti pengecekan manual `if ($post->user_id !== auth()->id())` jadi `Gate`/`Policy` resmi Laravel (`php artisan make:policy PostPolicy --model=Post`), best practice buat Authorization.
-17. **API Resource + Testing pakai Postman/Thunder Client** — bikin route API terpisah (`routes/api.php`), return data JSON pakai `Resource Controller`, terus di-test manual pakai **Postman** atau **Thunder Client** (extension VS Code). Ini dasar kalau nanti Laravel dipakai jadi backend buat frontend terpisah (React/Vue) atau aplikasi mobile.
-18. **Testing otomatis (PHPUnit)** — nulis test kode biar mastiin fitur gak rusak pas nambah fitur baru, tanpa harus ngetes manual click-click terus.
-19. **Deploy** — naikin project ke hosting beneran (Railway/Hostinger/VPS), bukan cuma jalan di localhost.
+12. **Slug + Single Post View** — ganti `/posts/{id}` jadi `/posts/{slug}` (URL pakai judul, bukan angka), plus halaman detail satu post (`/posts/judul-post`, terpisah dari halaman list).
+13. **Upload/Link Gambar** — Post bisa punya gambar, dua cara: upload file (`storage/`) atau isi link URL (misal dari Unsplash).
+14. **Search & Filter** — cari post berdasarkan judul (`Post::where('title', 'like', ...)`).
+15. **Pagination** — batesin jumlah post yang tampil per halaman (`Post::paginate(10)`), penting kalau datanya udah banyak.
+16. **Form Request** — pindahin validasi dari Controller ke class terpisah (`php artisan make:request StorePostRequest`), lebih rapi buat form yang makin kompleks.
+17. **Policy** — ganti pengecekan manual `if ($post->user_id !== auth()->id())` jadi `Gate`/`Policy` resmi Laravel (`php artisan make:policy PostPolicy --model=Post`), best practice buat Authorization.
+18. **API Resource + Testing pakai Postman/Thunder Client** — bikin route API terpisah (`routes/api.php`), return data JSON pakai `Resource Controller`, terus di-test manual pakai **Postman** atau **Thunder Client** (extension VS Code). Ini dasar kalau nanti Laravel dipakai jadi backend buat frontend terpisah (React/Vue) atau aplikasi mobile.
+19. **Testing otomatis (PHPUnit)** — nulis test kode biar mastiin fitur gak rusak pas nambah fitur baru, tanpa harus ngetes manual click-click terus.
+20. **Deploy** — naikin project ke hosting beneran (Railway/Hostinger/VPS), bukan cuma jalan di localhost.
 
-> Poin 1-16 udah cukup buat bikin project CRUD lengkap yang solid (blog, todo app, dsb) dan cukup buat kebanyakan ujian praktik Laravel dasar-menengah. Poin 17-19 topik lanjutan kalau mau proyeknya lebih serius / siap dipakai orang lain.
+> Poin 1-17 udah cukup buat bikin project CRUD lengkap yang solid (blog, todo app, dsb) dan cukup buat kebanyakan ujian praktik Laravel dasar-menengah. Poin 18-20 topik lanjutan kalau mau proyeknya lebih serius / siap dipakai orang lain.

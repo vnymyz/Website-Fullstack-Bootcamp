@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/create', [PostController::class, 'create']);
     Route::post('/posts', [PostController::class, 'store']);
+    Route::get('/posts/{post:slug}', [PostController::class, 'show']);
     Route::get('/posts/{post}/edit', [PostController::class, 'edit']);
     Route::put('/posts/{post}', [PostController::class, 'update']);
     Route::delete('/posts/{post}', [PostController::class, 'destroy']);
@@ -34,7 +35,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::patch('/users/{user}', [AdminUserController::class, 'updateRole'])->name('users.updateRole');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });
 
 require __DIR__ . '/auth.php';

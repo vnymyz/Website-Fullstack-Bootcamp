@@ -27,6 +27,27 @@
             <textarea name="body" rows="4" class="w-full border rounded px-3 py-2">{{ $post->body }}</textarea>
         </div>
 
+        {{-- upload image --}}
+        @if ($post->imageUrl())
+            <div>
+                <label class="block text-sm font-medium mb-1">Gambar saat ini</label>
+                <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-40 rounded border">
+            </div>
+        @endif
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Ganti Upload Gambar (opsional)</label>
+            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2">
+        </div>
+        {{-- link image --}}
+        <div>
+            <label class="block text-sm font-medium mb-1">Atau ganti Link Gambar (opsional)</label>
+            <input type="url" name="image_url" placeholder="https://images.unsplash.com/..."
+                class="w-full border rounded px-3 py-2">
+        </div>
+
+        <p class="text-xs text-gray-400">Kosongin dua-duanya kalau gambar lama gak mau diganti.</p>
+
         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             Update
         </button>

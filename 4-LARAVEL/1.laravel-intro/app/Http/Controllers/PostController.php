@@ -15,6 +15,12 @@ class PostController extends Controller
         return view('posts.index', ['posts' => $posts]);
     }
 
+    // slug post
+    public function show(Post $post)
+    {
+        return view('posts.show', ['post' => $post]);
+    }
+
     // method untuk buat post atau create post baru
     public function create()
     {
@@ -27,8 +33,17 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
         ]);
 
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->image_url;
+        }
+
+        unset($validated['image_url']);
         $validated['user_id'] = auth()->id();
 
         Post::create($validated);
@@ -56,7 +71,19 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->image_url;
+        } else {
+            unset($validated['image']);
+        }
+
+        unset($validated['image_url']);
 
         $post->update($validated);
 
