@@ -58,6 +58,10 @@ foreach ($biodata as $key => $value) {
     echo "$key: $value<br>";
 }
 
+// nama = rina
+// umur = 22
+// kota = bandung
+
 
 // ===================================================
 // 5. BREAK & CONTINUE
@@ -71,7 +75,7 @@ for ($i = 1; $i <= 10; $i++) {
     if ($i % 2 == 0) {
         continue; // lewatin angka genap, lanjut ke perulangan berikutnya
     }
-    echo "Angka ganjil sebelum 6: $i<br>";
+    echo "<br>Angka ganjil sebelum 6: $i<br>";
 }
 
 // Catatan buat kamu:
