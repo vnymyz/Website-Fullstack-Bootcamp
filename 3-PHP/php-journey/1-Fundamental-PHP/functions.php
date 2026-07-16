@@ -3,12 +3,19 @@
 // 1. FUNGSI DASAR
 // ===================================================
 
+/* bentuk struktur function :
+function nama_function(){
+    blok kode perintah;
+}
+
+nama_function();
+*/
+
 function sapa() {
     echo "Halo dari fungsi!<br>";
 }
 
 sapa(); // panggil fungsinya
-
 
 // ===================================================
 // 2. FUNGSI DENGAN PARAMETER

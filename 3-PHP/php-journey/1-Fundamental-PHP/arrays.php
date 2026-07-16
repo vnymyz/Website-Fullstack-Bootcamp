@@ -2,7 +2,7 @@
 // ===================================================
 // 1. ARRAY INDEXED (mirip Array biasa di JS)
 // ===================================================
-
+        // 0          1         2
 $warna = ["Merah", "Kuning", "Hijau"];
 
 echo "Warna pertama: " . $warna[0] . "<br>"; // index mulai dari 0
@@ -56,15 +56,16 @@ foreach ($daftarProduk as $produk) {
 // ===================================================
 
 $angka = [5, 3, 8, 1, 9];
+// 1 3 5 8 9
 
 sort($angka); // urutin kecil ke besar
 echo "Setelah sort: ";
 print_r($angka);
 echo "<br>";
 
-echo "Total: " . array_sum($angka) . "<br>";
-echo "Terbesar: " . max($angka) . "<br>";
-echo "Terkecil: " . min($angka) . "<br>";
+echo "Total: " . array_sum($angka) . "<br>"; // 5 + 3 + 8 + 1 + 9 = 26
+echo "Terbesar: " . max($angka) . "<br>"; // 9
+echo "Terkecil: " . min($angka) . "<br>"; // 1
 
 $genap = array_filter($angka, function ($n) {
     return $n % 2 == 0;

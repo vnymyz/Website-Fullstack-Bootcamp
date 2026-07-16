@@ -38,7 +38,7 @@ do {
 // ===================================================
 
 echo "<h3>Foreach - Array Sederhana</h3>";
-$buah = ["Apel", "Jeruk", "Mangga"];
+$buah = ["Apel", "Jeruk", "Mangga"]; // list
 
 // Ini mirip banget sama "for...of" di JavaScript:
 // for (const item of buah) { console.log(item) }
@@ -47,7 +47,8 @@ foreach ($buah as $item) {
 }
 
 echo "<h3>Foreach - Array Asosiatif (key => value)</h3>";
-$biodata = [
+$biodata = [ // dictionary
+    // key => value
     "nama" => "Rina",
     "umur" => 22,
     "kota" => "Bandung"
