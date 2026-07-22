@@ -15,7 +15,7 @@
     <title>Latihan Form</title>
 </head>
 <body>
-
+    
     <h2>Form pakai method GET</h2>
     <form action="process.php" method="GET">
         <label>Nama: <input type="text" name="nama"></label><br><br>

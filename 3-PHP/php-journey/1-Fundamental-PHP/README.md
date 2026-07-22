@@ -42,6 +42,8 @@ Pelajari sesuai urutan ini, jangan loncat — tiap file ada catatan "lanjut ke..
 | 6 | `includes-demo/page.php` | `include`/`require` — cara pecah halaman jadi header/footer biar reusable |
 | 7 | `latihan/fizzbuzz.php` | Latihan gabungan: loop + percabangan |
 | 8 | `latihan/kalkulator-struk.php` | Latihan gabungan: loop + array + operator |
+| 9 | `latihan/fizzbuzz-jawaban.php` | Contoh jawaban — cek setelah nyoba sendiri |
+| 10 | `latihan/kalkulator-struk-jawaban.php` | Contoh jawaban — cek setelah nyoba sendiri |
 
 **Cara belajar tiap file:**
 1. Buka file-nya di code editor (VS Code dll), baca komentarnya dari atas ke bawah.
@@ -67,11 +69,15 @@ Sudah tersedia semua (tinggal buka & pelajari):
   latihan/
     fizzbuzz.php                 <- ada TODO, isi sendiri
     kalkulator-struk.php         <- ada TODO, isi sendiri
+    fizzbuzz-jawaban.php         <- contoh jawaban, cek terakhir
+    kalkulator-struk-jawaban.php <- contoh jawaban, cek terakhir
 ```
 
 Yang **perlu kamu isi sendiri** (jangan minta AI buat isiin, ini latihan closed-book):
 - `latihan/fizzbuzz.php` — cari bagian `// TODO: tulis logic FizzBuzz di sini`
 - `latihan/kalkulator-struk.php` — cari bagian-bagian `// TODO`
+
+Jangan buka file `-jawaban.php` duluan. Selesein punya kamu sendiri dulu, baru cocokin ke jawaban buat ngecek logic-nya bener atau nggak.
 
 ## Checkpoint Sebelum Lanjut ke Sesi 2
 

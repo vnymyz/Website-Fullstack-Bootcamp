@@ -6,6 +6,7 @@
     <h2>Website Latihan PHP</h2>
     <nav>
         <a href="page.php" style="color:white;">Home</a> |
-        <a href="#" style="color:white;">About</a>
+        <a href="#" style="color:white;">About</a> |
+        <a href="#" style="color:white;">Contact</a>
     </nav>
 </header>
