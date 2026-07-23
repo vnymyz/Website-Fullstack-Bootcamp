@@ -13,7 +13,7 @@
         </ul>
     @endif
 
-    <form method="POST" action="/posts" class="space-y-4">
+    <form method="POST" action="/posts" enctype="multipart/form-data" class="space-y-4">
         @csrf
 
         {{-- ini judul --}}

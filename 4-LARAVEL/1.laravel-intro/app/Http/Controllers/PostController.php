@@ -4,15 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 
 class PostController extends Controller
 {
-    // method untuk menampilkan semua post
-    public function index()
+    // method untuk menampilkan semua post dan searching post
+    public function index(Request $request)
     {
-        $posts = Post::all();
+        $posts = Post::when($request->search, function ($query, $search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        })->latest()->paginate(6)->withQueryString();
 
-        return view('posts.index', ['posts' => $posts]);
+        return view('posts.index', [
+            'posts' => $posts,
+            'search' => $request->search,
+        ]);
     }
 
     // slug post
@@ -28,14 +35,9 @@ class PostController extends Controller
     }
 
     // method untuk simpen data atau store
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'image' => 'nullable|image|max:2048',
-            'image_url' => 'nullable|url',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('posts', 'public');
@@ -54,26 +56,15 @@ class PostController extends Controller
     // method untuk edit post
     public function edit(Post $post)
     {
-        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->authorize('update', $post);
 
         return view('posts.edit', ['post' => $post]);
     }
 
     // method untuk update post
-    public function update(Request $request, Post $post)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'image' => 'nullable|image|max:2048',
-            'image_url' => 'nullable|url',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('posts', 'public');
@@ -93,9 +84,7 @@ class PostController extends Controller
     // method untuk delete post
     public function destroy(Post $post)
     {
-        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->authorize('delete', $post);
 
         $post->delete();
 

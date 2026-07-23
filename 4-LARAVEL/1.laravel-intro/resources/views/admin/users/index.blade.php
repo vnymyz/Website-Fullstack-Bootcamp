@@ -2,6 +2,8 @@
 
 @section('title', 'Kelola User')
 
+@section('container', 'max-w-5xl')
+
 @section('content')
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">Kelola User</h1>
@@ -50,7 +52,7 @@
                                     @method('PATCH')
 
                                     <select name="role"
-                                        class="border rounded text-sm pl-2 pr-6 py-1.5 bg-white min-w-[90px]">
+                                        class="border rounded text-sm pl-2 pr-6 py-1.5 bg-white w-[100px]">
                                         <option value="user" @selected($user->role === 'user')>user</option>
                                         <option value="admin" @selected($user->role === 'admin')>admin</option>
                                     </select>
@@ -73,8 +75,8 @@
                                     </form>
                                 @else
                                     <span
-                                        class="text-xs text-gray-400 italic px-3 py-1.5 shrink-0 whitespace-nowrap">
-                                        Akun kamu
+                                        class="text-xs bg-gray-100 text-gray-500 px-3 py-1.5 rounded shrink-0 whitespace-nowrap">
+                                        Kamu
                                     </span>
                                 @endif
                             </div>

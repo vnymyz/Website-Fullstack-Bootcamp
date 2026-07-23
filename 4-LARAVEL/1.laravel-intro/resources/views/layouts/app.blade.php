@@ -14,7 +14,7 @@
 <body class="bg-gray-100 font-sans antialiased">
     @include('layouts.navigation')
 
-    <main class="max-w-2xl mx-auto p-6">
+    <main class="@yield('container', 'max-w-2xl') mx-auto p-6">
         @yield('content')
     </main>
 </body>

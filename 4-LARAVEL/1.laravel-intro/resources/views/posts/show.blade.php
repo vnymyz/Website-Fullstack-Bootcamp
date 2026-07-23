@@ -15,8 +15,8 @@
 
         <p class="text-gray-700 mt-4 whitespace-pre-line">{{ $post->body }}</p>
 
-        @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
-            <div class="mt-6 flex gap-2 border-t pt-4">
+        @can('update', $post)
+            <div class="mt-3 flex gap-2">
                 <a href="/posts/{{ $post->id }}/edit"
                     class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
                     Edit
@@ -31,6 +31,6 @@
                     </button>
                 </form>
             </div>
-        @endif
+        @endcan
     </div>
 @endsection

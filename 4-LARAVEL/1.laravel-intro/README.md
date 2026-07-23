@@ -23,6 +23,11 @@ Project ini buat latihan belajar Laravel. Catatan di bawah dibuat buat pemula ya
 - [Praktik Kedua Belas: Slug + Single Post View](#praktik-kedua-belas-slug--single-post-view)
 - [Praktik Ketiga Belas: Upload/Link Gambar](#praktik-ketiga-belas-uploadlink-gambar)
 - [Praktik Keempat Belas: Database Seeder](#praktik-keempat-belas-database-seeder)
+- [Praktik Kelima Belas: Search & Filter](#praktik-kelima-belas-search--filter)
+- [Praktik Keenam Belas: Pagination & Card Grid](#praktik-keenam-belas-pagination--card-grid)
+- [Praktik Ketujuh Belas: Form Request](#praktik-ketujuh-belas-form-request)
+- [Praktik Kedelapan Belas: Policy](#praktik-kedelapan-belas-policy)
+- [Praktik Kesembilan Belas: API Resource + Testing pakai Thunder Client](#praktik-kesembilan-belas-api-resource--testing-pakai-thunder-client)
 - [Roadmap Belajar Selanjutnya](#roadmap-belajar-selanjutnya)
 
 ## Apa itu Laravel?
@@ -2982,7 +2987,7 @@ Penjelasan:
 |---|---|
 | File ke-upload tapi gambar gak muncul (404/broken image) | Belum jalanin `php artisan storage:link` |
 | Error `The image failed to upload` / validasi gagal terus | Cek ekstensi file (harus jpg/png/gif/dll) dan ukuran (maks 2MB sesuai `max:2048`) |
-| Field `image` kebawa kosong padahal udah pilih file | `<form>` lupa ditambah `enctype="multipart/form-data"` |
+| Field `image` kebawa kosong padahal udah pilih file, atau muncul error validasi **"The image field must be an image"** walau file yang di-upload jelas jpg/png asli | `<form>` lupa ditambah `enctype="multipart/form-data"`. Tanpa ini, browser gak beneran ngirim isi file-nya, jadi Laravel nganggep field itu bukan file gambar valid. Cek di `create.blade.php` **dan** `edit.blade.php` — dua-duanya harus ada `enctype` |
 | Gambar dari link URL gak muncul, padahal link-nya valid | Cek `imageUrl()` di Model — pastiin `Str::startsWith` ngecek `http://`/`https://`, dan link yang ditempel emang link gambar langsung (bukan link halaman web biasa) |
 | Edit post tapi gambar lama malah ilang padahal gak diganti | Cek logic `update()` di Controller — bagian `else { unset($validated['image']); }` harus ada |
 
@@ -3052,7 +3057,25 @@ Penjelasan:
 
 ### 2. Bikin Factory buat Post
 
-Beda dari User (udah ada Factory-nya dari Breeze), Post belum punya. Bikin dulu:
+Beda dari User (udah ada Factory-nya dari Breeze), Post belum punya. Sebelum bikin Factory-nya, cek dulu **📁 File: `app/Models/Post.php`** — kalau belum ada `use HasFactory;`, tambahin dulu:
+
+```php
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
+class Post extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['title', 'body', 'image', 'user_id'];
+
+    // ...method lain yang udah ada tetap sama
+```
+
+> ⚠️ Trait `HasFactory` ini yang ngasih Model method `::factory()`. Kalau kelewat, nanti pas `Post::factory(...)` dipanggil di Seeder bakal error `Call to undefined method App\Models\Post::factory()`. `User.php` (bawaan Breeze) udah otomatis punya trait ini dari awal, tapi `Post.php` (yang kamu bikin sendiri dari Praktik 4) enggak — makanya harus ditambah manual di sini.
+
+Setelah itu, bikin Factory-nya:
 
 ```bash
 php artisan make:factory PostFactory --model=Post
@@ -3065,6 +3088,7 @@ php artisan make:factory PostFactory --model=Post
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -3072,12 +3096,24 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PostFactory extends Factory
 {
+    protected array $images = [
+        'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=640&q=80',
+        'https://images.unsplash.com/photo-1517842645767-c639042777db?w=640&q=80',
+        'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=640&q=80',
+        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=640&q=80',
+        'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=640&q=80',
+        'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=640&q=80',
+        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=640&q=80',
+        'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=640&q=80',
+    ];
+
     public function definition(): array
     {
         return [
             'title' => fake()->sentence(4),
             'body' => fake()->paragraphs(3, true),
-            'image' => fake()->boolean(70) ? fake()->imageUrl(640, 480, 'nature') : null,
+            'image' => fake()->randomElement($this->images),
+            'user_id' => User::factory(),
         ];
     }
 }
@@ -3086,9 +3122,9 @@ class PostFactory extends Factory
 Penjelasan:
 - `fake()->sentence(4)` — bikin kalimat random 4 kata, dipakai buat title.
 - `fake()->paragraphs(3, true)` — bikin 3 paragraf random, digabung jadi 1 string (`true` = return string, bukan array), dipakai buat body.
-- `fake()->boolean(70) ? fake()->imageUrl(...) : null` — 70% kemungkinan post punya gambar (placeholder dari [Picsum](https://picsum.photos)), 30% kemungkinan gambarnya kosong (`null`) — biar data dummy-nya bervariasi, gak semua post seragam ada gambar.
+- `protected array $images` — daftar link foto asli dari [Unsplash](https://unsplash.com), bukan placeholder abstrak. `fake()->randomElement($this->images)` milih 1 secara acak dari daftar ini buat tiap post, jadi **selalu ada gambar** (gak ada lagi kemungkinan kosong).
 - Gak perlu isi `slug` di sini — inget dari [Praktik Kedua Belas](#praktik-kedua-belas-slug--single-post-view), slug otomatis ke-generate lewat Model Event (`static::creating(...)`) di `Post.php`, jadi Factory/Seeder otomatis kebagian efeknya juga.
-- `user_id` juga gak diisi di sini — nanti diisi dari Seeder (step 3), bukan dari Factory.
+- `'user_id' => User::factory()` — **wajib diisi di sini**, walau nanti nilainya bakal ditimpa `recycle()` di Seeder (step 3). Tanpa baris ini, `recycle()` gak punya "relasi" yang bisa disubstitusi, jadi `user_id` bakal kosong pas insert dan bikin error `Field 'user_id' doesn't have a default value` (kolom itu NOT NULL, dari foreign key di Praktik Kesembilan).
 
 ### 3. Bikin Seeder buat Post
 
@@ -3170,7 +3206,7 @@ php artisan db:seed
 
 1. Buka phpMyAdmin — tabel `users` harus ada 6 baris (1 admin + 5 random), tabel `posts` harus ada 15 baris.
 2. Login pakai `admin@example.com` / password `password` — harus masuk sebagai admin (cek navbar ada link **User Management**).
-3. Buka `/posts` — harus langsung ada 15 post dummy, sebagian ada gambar (placeholder), sebagian kosong.
+3. Buka `/posts` — harus langsung ada 15 post dummy, semuanya ada gambar (dari daftar link Unsplash di `$images`).
 4. Klik salah satu post — halaman detail (`/posts/{slug}`) harus tampil normal, slug-nya otomatis ke-generate dari title random.
 5. Buka `/admin/users` — cek 5 user random tadi, role-nya default `user` (kecuali yang di-set manual `admin`).
 
@@ -3182,7 +3218,8 @@ php artisan db:seed
 | Semua Post bikin User baru, jumlah `users` meledak jadi ratusan | `->recycle($users)` kelewat / typo — cek lagi `PostSeeder.php` |
 | `SQLSTATE... role` gak ke-set pas seed admin | Pastiin `role` udah ada di `#[Fillable(...)]` di `User.php` (fix dari [Praktik Kesebelas](#praktik-kesebelas-lengkapi-crud-user-management-tambah--hapus-user)) |
 | Password login admin salah terus | Default password Factory adalah `password` (bukan `Password123` dll) — cek `UserFactory.php` kalau lupa |
-| Gambar placeholder gak muncul (403/gagal load) | Wajar kalau lagi offline — `fake()->imageUrl()` generate link ke Picsum (butuh internet buat nge-load gambarnya) |
+| Gambar gak muncul di kartu post hasil seeder | Wajar kalau lagi offline — link Unsplash di `$images` butuh internet buat nge-load gambarnya. Cek juga link-nya masih aktif (buka manual di browser) |
+| Semua post gambarnya sama persis | Wajar kalau `$images` isinya cuma 1-2 link, atau data yang di-seed dikit — coba tambah lebih banyak link di array `$images`, atau perbesar `Post::factory(15)` di `PostSeeder.php` |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Keempat Belas
 
@@ -3203,18 +3240,1274 @@ php artisan db:seed
 
 > Ini bukan cuma buat belajar — di kerjaan beneran, Seeder & Factory juga dipakai buat **automated testing** (nanti di poin 19 Roadmap), biar test gak perlu database production asli.
 
+## Praktik Kelima Belas: Search & Filter
+
+Sekarang `/posts` nampilin semua post sekaligus, gak ada cara nyari post tertentu berdasarkan judul. Praktik ini nambah kotak pencarian — ketik kata kunci, list otomatis ke-filter.
+
+Konsep baru: **query string** (`?search=...` di URL) dan **conditional query builder** (`when()` — nambah kondisi query cuma kalau syaratnya kepenuhi).
+
+### 1. Update Controller — tambah logic search
+
+**📁 File: `app/Http/Controllers/PostController.php`** — update method `index()`:
+
+```php
+public function index(Request $request)
+{
+    $posts = Post::when($request->search, function ($query, $search) {
+        $query->where('title', 'like', '%' . $search . '%');
+    })->latest()->get();
+
+    return view('posts.index', [
+        'posts' => $posts,
+        'search' => $request->search,
+    ]);
+}
+```
+
+Penjelasan:
+- `Post::when($request->search, function ($query, $search) { ... })` — `when()` cuma jalanin closure di dalamnya **kalau** `$request->search` ada isinya (gak `null`/kosong). Kalau user belum ngetik apa-apa di kotak search, query jalan normal kayak biasa (`Post::all()`-nya setara).
+- `$query->where('title', 'like', '%' . $search . '%')` — cari post yang **title-nya mengandung** kata kunci, di posisi manapun (`%` di depan & belakang = wildcard, artinya "apa aja boleh sebelum/sesudah kata kunci").
+- `->latest()` — urutin post terbaru duluan (`ORDER BY created_at DESC`), biar makin masuk akal daripada urutan acak.
+- `'search' => $request->search` — dikirim balik ke view, biar kotak input search **tetep nunjukin kata kunci yang diketik** setelah submit (gak ke-reset kosong).
+
+### 2. Update Route
+
+**📁 File: `routes/web.php`** — cek route `/posts` udah otomatis nerima query string tanpa perlu diubah:
+
+```php
+Route::get('/posts', [PostController::class, 'index']);
+```
+
+> Gak perlu diubah! Query string (`?search=laravel`) itu bagian dari URL yang sama, Laravel otomatis nangkep lewat `$request` di Controller — beda konsep sama **route parameter** (`{id}`/`{slug}`) yang udah dipelajari di Praktik 2 & 12.
+
+### 3. Tambah Form Search di View
+
+**📁 File: `resources/views/posts/index.blade.php`** — tambah form pencarian di atas list:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Daftar Post')
+
+@section('content')
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Daftar Post</h1>
+        <a href="/posts/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Tambah Post
+        </a>
+    </div>
+
+    <form method="GET" action="/posts" class="mb-4 flex gap-2">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Cari judul post..."
+            class="flex-1 border rounded px-3 py-2">
+        <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
+            Cari
+        </button>
+        @if ($search)
+            <a href="/posts" class="text-sm text-gray-500 px-3 py-2 hover:underline">Reset</a>
+        @endif
+    </form>
+
+    <div class="space-y-4">
+        @forelse ($posts as $post)
+            <div class="bg-white border rounded-lg p-4 shadow-sm flex gap-4">
+                @if ($post->imageUrl())
+                    <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}"
+                        class="w-24 h-24 object-cover rounded shrink-0">
+                @endif
+
+                <div class="flex-1">
+                    <h2 class="font-semibold text-lg">
+                        <a href="/posts/{{ $post->slug }}" class="hover:underline hover:text-blue-600">
+                            {{ $post->title }}
+                        </a>
+                    </h2>
+                    <p class="text-gray-600">{{ $post->body }}</p>
+                    <p class="text-xs text-gray-400 mt-1">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+                    @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+                        <div class="mt-2 flex gap-2">
+                            <a href="/posts/{{ $post->id }}/edit"
+                                class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                                Edit
+                            </a>
+
+                            <form method="POST" action="/posts/{{ $post->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Yakin hapus?')"
+                                    class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <p class="text-gray-500 text-sm">Gak ada post yang cocok dengan pencarian "{{ $search }}".</p>
+        @endforelse
+    </div>
+@endsection
+```
+
+Penjelasan:
+- `<form method="GET" action="/posts">` — pakai `GET`, bukan `POST`. Search itu sifatnya "baca data" doang, bukan ubah data, dan `GET` otomatis nyimpen kata kunci di URL (`?search=laravel`), jadi bisa di-bookmark/share.
+- `name="search"` di `<input>` — nama ini **harus sama persis** dengan yang dibaca di Controller (`$request->search`).
+- `@forelse ... @empty ... @endforelse` — versi `@foreach` yang punya "fallback" kalau data-nya kosong. Kalau `$posts` kosong (gak ada hasil cocok), otomatis tampilin pesan di `@empty` — gak perlu `@if (count($posts) > 0)` manual.
+- Tombol **Reset** cuma muncul kalau lagi ada pencarian aktif (`@if ($search)`), link-nya balik ke `/posts` polos (tanpa query string).
+
+### 4. Cek hasilnya
+
+1. Buka `/posts` — semua post tampil, kotak search kosong.
+2. Ketik sebagian judul salah satu post (misal "Belajar"), klik **Cari**.
+3. URL harus berubah jadi `/posts?search=Belajar`, list otomatis ke-filter cuma post yang judulnya mengandung "Belajar".
+4. Kotak input harus tetep nunjukin "Belajar" (gak kosong lagi) setelah submit.
+5. Cari kata yang gak ada di judul manapun — harus muncul pesan "Gak ada post yang cocok...".
+6. Klik **Reset** — balik nampilin semua post.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Search gak ngefilter apa-apa, selalu nampilin semua post | Cek `name="search"` di `<input>` sama persis kayak `$request->search` di Controller |
+| Kotak search jadi kosong lagi setelah submit | Pastiin `value="{{ $search }}"` ada di `<input>`, dan `'search' => $request->search` dikirim dari Controller ke view |
+| Error `Undefined variable $search` | View dipanggil tanpa key `search` di `view('posts.index', [...])` — cek Controller step 1 |
+| Search "nemplok" gak reset pas klik link lain di navbar | Wajar — search cuma nempel di URL `/posts?search=...`, pindah ke halaman lain otomatis ilang karena beda URL |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kelima Belas
+
+| File | Perubahan |
+|---|---|
+| `app/Http/Controllers/PostController.php` | `index()` — tambah `Request $request`, logic `when()` buat search, `->latest()` |
+| `resources/views/posts/index.blade.php` | Tambah form search (`GET`), ganti `@foreach` jadi `@forelse`/`@empty` |
+
+### Ringkasan Praktik Kelima Belas
+
+| Sebelum (Praktik 1-14) | Sesudah (Praktik 15) |
+|---|---|
+| `/posts` selalu nampilin semua data | Bisa difilter lewat kotak search |
+| Urutan post gak jelas/acak | Post terbaru tampil duluan (`->latest()`) |
+| `@foreach` polos | `@forelse`/`@empty` — ada pesan kalau hasil kosong |
+
+> `when()` ini pola yang sering banget dipakai di Laravel buat query yang "kondisional" — nanti kalau nambah filter lain (misal filter by kategori, filter by tanggal), tinggal tambah `->when(...)` lagi berantai, gak perlu `if-else` bertingkat manual.
+
+## Praktik Keenam Belas: Pagination & Card Grid
+
+Sekarang `/posts` nampilin **semua** post sekaligus dalam 1 halaman panjang — kalau datanya udah puluhan/ratusan (apalagi abis pakai Seeder), scroll-nya jadi kepanjangan. Praktik ini nambah **pagination** (potong per halaman), sekalian dandanin tampilan card-nya jadi **grid** (gambar di atas, rapi kayak kartu blog).
+
+Konsep baru: **pagination** (`->paginate()`), dan `withQueryString()` (biar filter search gak ilang pas pindah halaman).
+
+### 1. Update Controller — ganti `get()` jadi `paginate()`
+
+**📁 File: `app/Http/Controllers/PostController.php`** — update method `index()`:
+
+```php
+public function index(Request $request)
+{
+    $posts = Post::when($request->search, function ($query, $search) {
+        $query->where('title', 'like', '%' . $search . '%');
+    })->latest()->paginate(6)->withQueryString();
+
+    return view('posts.index', [
+        'posts' => $posts,
+        'search' => $request->search,
+    ]);
+}
+```
+
+Penjelasan:
+- `->paginate(6)` — ganti `->get()`. Angka `6` artinya 6 post per halaman (pas buat grid 3 kolom, 2 baris). Laravel otomatis ngitung total halaman, nentuin data mana yang ditampilin sesuai `?page=2`, `?page=3`, dst di URL.
+- `->withQueryString()` — biar query string lain (kayak `?search=laravel` dari Praktik 15) **tetep kebawa** pas pindah ke halaman berikutnya. Tanpa ini, klik "Next" bakal ilangin hasil pencarian.
+- `$posts` sekarang bukan `Collection` biasa lagi, tapi objek `LengthAwarePaginator` — tetep bisa di-`@foreach`/`@forelse` kayak biasa di view, cuma punya method tambahan kayak `->links()` (buat nampilin tombol Next/Previous).
+
+### 2. Update View — Card Grid + Tombol Pagination
+
+**📁 File: `resources/views/posts/index.blade.php`** — rombak total jadi grid layout:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Daftar Post')
+
+@section('container', 'max-w-6xl')
+
+@section('content')
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Daftar Post</h1>
+        <a href="/posts/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Tambah Post
+        </a>
+    </div>
+
+    <form method="GET" action="/posts" class="mb-6 flex gap-2">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Cari judul post..."
+            class="flex-1 border rounded px-3 py-2">
+        <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
+            Cari
+        </button>
+        @if ($search)
+            <a href="/posts" class="text-sm text-gray-500 px-3 py-2 hover:underline">Reset</a>
+        @endif
+    </form>
+
+    <div class="flex justify-end mb-6">
+        {{ $posts->links() }}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @forelse ($posts as $post)
+            <div class="bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col">
+                @if ($post->imageUrl())
+                    <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
+                @else
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        Tanpa gambar
+                    </div>
+                @endif
+
+                <div class="p-4 flex flex-col flex-1">
+                    <h2 class="font-semibold text-lg mb-1">
+                        <a href="/posts/{{ $post->slug }}" class="hover:underline hover:text-blue-600">
+                            {{ $post->title }}
+                        </a>
+                    </h2>
+
+                    <p class="text-gray-600 text-sm line-clamp-3 flex-1">{{ $post->body }}</p>
+
+                    <p class="text-xs text-gray-400 mt-3">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+                    @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+                        <div class="mt-3 flex gap-2">
+                            <a href="/posts/{{ $post->id }}/edit"
+                                class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                                Edit
+                            </a>
+
+                            <form method="POST" action="/posts/{{ $post->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Yakin hapus?')"
+                                    class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <p class="text-gray-500 text-sm col-span-full">Gak ada post yang cocok dengan pencarian "{{ $search }}".</p>
+        @endforelse
+    </div>
+
+    <div class="flex justify-end mt-6">
+        {{ $posts->links() }}
+    </div>
+@endsection
+```
+
+Penjelasan:
+- `@section('container', 'max-w-6xl')` — pola yang sama kayak dipakai di `/admin/users` sebelumnya, biar halaman ini lebih lebar dari default `max-w-2xl` (muat 3 kolom kartu).
+- `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6` — 1 kolom di layar HP, 2 kolom di tablet, 3 kolom di desktop. Ini **responsive design** dasar pakai Tailwind.
+- Gambar sekarang `w-full h-48 object-cover` — full lebar kartu, tinggi tetap 48 (192px), gak gepeng.
+- Post tanpa gambar dikasih placeholder abu-abu ("Tanpa gambar"), biar tinggi kartu tetep konsisten sebaris sama yang ada gambar.
+- `line-clamp-3` — potong teks body maksimal 3 baris, sisanya otomatis kasih `...`. Class ini bawaan Tailwind v4 (gak perlu plugin tambahan).
+- `flex flex-col flex-1` di wrapper konten — biar tombol Edit/Hapus selalu nempel di **bawah** kartu, walau body-nya pendek/panjang beda-beda antar kartu (card tetep sejajar rapi).
+- `{{ $posts->links() }}` — ini yang nampilin tombol Previous/Next + nomor halaman. Laravel otomatis generate HTML-nya lengkap dengan style Tailwind, gak perlu bikin manual.
+- Pagination sengaja ditaruh **2 kali** (atas, tepat di bawah search bar, dan bawah, di akhir grid) — biar user gak perlu scroll balik ke atas buat pindah halaman kalau lagi di bawah.
+- `flex justify-end` — nge-dorong tombol pagination rata ke **kanan** (bukan tengah), pola umum di banyak web/dashboard biar mata gampang nemuinnya konsisten di satu sisi.
+
+### 3. Publish & Cek Warna Pagination Bawaan Laravel
+
+Laravel udah nyiapin tampilan pagination siap pakai (`{{ $posts->links() }}`), **default-nya udah putih/abu-abu** (`bg-white`, border abu-abu, cuma halaman aktif dikasih `bg-gray-200`) — jadi otomatis nyatu sama tema web ini tanpa perlu bikin manual atau dibungkus card tambahan.
+
+Kalau nanti mau kustomisasi lebih jauh (misal ganti warna halaman aktif, ubah bentuk tombol), publish dulu file view-nya biar bisa diedit:
+
+```bash
+php artisan vendor:publish --tag=laravel-pagination
+```
+
+Ini bikin file baru **📁 File: `resources/views/vendor/pagination/tailwind.blade.php`** — isinya salinan tampilan pagination bawaan Laravel. Karena file ini sekarang ada di project kamu (bukan di dalam `vendor/`), otomatis dipakai gantiin punya Laravel, dan bisa diedit bebas (misal ganti `bg-gray-200` di halaman aktif jadi `bg-blue-600 text-white` biar senada sama tombol-tombol lain).
+
+> Gak wajib di-publish kalau warna default-nya udah cocok — cukup dijalanin sekali kalau suatu saat mau utak-atik tampilannya lebih detail.
+
+### 4. Cek hasilnya
+
+1. Refresh `/posts` — tampilan sekarang jadi grid 3 kolom (di layar desktop), tiap kartu ada gambar di atas.
+2. Kalau jumlah post lebih dari 6, harus muncul tombol pagination — di **atas** (bawah search bar) dan di **bawah** (akhir grid), rata kanan, warna putih/abu-abu nyatu tema.
+3. Klik halaman 2 — URL berubah jadi `/posts?page=2`, isi grid ganti ke 6 post berikutnya.
+4. Coba search dulu (misal ketik "Belajar"), abis itu klik halaman 2 (kalau hasilnya lebih dari 6) — cek URL harus jadi `/posts?search=Belajar&page=2` (dua-duanya kebawa, berkat `withQueryString()`).
+5. Coba resize browser sempit (atau buka dari HP) — grid harus otomatis jadi 1 kolom.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Tombol pagination gak muncul sama sekali | Total post kamu kurang dari 6 (angka di `paginate(6)`) — pagination cuma muncul kalau datanya lebih dari 1 halaman. Coba turunin ke `paginate(3)` buat testing |
+| Klik halaman 2, hasil search ilang balik ke semua post | `->withQueryString()` kelewat gak ditambah di Controller |
+| Card tinggi-nya gak sejajar antar kolom | Cek `flex flex-col flex-1` ada di wrapper konten (div dalam kartu) |
+| `line-clamp-3` gak motong teks (teks panjang tetep penuh) | Pastiin Tailwind versi 4 (cek `package.json` — kalau Tailwind v3 ke bawah, butuh install plugin `@tailwindcss/line-clamp` terpisah) |
+| Pagination keliatan rata tengah padahal mau rata kanan | Cek class `flex justify-end` (bukan `justify-center`) di div pembungkus `{{ $posts->links() }}` |
+| Udah publish view tapi perubahan warna gak kepakai | Cek file ada di `resources/views/vendor/pagination/tailwind.blade.php` (bukan di folder lain), dan `npm run dev` masih jalan buat compile ulang class Tailwind baru |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Keenam Belas
+
+| File | Perubahan |
+|---|---|
+| `app/Http/Controllers/PostController.php` | `index()` — `->get()` jadi `->paginate(6)->withQueryString()` |
+| `resources/views/posts/index.blade.php` | Rombak jadi grid card (gambar atas), tambah `{{ $posts->links() }}` di atas & bawah, rata kanan (`flex justify-end`) |
+| `resources/views/vendor/pagination/tailwind.blade.php` | (Opsional) Hasil publish, buat kustomisasi warna/tampilan pagination lebih lanjut |
+
+### Ringkasan Praktik Keenam Belas
+
+| Sebelum (Praktik 1-15) | Sesudah (Praktik 16) |
+|---|---|
+| Semua post tampil sekaligus, list vertikal | Dibagi per halaman (6 post/halaman), tampilan grid |
+| Card horizontal (gambar kiri, teks kanan) | Card vertikal (gambar atas, konten bawah) — kayak kartu blog umum |
+| Belum responsive khusus (cuma 1 kolom) | Grid 1/2/3 kolom tergantung lebar layar |
+| Belum ada pagination | Pagination di atas & bawah, warna nyatu tema putih website |
+
+> Pagination itu bukan cuma soal tampilan — ini juga soal **performa**. Tanpa pagination, `Post::all()` bakal narik SEMUA baris dari database sekaligus walau cuma mau nampilin 9. Makin banyak data, makin lambat. `paginate()` cuma narik data secukupnya per halaman.
+
+### Perubahan Tambahan Setelah Praktik 16 (Fine-tuning)
+
+Beberapa penyesuaian kecil yang dilakuin setelah versi awal Praktik 16, biar tampilan & data dummy makin pas:
+
+| # | Perubahan | File | Detail |
+|---|---|---|---|
+| 1 | Jumlah post per halaman diturunin | `app/Http/Controllers/PostController.php` | `paginate(9)` → `paginate(6)` |
+| 2 | Pagination ditaruh 2 kali | `resources/views/posts/index.blade.php` | `{{ $posts->links() }}` muncul di **atas** (bawah search bar) dan di **bawah** (akhir grid) |
+| 3 | Pagination diratain ke kanan | `resources/views/posts/index.blade.php` | Class `flex justify-center` diganti jadi `flex justify-end` |
+| 4 | Wrapper card putih di pagination dihapus | `resources/views/posts/index.blade.php` | Div `bg-white rounded-lg shadow-sm p-3` dihapus — tombol pagination bawaan Laravel udah putih/abu-abu dari sananya, jadi udah nyatu sama tema tanpa perlu dibungkus card lagi |
+| 5 | View pagination di-publish (opsional) | `resources/views/vendor/pagination/tailwind.blade.php` | Dijalanin `php artisan vendor:publish --tag=laravel-pagination` — biar bisa kustomisasi warna/tampilan pagination lebih lanjut kalau perlu nanti |
+| 6 | Gambar dummy Seeder diganti | `database/factories/PostFactory.php` | `fake()->imageUrl()` (Picsum, 30% kemungkinan kosong) diganti jadi `protected array $images` isi 8 link foto [Unsplash](https://unsplash.com) asli + `fake()->randomElement($this->images)` — sekarang **semua** post hasil seeder pasti punya gambar, gak ada lagi yang kosong |
+
+> Perubahan #6 sebenernya di file punya [Praktik Keempat Belas](#praktik-keempat-belas-database-seeder) (Seeder), tapi dicatat di sini juga soalnya dilakuin bareng sesi perbaikan tampilan Praktik 16 ini.
+
+**📁 File: `app/Http/Controllers/PostController.php`** — copy-paste seluruh isinya:
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Post;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+    // method untuk menampilkan semua post dan searching post
+    public function index(Request $request)
+    {
+        $posts = Post::when($request->search, function ($query, $search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        })->latest()->paginate(6)->withQueryString();
+
+        return view('posts.index', [
+            'posts' => $posts,
+            'search' => $request->search,
+        ]);
+    }
+
+    // slug post
+    public function show(Post $post)
+    {
+        return view('posts.show', ['post' => $post]);
+    }
+
+    // method untuk buat post atau create post baru
+    public function create()
+    {
+        return view('posts.create');
+    }
+
+    // method untuk simpen data atau store
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->image_url;
+        }
+
+        unset($validated['image_url']);
+        $validated['user_id'] = auth()->id();
+
+        Post::create($validated);
+
+        return redirect('/posts');
+    }
+
+    // method untuk edit post
+    public function edit(Post $post)
+    {
+        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        return view('posts.edit', ['post' => $post]);
+    }
+
+    // method untuk update post
+    public function update(Request $request, Post $post)
+    {
+        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->image_url;
+        } else {
+            unset($validated['image']);
+        }
+
+        unset($validated['image_url']);
+
+        $post->update($validated);
+
+        return redirect('/posts');
+    }
+
+    // method untuk delete post
+    public function destroy(Post $post)
+    {
+        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $post->delete();
+
+        return redirect('/posts');
+    }
+}
+```
+
+**📁 File: `resources/views/posts/index.blade.php`** — copy-paste seluruh isinya:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Daftar Post')
+
+@section('container', 'max-w-6xl')
+
+@section('content')
+    {{-- tambah post --}}
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Daftar Post</h1>
+        <a href="/posts/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Tambah Post
+        </a>
+    </div>
+
+    {{-- search --}}
+    <form method="GET" action="/posts" class="mb-6 flex gap-2">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Cari judul post..."
+            class="flex-1 border rounded px-3 py-2">
+        <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
+            Cari
+        </button>
+        @if ($search)
+            <a href="/posts" class="text-sm text-gray-500 px-3 py-2 hover:underline">Reset</a>
+        @endif
+    </form>
+
+    <div class="flex justify-end mb-6">
+        {{ $posts->links() }}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @forelse ($posts as $post)
+            <div class="bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col">
+                @if ($post->imageUrl())
+                    <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
+                @else
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        Tanpa gambar
+                    </div>
+                @endif
+
+                <div class="p-4 flex flex-col flex-1">
+                    <h2 class="font-semibold text-lg mb-1">
+                        <a href="/posts/{{ $post->slug }}" class="hover:underline hover:text-blue-600">
+                            {{ $post->title }}
+                        </a>
+                    </h2>
+
+                    <p class="text-gray-600 text-sm line-clamp-3 flex-1">{{ $post->body }}</p>
+
+                    <p class="text-xs text-gray-400 mt-3">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+
+                    @if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
+                        <div class="mt-3 flex gap-2">
+                            <a href="/posts/{{ $post->id }}/edit"
+                                class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+                                Edit
+                            </a>
+
+                            <form method="POST" action="/posts/{{ $post->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Yakin hapus?')"
+                                    class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <p class="text-gray-500 text-sm col-span-full">Gak ada post yang cocok dengan pencarian "{{ $search }}".</p>
+        @endforelse
+    </div>
+
+    <div class="flex justify-end mt-6">
+        {{ $posts->links() }}
+    </div>
+@endsection
+```
+
+**Perubahan #5** — dijalankan sekali di terminal, bukan edit manual:
+
+```bash
+php artisan vendor:publish --tag=laravel-pagination
+```
+
+**📁 File: `database/factories/PostFactory.php`** — copy-paste seluruh isinya:
+
+```php
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Post;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Post>
+ */
+class PostFactory extends Factory
+{
+    protected array $images = [
+        'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=640&q=80',
+        'https://images.unsplash.com/photo-1517842645767-c639042777db?w=640&q=80',
+        'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=640&q=80',
+        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=640&q=80',
+        'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=640&q=80',
+        'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=640&q=80',
+        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=640&q=80',
+        'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=640&q=80',
+    ];
+
+    public function definition(): array
+    {
+        return [
+            'title' => fake()->sentence(4),
+            'body' => fake()->paragraphs(3, true),
+            'image' => fake()->randomElement($this->images),
+            'user_id' => User::factory(),
+        ];
+    }
+}
+```
+
+## Praktik Ketujuh Belas: Form Request
+
+Sekarang tiap method `store()` dan `update()` di `PostController.php` punya blok `$request->validate([...])` yang **isinya sama persis**, keulang di 2 tempat. Praktik ini pindahin logic validasi (dan sekalian otorisasi) ke class terpisah bernama **Form Request**, biar Controller-nya lebih bersih dan gak ada duplikasi.
+
+Konsep baru: **Form Request** (class custom yang extends `FormRequest`, punya 2 method utama: `rules()` buat validasi dan `authorize()` buat ngecek "boleh gak aksi ini dilakuin").
+
+### Kenapa Perlu Form Request? (Teori)
+
+Form Request itu jawaban buat 2 masalah sekaligus yang muncul kalau validasi & otorisasi ditulis manual terus-terusan di Controller:
+
+1. **Data-nya valid gak?** (validasi) — judul gak boleh kosong, gambar harus format gambar, dll. Ini murni soal **format data**, gak ada hubungannya sama siapa yang ngirim.
+2. **Orangnya boleh gak?** (otorisasi) — misal cuma pemilik post/admin yang boleh update. Ini soal **izin/permission**.
+
+Dua-duanya sering ditulis bareng di Controller (`$request->validate([...])` + `if (...) abort(403)`), padahal beda tanggung jawab. Form Request misahin keduanya ke satu class, dengan manfaat konkret:
+
+- **Gak ada duplikasi kode.** Sebelumnya, aturan validasi `title`/`body`/`image` ditulis ulang persis sama di `store()` DAN `update()`. Kalau nanti mau ubah aturan (misal `max:255` jadi `max:500`), harus inget ubah di 2 tempat. Sekarang cukup 1 tempat.
+- **Controller jadi lebih pendek & fokus.** Method di Controller isinya cuma logic bisnis (simpen data, redirect), bukan campur aduk sama blok validasi yang panjang.
+- **Otomatis jalan duluan.** Laravel manggil `authorize()` dan `rules()` **sebelum** kode di dalam method Controller sempat dieksekusi — kalau gagal (data gak valid / gak berhak), method Controller-nya **gak pernah kejalan sama sekali**. Ini beda dari nulis manual, di mana kamu harus inget naruh pengecekan itu di baris paling atas method setiap kali.
+- **Reusable & testable.** Class Form Request bisa dites terpisah (unit test) tanpa harus manggil seluruh Controller, dan bisa dipakai ulang kalau ada route lain yang butuh validasi sama persis.
+- **Lebih susah kelupaan.** Karena `authorize()` itu wajib ada (bagian dari kontrak `FormRequest`), developer "dipaksa" mikirin izin akses tiap kali bikin Form Request baru — beda sama nulis manual yang gampang kelewat di salah satu method.
+
+> Analoginya: sebelum Form Request, tiap "pintu masuk" (method Controller) punya satpam sendiri-sendiri yang harus diingetin manual jaga di situ. Form Request itu kayak nempatin 1 pos security terpusat di depan gerbang — semua yang mau masuk otomatis diperiksa dulu di situ, sebelum sempat nyampe ke Controller.
+
+### 1. Bikin Form Request buat Create
+
+```bash
+php artisan make:request StorePostRequest
+```
+
+**📁 File: `app/Http/Requests/StorePostRequest.php`**:
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StorePostRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return auth()->check();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ];
+    }
+}
+```
+
+Penjelasan:
+- `authorize()` — return `true`/`false`, nentuin apakah request ini **boleh diproses sama sekali**. Di sini cukup cek user udah login (`auth()->check()`) — soalnya route `/posts` udah dibungkus middleware `auth` dari Praktik 8, tapi nulis ulang di sini bikin Form Request-nya "mandiri", gak gantung ke middleware doang.
+- `rules()` — isinya persis kayak array yang dulu ditulis manual di `$request->validate([...])`. Sekarang tinggal dipindah ke sini.
+
+### 2. Update Controller — pakai `StorePostRequest`
+
+**📁 File: `app/Http/Controllers/PostController.php`** — ganti method `store()`:
+
+```php
+use App\Http\Requests\StorePostRequest;
+
+// ...
+
+public function store(StorePostRequest $request)
+{
+    $validated = $request->validated();
+
+    if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')->store('posts', 'public');
+    } elseif ($request->filled('image_url')) {
+        $validated['image'] = $request->image_url;
+    }
+
+    unset($validated['image_url']);
+    $validated['user_id'] = auth()->id();
+
+    Post::create($validated);
+
+    return redirect('/posts');
+}
+```
+
+Penjelasan:
+- Type-hint parameter diganti dari `Request $request` jadi `StorePostRequest $request` — ini yang bikin Laravel otomatis manggil `authorize()` dan `rules()` **sebelum** method `store()` sempat jalan. Kalau validasi gagal, otomatis redirect balik ke form + error (perilaku sama kayak sebelumnya). Kalau `authorize()` return `false`, otomatis muncul halaman 403.
+- `$request->validated()` — ganti `$request->validate([...])`. Bedanya: `validate()` nge-jalanin validasi DAN return hasilnya sekaligus; `validated()` cuma **ambil hasil validasi** yang udah dijalanin duluan sama Form Request-nya.
+- Sisa logic (`hasFile`, `image_url`, dst dari Praktik 13) **gak berubah**, tetep di Controller — Form Request cuma ngurus validasi & otorisasi, bukan logic bisnis.
+
+### 3. Bikin Form Request buat Update
+
+```bash
+php artisan make:request UpdatePostRequest
+```
+
+**📁 File: `app/Http/Requests/UpdatePostRequest.php`**:
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdatePostRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        $post = $this->route('post');
+
+        return $post->user_id === auth()->id() || auth()->user()->role === 'admin';
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ];
+    }
+}
+```
+
+Penjelasan:
+- `$this->route('post')` — ambil Post yang udah di-resolve lewat route model binding (`{post}` di URL `/posts/{post}`), sama persis objek yang biasanya jadi parameter kedua di method `update()`.
+- `authorize()` di sini **gantiin** pengecekan manual `if ($post->user_id !== auth()->id() && ...) { abort(403); }` yang dulu ditulis di dalam method `update()` — sekarang logic itu pindah ke sini, jalan otomatis sebelum method-nya dieksekusi.
+
+### 4. Update Controller — pakai `UpdatePostRequest`
+
+**📁 File: `app/Http/Controllers/PostController.php`** — ganti method `update()`:
+
+```php
+use App\Http\Requests\UpdatePostRequest;
+
+// ...
+
+public function update(UpdatePostRequest $request, Post $post)
+{
+    $validated = $request->validated();
+
+    if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')->store('posts', 'public');
+    } elseif ($request->filled('image_url')) {
+        $validated['image'] = $request->image_url;
+    } else {
+        unset($validated['image']);
+    }
+
+    unset($validated['image_url']);
+
+    $post->update($validated);
+
+    return redirect('/posts');
+}
+```
+
+Perhatiin: pengecekan `if ($post->user_id !== auth()->id() && ...) { abort(403); }` yang dulu ada di awal method **udah dihapus** — sekarang itu tanggung jawab `UpdatePostRequest::authorize()` di step 3.
+
+> Method `edit()` dan `destroy()` **tetep pakai** pengecekan manual (`abort(403)`) kayak biasa — soalnya dua method itu gak nerima data form (gak butuh validasi), jadi gak perlu Form Request. Form Request cuma dipakai buat request yang bawa data (`store()`/`update()`).
+
+### 5. Cek hasilnya
+
+1. Buka `/posts/create`, submit form kosong — pesan error validasi harus tetep muncul, sama kayak sebelumnya (perilaku gak berubah dari sisi user).
+2. Isi form bener, submit — post baru harus kesimpen normal.
+3. Edit post **milik sendiri** — harus bisa, sama kayak sebelumnya.
+4. Coba akses `/posts/{id}/edit` dari post **milik user lain** (bukan admin) — halaman edit-nya (`GET`) tetep muncul 403 lewat pengecekan manual di `edit()`. Tapi coba submit `PUT` langsung ke `/posts/{id}` post orang lain (misal pakai Thunder Client/Postman) — harus ditolak juga lewat `UpdatePostRequest::authorize()`.
+5. Login sebagai admin, coba update post siapa aja — harus tetep bisa (`authorize()` ngecek `role === 'admin'` juga).
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Error "This action is unauthorized" padahal harusnya boleh | Cek logic `authorize()` — default bawaan `make:request` itu `return false;`, gampang kelupaan diganti |
+| Validasi gak jalan sama sekali, form kesimpen walau kosong | Cek type-hint parameter di Controller — harus `StorePostRequest $request` / `UpdatePostRequest $request`, bukan `Request $request` biasa |
+| Error `Call to a member function route() on null` di `authorize()` | Typo nama parameter route — cek nama parameter di `routes/web.php` (`{post}`) harus sama persis sama yang dipanggil di `$this->route('post')` |
+| Field `image`/`image_url` ilang setelah pindah ke Form Request | Pastiin `rules()` di Form Request masih include field itu — gampang kelewat pas mindahin dari `$request->validate([...])` lama |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Ketujuh Belas
+
+| File | Perubahan |
+|---|---|
+| `app/Http/Requests/StorePostRequest.php` | File baru — validasi + otorisasi buat Create |
+| `app/Http/Requests/UpdatePostRequest.php` | File baru — validasi + otorisasi buat Update |
+| `app/Http/Controllers/PostController.php` | `store()` & `update()` — ganti type-hint, hapus `$request->validate([...])` manual & pengecekan kepemilikan manual di `update()` |
+
+### Ringkasan Praktik Ketujuh Belas
+
+| Sebelum (Praktik 1-16) | Sesudah (Praktik 17) |
+|---|---|
+| Validasi ditulis manual, dobel di `store()` & `update()` | Validasi satu tempat per Form Request, gak ada duplikasi |
+| Otorisasi (`abort(403)`) campur sama logic Controller | Otorisasi `update()` pindah ke `authorize()`, lebih rapi |
+| Controller ngurus validasi + logic bisnis sekaligus | Controller fokus logic bisnis doang, validasi didelegasiin |
+
+> Form Request ini langkah awal ke pola **Single Responsibility** — tiap class punya 1 tanggung jawab jelas: Controller ngurus alur, Form Request ngurus "boleh gak & valid gak", Model ngurus data. Makin gede project, makin kerasa manfaatnya.
+
+## Praktik Kedelapan Belas: Policy
+
+Logic otorisasi "boleh edit/hapus kalau pemilik ATAU admin" sekarang tercecer di **3 tempat**: `PostController::edit()`, `PostController::destroy()`, dan `UpdatePostRequest::authorize()` — isinya sama persis, ditulis manual 3x. Praktik ini nyatuin semuanya jadi **1 class Policy**.
+
+Konsep baru: **Policy** (class khusus per-Model yang isinya "siapa boleh ngapain"), `@can` (Blade directive), dan `$this->authorize()` (helper di Controller).
+
+### 1. Bikin Policy buat Post
+
+```bash
+php artisan make:policy PostPolicy --model=Post
+```
+
+**📁 File: `app/Policies/PostPolicy.php`** — isi method `update()` dan `delete()`:
+
+```php
+<?php
+
+namespace App\Policies;
+
+use App\Models\Post;
+use App\Models\User;
+
+class PostPolicy
+{
+    public function update(User $user, Post $post): bool
+    {
+        return $post->user_id === $user->id || $user->role === 'admin';
+    }
+
+    public function delete(User $user, Post $post): bool
+    {
+        return $post->user_id === $user->id || $user->role === 'admin';
+    }
+}
+```
+
+Penjelasan:
+- Tiap method Policy nerima 2 parameter: `$user` (siapa yang lagi login) dan `$post` (data yang mau diakses), return `true`/`false`.
+- Nama method (`update`, `delete`) itu **konvensi** — nanti dipanggil pakai nama yang sama (`$this->authorize('update', $post)`, `@can('update', $post)`), Laravel otomatis nyambungin ke method yang cocok.
+- Laravel 11/12 (versi project ini) **otomatis nemuin** Policy ini tanpa perlu didaftarin manual — cukup taruh di `app/Policies/`, namanya `{Model}Policy` (misal `PostPolicy` buat Model `Post`), otomatis "ke-link". Versi Laravel lama (sebelum 11) butuh daftarin manual di `AuthServiceProvider`.
+
+### 2. Aktifin `$this->authorize()` di Controller
+
+**📁 File: `app/Http/Controllers/Controller.php`** — tambah trait:
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
+abstract class Controller
+{
+    use AuthorizesRequests;
+}
+```
+
+> Trait ini yang ngasih method `$this->authorize(...)` ke **semua** Controller (karena `PostController` dkk extends `Controller` ini). Tanpa trait ini, `$this->authorize()` bakal error `Call to undefined method`.
+
+### 3. Update Controller — ganti pengecekan manual
+
+**📁 File: `app/Http/Controllers/PostController.php`** — update `edit()` dan `destroy()`:
+
+```php
+public function edit(Post $post)
+{
+    $this->authorize('update', $post);
+
+    return view('posts.edit', ['post' => $post]);
+}
+```
+
+```php
+public function destroy(Post $post)
+{
+    $this->authorize('delete', $post);
+
+    $post->delete();
+
+    return redirect('/posts');
+}
+```
+
+Penjelasan:
+- `$this->authorize('update', $post)` — otomatis manggil `PostPolicy::update($user, $post)`. Kalau return `false`, Laravel otomatis `abort(403)` — gak perlu nulis manual lagi.
+- Baris `if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') { abort(403); }` yang lama **udah gak perlu**, dihapus total.
+
+### 4. Update Form Request — pakai Policy juga
+
+**📁 File: `app/Http/Requests/UpdatePostRequest.php`**:
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdatePostRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()->can('update', $this->route('post'));
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ];
+    }
+}
+```
+
+`$this->user()->can('update', $post)` — cara lain manggil Policy yang sama (`->can()` itu method bawaan Model `User`, hasilnya sama kayak `$this->authorize(...)`, cuma return boolean langsung bukan otomatis `abort()`). Aturan `update === user_id cocok || admin` sekarang **cuma ada 1 tempat** (`PostPolicy`), 3 pemanggil (`edit()`, `destroy()` via `authorize()`, dan Form Request via `can()`) tinggal manggil, gak nulis ulang logicnya.
+
+### 5. Update View — pakai `@can` buat nampilin tombol
+
+**📁 File: `resources/views/posts/index.blade.php`** dan **`resources/views/posts/show.blade.php`** — ganti kondisi manual:
+
+```blade
+@can('update', $post)
+    <div class="mt-3 flex gap-2">
+        <a href="/posts/{{ $post->id }}/edit"
+            class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
+            Edit
+        </a>
+
+        <form method="POST" action="/posts/{{ $post->id }}">
+            @csrf
+            @method('DELETE')
+            <button type="submit" onclick="return confirm('Yakin hapus?')"
+                class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200">
+                Hapus
+            </button>
+        </form>
+    </div>
+@endcan
+```
+
+Ganti `@if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')` ... `@endif` yang lama jadi `@can('update', $post)` ... `@endcan`. Blade directive `@can` otomatis manggil Policy yang sama, sama kayak `$this->authorize()` di Controller.
+
+> Karena tombol Edit & Hapus muncul/hilang bareng (satu blok), cukup 1 pengecekan `@can('update', $post)` buat dua-duanya. Kalau nanti aturan Edit & Hapus dibedain (misal admin cuma boleh Edit, gak boleh Hapus), tinggal pisah jadi `@can('update', $post)` buat tombol Edit dan `@can('delete', $post)` buat tombol Hapus — dan cukup ubah `PostPolicy`, gak perlu sentuh view lagi.
+
+### 6. Cek hasilnya
+
+1. Login sebagai pemilik post — tombol Edit/Hapus tetep muncul di `/posts` dan halaman detail, bisa edit/hapus normal.
+2. Login sebagai user lain (bukan pemilik, bukan admin) — tombol Edit/Hapus **hilang** dari post itu, dan akses langsung `/posts/{id}/edit` tetep 403.
+3. Login sebagai admin — tombol Edit/Hapus muncul di **semua** post, termasuk punya orang lain.
+4. Ulang test dari Praktik 17 (fetch `PUT` via Console) — hasilnya harus tetep `403` buat non-pemilik/non-admin, soalnya `UpdatePostRequest` sekarang manggil Policy yang sama.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Error `Call to undefined method PostController::authorize()` | Trait `AuthorizesRequests` belum ditambah ke `app/Http/Controllers/Controller.php` (step 2) |
+| `@can('update', $post)` gak pernah nampilin apa-apa, padahal harusnya boleh | Cek nama method di `PostPolicy` — harus persis `update`/`delete`, dan parameter urutannya `(User $user, Post $post)` |
+| Policy keliatan gak "nyambung" ke Model Post | Cek lokasi file harus di `app/Policies/PostPolicy.php` dan namanya persis `PostPolicy` — auto-discovery Laravel butuh penamaan konvensi ini |
+| Semua orang (termasuk bukan pemilik) masih bisa lolos akses | Cek Controller/Form Request masih manggil `PostPolicy` yang bener, bukan sisa kode lama yang lupa dihapus |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kedelapan Belas
+
+| File | Perubahan |
+|---|---|
+| `app/Policies/PostPolicy.php` | File baru — method `update()` dan `delete()`, pusat logic otorisasi Post |
+| `app/Http/Controllers/Controller.php` | Tambah trait `AuthorizesRequests` |
+| `app/Http/Controllers/PostController.php` | `edit()` & `destroy()` — ganti `abort(403)` manual jadi `$this->authorize(...)` |
+| `app/Http/Requests/UpdatePostRequest.php` | `authorize()` — ganti logic manual jadi `$this->user()->can('update', ...)` |
+| `resources/views/posts/index.blade.php`, `show.blade.php` | Ganti `@if (...) @endif` manual jadi `@can('update', $post) @endcan` |
+
+### Ringkasan Praktik Kedelapan Belas
+
+| Sebelum (Praktik 1-17) | Sesudah (Praktik 18) |
+|---|---|
+| Logic "boleh edit/hapus" ditulis manual di 3+ tempat | Logic terpusat di 1 class `PostPolicy` |
+| Tiap tempat manggil `auth()->id()`/`auth()->user()->role` sendiri-sendiri | Semua manggil `PostPolicy` lewat `authorize()`/`can()`/`@can` |
+| Ubah aturan = harus edit banyak file | Ubah aturan = cukup edit `PostPolicy` doang |
+
+> Ini pola **DRY (Don't Repeat Yourself)** versi Authorization. Sama kayak Form Request misahin validasi dari Controller (Praktik 17), Policy misahin "siapa boleh ngapain" dari Controller, Form Request, DAN View sekaligus — jadi satu sumber kebenaran (single source of truth).
+
+## Praktik Kesembilan Belas: API Resource + Testing pakai Thunder Client
+
+Semua route yang udah dibikin sejauh ini (`routes/web.php`) itu **web routes** — return HTML/view, didesain buat dibuka langsung di browser pakai session login. Praktik ini bikin jalur baru: **API routes** — return **JSON** doang, didesain buat diakses dari luar (aplikasi mobile, frontend terpisah kayak React, atau di-test manual pakai tool kayak Thunder Client).
+
+Konsep baru: **API Resource** (format JSON yang rapi), **Sanctum** (autentikasi API pakai token, gantiin session), dan **Thunder Client** (extension VS Code buat kirim request manual).
+
+### 1. Install Laravel Sanctum + scaffolding API
+
+Laravel 11/12 (versi project ini) **gak otomatis** nyediain `routes/api.php` — harus di-scaffold dulu:
+
+```bash
+php artisan install:api
+```
+
+Command ini otomatis:
+- Install package `laravel/sanctum` (buat autentikasi token)
+- Bikin file baru `routes/api.php`
+- Daftarin routing API ke `bootstrap/app.php`
+- Bikin migration tabel `personal_access_tokens` (tempat nyimpen token API)
+
+Jalankan migration-nya:
+
+```bash
+php artisan migrate
+```
+
+**📁 File: `bootstrap/app.php`** — cek otomatis ketambahan baris `api: __DIR__.'/../routes/api.php'`:
+
+```php
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
+        health: '/up',
+    )
+    // ...
+```
+
+### 2. Bikin API Resource buat Post
+
+API Resource itu cara **format** data Model jadi JSON yang rapi (kontrol field mana yang mau ditampilin, ganti nama field, dll) — daripada return Model mentah-mentah.
+
+```bash
+php artisan make:resource PostResource
+```
+
+**📁 File: `app/Http/Resources/PostResource.php`**:
+
+```php
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PostResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'body' => $this->body,
+            'image_url' => $this->imageUrl(),
+            'author' => $this->user->name ?? 'Tidak diketahui',
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+```
+
+Penjelasan:
+- `$this->id`, `$this->title`, dst — di dalam Resource, `$this` merujuk ke instance `Post` yang lagi diformat (bukan ke Resource itu sendiri).
+- Field yang di-return **cuma yang didaftarin di sini** — kolom lain di database (misal `user_id` mentah) otomatis gak ikut ke-expose ke API, kecuali sengaja ditambahin.
+- `'author' => $this->user->name` — bisa manggil relasi Eloquent (`belongsTo` dari Praktik 9) langsung di sini, hasilnya di-embed jadi field biasa di JSON.
+
+### 3. Bikin Controller khusus API
+
+```bash
+php artisan make:controller Api/PostController --api
+```
+
+**📁 File: `app/Http/Controllers/Api/PostController.php`**:
+
+```php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+    public function index()
+    {
+        $posts = Post::latest()->paginate(6);
+
+        return PostResource::collection($posts);
+    }
+
+    public function show(Post $post)
+    {
+        return new PostResource($post);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
+
+        $validated['user_id'] = $request->user()->id;
+
+        $post = Post::create($validated);
+
+        return new PostResource($post);
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        $this->authorize('update', $post);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
+
+        $post->update($validated);
+
+        return new PostResource($post);
+    }
+
+    public function destroy(Post $post)
+    {
+        $this->authorize('delete', $post);
+
+        $post->delete();
+
+        return response()->json(['message' => 'Post berhasil dihapus.']);
+    }
+}
+```
+
+Penjelasan:
+- `PostResource::collection($posts)` — format banyak data sekaligus (buat `index()`), otomatis nge-loop tiap Post lewat `PostResource`.
+- `new PostResource($post)` — format 1 data doang (buat `show()`, `store()`, `update()`).
+- `$this->authorize('update', $post)` — **Policy dari Praktik 18 langsung kepakai lagi di sini**, gak perlu nulis ulang logic otorisasi. Ini bukti nyata manfaat Policy: satu aturan, dipakai di web DAN API.
+- `$request->user()` — cara ambil user yang lagi login di context API (beda dari `auth()->id()` yang lebih umum dipakai di web, tapi fungsinya sama).
+
+### 4. Bikin Route API — publik & yang butuh login
+
+**📁 File: `routes/api.php`**:
+
+```php
+<?php
+
+use App\Http\Controllers\Api\PostController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
+Route::post('/login', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (! Auth::attempt($request->only('email', 'password'))) {
+        return response()->json(['message' => 'Email atau password salah.'], 401);
+    }
+
+    $user = Auth::user();
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    return response()->json(['token' => $token]);
+});
+
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{post}', [PostController::class, 'show']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::put('/posts/{post}', [PostController::class, 'update']);
+    Route::delete('/posts/{post}', [PostController::class, 'destroy']);
+});
+```
+
+Penjelasan:
+- `/login` — endpoint khusus API buat login, **beda** dari `/login` versi web (Breeze). Nerima email+password, kalau bener, generate **token** (bukan session) pakai `createToken()` dari Sanctum, token itu yang dipakai buat "login" di request API berikutnya.
+- `GET /posts` dan `GET /posts/{post}` — **publik**, gak butuh login (siapa aja boleh baca daftar/detail post).
+- `POST`, `PUT`, `DELETE` — dibungkus `middleware('auth:sanctum')`, wajib nyertain token valid di header, kalau enggak otomatis `401 Unauthorized`.
+
+### 5. Install Thunder Client & Test API
+
+1. Buka **Extensions** di VS Code (`Ctrl+Shift+X`), cari **"Thunder Client"**, install.
+2. Klik icon Thunder Client di sidebar kiri (ikon petir ⚡).
+3. Klik **New Request**.
+
+**Test A — GET daftar post (publik, gak perlu login):**
+- Method: `GET`
+- URL: `http://127.0.0.1:8000/api/posts`
+- Klik **Send** — harus muncul response JSON isi daftar post (format sesuai `PostResource`).
+
+**Test B — Login buat dapetin token:**
+- Method: `POST`
+- URL: `http://127.0.0.1:8000/api/login`
+- Tab **Body** → pilih **JSON** → isi:
+  ```json
+  {
+      "email": "admin@example.com",
+      "password": "password"
+  }
+  ```
+- Klik **Send** — response harus ada `{"token": "1|xxxxxxxxxxxxx..."}`. **Copy token itu.**
+
+**Test C — Bikin post baru (butuh token):**
+- Method: `POST`
+- URL: `http://127.0.0.1:8000/api/posts`
+- Tab **Headers** → tambah:
+  - `Authorization` → `Bearer <token yang di-copy tadi>`
+  - `Accept` → `application/json`
+- Tab **Body** → JSON:
+  ```json
+  {
+      "title": "Post dari Thunder Client",
+      "body": "Ini dibikin lewat API, bukan lewat form."
+  }
+  ```
+- Klik **Send** — harus muncul response JSON post yang baru dibikin.
+
+**Test D — Coba tanpa token (harus ditolak):**
+- Ulangi Test C, tapi **hapus** header `Authorization`.
+- Klik **Send** — harus muncul `401 Unauthorized`.
+
+### 6. Cek hasilnya
+
+1. `GET /api/posts` berhasil tanpa login, response berupa JSON array.
+2. `POST /api/login` pakai kredensial bener → dapet token; pakai kredensial salah → `401`.
+3. `POST /api/posts` pakai token valid → post baru kesimpen, cek juga muncul di `/posts` versi web (satu database yang sama).
+4. `POST /api/posts` tanpa token → `401`.
+5. Coba `PUT /api/posts/{id}` buat post **bukan punya token itu** (pakai token user biasa, target post orang lain) → harus `403`, bukti Policy dari Praktik 18 tetep berlaku di jalur API.
+
+### Cheatsheet Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Route `/api/posts` muncul 404 | Cek `bootstrap/app.php` udah ada baris `api: __DIR__.'/../routes/api.php'` — kalau belum, jalankan ulang `php artisan install:api` |
+| Error `Class "Laravel\Sanctum\HasApiTokens" not found` di Model `User` | Cek `app/Models/User.php` — trait `HasApiTokens` harus ditambah otomatis sama `install:api`, kalau kelewat tambah manual: `use Laravel\Sanctum\HasApiTokens;` + `use HasApiTokens;` di dalam class |
+| `POST /api/login` selalu balikin 401 walau kredensial bener | Cek `Auth::attempt()` — pastiin kolom `email`/`password` di request cocok sama yang di database |
+| `401 Unauthorized` padahal udah kirim token | Cek header `Authorization` formatnya harus **persis** `Bearer <token>` (ada spasi setelah "Bearer") |
+| Response HTML/error 500 alih-alih JSON | Cek `bootstrap/app.php` ada `shouldRenderJsonWhen(fn ($request) => $request->is('api/*'))` — biar error di route API otomatis diformat JSON, bukan halaman HTML |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kesembilan Belas
+
+| File | Perubahan |
+|---|---|
+| `routes/api.php` | File baru — route `/login`, `/posts` (publik & terautentikasi) |
+| `bootstrap/app.php` | Otomatis ketambahan `api: __DIR__.'/../routes/api.php'` dari `install:api` |
+| `app/Http/Resources/PostResource.php` | File baru — format JSON buat Post |
+| `app/Http/Controllers/Api/PostController.php` | Controller baru khusus API, return `PostResource` |
+| `database/migrations/..._create_personal_access_tokens_table.php` | Migration baru dari Sanctum (token storage) |
+
+### Ringkasan Praktik Kesembilan Belas
+
+| Sebelum (Praktik 1-18) | Sesudah (Praktik 19) |
+|---|---|
+| Cuma ada web routes (return HTML) | Ada API routes juga (return JSON) |
+| Autentikasi pakai session (cookie) | Autentikasi API pakai token (Sanctum) |
+| Testing manual lewat browser/klik-klik | Testing manual lewat Thunder Client (GET/POST/PUT/DELETE langsung) |
+| Policy cuma kepake di web | Policy yang sama kepake juga di API (`$this->authorize(...)`) |
+
+> Ini fondasi kalau nanti project Laravel-nya mau "dipisah" jadi backend doang, dikonsumsi frontend terpisah (React/Vue/mobile app) — pola `routes/api.php` + `Resource` + token Sanctum ini yang biasa dipakai buat itu.
+
 ## Roadmap Belajar Selanjutnya
 
 Catatan urutan topik dari sini sampai siap bikin project Laravel sendiri / ujian praktik. Belum jadi Praktik detail, ini cuma daftar rencana biar gak lupa.
 
-12. **Slug + Single Post View** — ganti `/posts/{id}` jadi `/posts/{slug}` (URL pakai judul, bukan angka), plus halaman detail satu post (`/posts/judul-post`, terpisah dari halaman list).
-13. **Upload/Link Gambar** — Post bisa punya gambar, dua cara: upload file (`storage/`) atau isi link URL (misal dari Unsplash).
-14. **Search & Filter** — cari post berdasarkan judul (`Post::where('title', 'like', ...)`).
-15. **Pagination** — batesin jumlah post yang tampil per halaman (`Post::paginate(10)`), penting kalau datanya udah banyak.
-16. **Form Request** — pindahin validasi dari Controller ke class terpisah (`php artisan make:request StorePostRequest`), lebih rapi buat form yang makin kompleks.
-17. **Policy** — ganti pengecekan manual `if ($post->user_id !== auth()->id())` jadi `Gate`/`Policy` resmi Laravel (`php artisan make:policy PostPolicy --model=Post`), best practice buat Authorization.
-18. **API Resource + Testing pakai Postman/Thunder Client** — bikin route API terpisah (`routes/api.php`), return data JSON pakai `Resource Controller`, terus di-test manual pakai **Postman** atau **Thunder Client** (extension VS Code). Ini dasar kalau nanti Laravel dipakai jadi backend buat frontend terpisah (React/Vue) atau aplikasi mobile.
-19. **Testing otomatis (PHPUnit)** — nulis test kode biar mastiin fitur gak rusak pas nambah fitur baru, tanpa harus ngetes manual click-click terus.
-20. **Deploy** — naikin project ke hosting beneran (Railway/Hostinger/VPS), bukan cuma jalan di localhost.
+> ✅ Slug + Single Post View, Upload/Link Gambar, dan Database Seeder udah selesai jadi Praktik 12, 13, 14. Lanjut dari sini:
 
-> Poin 1-17 udah cukup buat bikin project CRUD lengkap yang solid (blog, todo app, dsb) dan cukup buat kebanyakan ujian praktik Laravel dasar-menengah. Poin 18-20 topik lanjutan kalau mau proyeknya lebih serius / siap dipakai orang lain.
+15. **Search & Filter** — cari post berdasarkan judul (`Post::where('title', 'like', ...)`).
+16. **Pagination** — batesin jumlah post yang tampil per halaman (`Post::paginate(10)`), penting kalau datanya udah banyak.
+17. **Form Request** — pindahin validasi dari Controller ke class terpisah (`php artisan make:request StorePostRequest`), lebih rapi buat form yang makin kompleks.
+18. **Policy** — ganti pengecekan manual `if ($post->user_id !== auth()->id())` jadi `Gate`/`Policy` resmi Laravel (`php artisan make:policy PostPolicy --model=Post`), best practice buat Authorization.
+19. **API Resource + Testing pakai Postman/Thunder Client** — bikin route API terpisah (`routes/api.php`), return data JSON pakai `Resource Controller`, terus di-test manual pakai **Postman** atau **Thunder Client** (extension VS Code). Ini dasar kalau nanti Laravel dipakai jadi backend buat frontend terpisah (React/Vue) atau aplikasi mobile.
+20. **Testing otomatis (PHPUnit)** — nulis test kode biar mastiin fitur gak rusak pas nambah fitur baru, tanpa harus ngetes manual click-click terus.
+21. **Deploy** — naikin project ke hosting beneran (Railway/Hostinger/VPS), bukan cuma jalan di localhost.
+
+> Poin 1-18 udah cukup buat bikin project CRUD lengkap yang solid (blog, todo app, dsb) dan cukup buat kebanyakan ujian praktik Laravel dasar-menengah. Poin 19-21 topik lanjutan kalau mau proyeknya lebih serius / siap dipakai orang lain.

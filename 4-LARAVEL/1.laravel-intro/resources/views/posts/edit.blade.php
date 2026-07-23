@@ -13,7 +13,7 @@
         </ul>
     @endif
 
-    <form method="POST" action="/posts/{{ $post->id }}" class="space-y-4">
+    <form method="POST" action="/posts/{{ $post->id }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
         @method('PUT')
 
