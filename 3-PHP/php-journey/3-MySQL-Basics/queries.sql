@@ -97,7 +97,7 @@ UPDATE barang SET tersedia = TRUE WHERE nama = 'Telur 1kg';
 -- Sama kayak UPDATE, WAJIB pakai WHERE. Lupa WHERE = semua baris kehapus.
 
 -- Contoh (jangan dijalanin dulu kalau masih mau dipakai datanya):
--- DELETE FROM barang WHERE nama = 'Kopi Bubuk';
+DELETE FROM barang WHERE nama = 'Kopi Bubuk';
 
 -- ---------------------------------------------------
 -- 7. PREVIEW: FOREIGN KEY (belum dipakai penuh, baru kenalan)
@@ -114,8 +114,18 @@ CREATE TABLE IF NOT EXISTS kategori (
 -- Ini baru preview struktur doang, cara gabungin datanya (JOIN)
 -- dipelajari nanti pas udah butuh, bukan di sesi ini.
 --
--- ALTER TABLE barang ADD COLUMN kategori_id INT,
---   ADD FOREIGN KEY (kategori_id) REFERENCES kategori(id);
+ALTER TABLE barang ADD COLUMN kategori_id INT,
+ADD FOREIGN KEY (kategori_id) REFERENCES kategori(id);
+
+-- Isi data kategori (biar ada pilihan pas assign kategori_id ke barang)
+INSERT INTO kategori (nama_kategori) VALUES
+    ('Sembako'),
+    ('Minuman'),
+    ('Bumbu Dapur');
+
+-- Assign kategori ke barang yang udah ada (opsional, contoh UPDATE pakai kategori)
+UPDATE barang SET kategori_id = 1 WHERE nama IN ('Beras 5kg', 'Gula 1kg', 'Telur 1kg');
+UPDATE barang SET kategori_id = 3 WHERE nama = 'Minyak Goreng 2L';
 
 -- ===================================================
 -- LATIHAN — CLOSED BOOK
@@ -123,7 +133,10 @@ CREATE TABLE IF NOT EXISTS kategori (
 -- Tutup catatan & jangan tanya AI. Tulis query kamu sendiri di bawah ini.
 --
 -- 1. Bikin table baru namanya "siswa" dengan kolom:
---    id (auto increment, primary key), nama (varchar), nilai (int), kelas (varchar)
+--    id (auto increment, primary key), 
+--    nama (varchar),
+--    nilai (int),
+--    kelas (varchar)
 --
 -- 2. Insert minimal 4 baris data siswa bebas.
 --
