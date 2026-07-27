@@ -1,0 +1,21 @@
+<?php
+// ===================================================
+// DASHBOARD — HALAMAN PROTECTED (CONTOH)
+// ===================================================
+// Baris ini yang bikin halaman ini "protected". Coba komentarin baris ini,
+// akses dashboard.php langsung tanpa login — itu bug yang harus dihindari.
+require_once "includes/auth-check.php";
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <p>Halo, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>! Kamu berhasil login.</p>
+
+    <p><a href="logout.php">Logout</a></p>
+</body>
+</html>

@@ -31,3 +31,11 @@ Kalau udah selesai, cek ke diri sendiri:
 - Bisa jelasin kenapa prepared statement mencegah SQL Injection (bukan cuma "soalnya disuruh pakai").
 - Coba isi form nama buku dengan `<script>alert(1)</script>` — pastiin gak ke-eksekusi pas ditampilin di `index-buku.php`.
 - Coba akses `delete-buku.php?id=1` langsung lewat URL (GET) — pastiin gak ngefek/gak ada hapus.
+
+## Jawaban
+
+Contoh solusi udah ada di folder ini: `setup-buku.sql`, `index-buku.php`, `create-buku.php`, `edit-buku.php`, `delete-buku.php`. Kerjain sendiri dulu, baru cocokin logic-nya — jangan nyalin duluan.
+
+Cara jalanin jawaban:
+1. Jalanin `setup-buku.sql` di phpMyAdmin (tab SQL) — bikin table `buku` + isi 4 data contoh.
+2. Akses `http://localhost/php-journey/4-CRUD-App/latihan/index-buku.php`.

@@ -12,7 +12,7 @@ $query = "SELECT b.id, b.nama, b.deskripsi, b.harga, b.stok,
           FROM barang b
           LEFT JOIN kategori k ON b.kategori_id = k.id
           ORDER BY b.id ASC";
-$stmt = mysqli_prepare($koneksi, $query);
+$stmt = mysqli_prepare($koneksi, $query); 
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 

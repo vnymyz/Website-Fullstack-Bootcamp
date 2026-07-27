@@ -1,0 +1,81 @@
+<?php
+// ===================================================
+// LOGIN — VERIFIKASI USER & BIKIN SESSION
+// ===================================================
+// session_start() WAJIB dipanggil sebelum ada output HTML apapun,
+// dan wajib ada di paling atas tiap file yang mau baca/nulis $_SESSION.
+session_start();
+
+require_once "config/db.php";
+
+$errors = [];
+$username = "";
+$msg = isset($_GET['msg']) ? $_GET['msg'] : null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    if (empty($username) || empty($password)) {
+        $errors[] = "Username dan password wajib diisi.";
+    }
+
+    if (empty($errors)) {
+        $query = "SELECT id, username, password FROM users WHERE username = ?";
+        $stmt = mysqli_prepare($koneksi, $query);
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $user = mysqli_fetch_assoc($result);
+
+        // password_verify() bandingin password yang diketik user sama hash
+        // yang tersimpan di database. Ini kebalikan dari password_hash().
+        if ($user && password_verify($password, $user['password'])) {
+            // Session = "kartu member" yang nempel ke user selama browser
+            // masih buka tab ini. $_SESSION disimpan di server, cuma id
+            // session-nya yang dikirim ke browser lewat cookie.
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+
+            header("Location: dashboard.php");
+            exit;
+        } else {
+            $errors[] = "Username atau password salah.";
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <?php if ($msg === 'registered'): ?>
+        <p style="color: green;">Register berhasil, silakan login.</p>
+    <?php endif; ?>
+
+    <?php if (!empty($errors)): ?>
+        <ul style="color: red;">
+            <?php foreach ($errors as $error): ?>
+                <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+
+    <form method="POST" action="login.php">
+        <label>Username:</label><br>
+        <input type="text" name="username" value="<?= htmlspecialchars($username) ?>"><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password"><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Belum punya akun? <a href="register.php">Register di sini</a></p>
+</body>
+</html>
