@@ -56,31 +56,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Register</h1>
+    <div class="card">
+        <h1>Register</h1>
 
-    <?php if (!empty($errors)): ?>
-        <ul style="color: red;">
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+        <?php if (!empty($errors)): ?>
+            <ul class="alert-error">
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
 
-    <form method="POST" action="register.php">
-        <label>Username:</label><br>
-        <input type="text" name="username" value="<?= htmlspecialchars($username) ?>"><br><br>
+        <form method="POST" action="register.php">
+            <label>Username:</label>
+            <input type="text" name="username" value="<?= htmlspecialchars($username) ?>">
 
-        <label>Password:</label><br>
-        <input type="password" name="password"><br><br>
+            <label>Password:</label>
+            <input type="password" name="password">
 
-        <label>Konfirmasi Password:</label><br>
-        <input type="password" name="konfirmasi"><br><br>
+            <label>Konfirmasi Password:</label>
+            <input type="password" name="konfirmasi">
 
-        <button type="submit">Daftar</button>
-    </form>
+            <button type="submit">Daftar</button>
+        </form>
 
-    <p>Sudah punya akun? <a href="login.php">Login di sini</a></p>
+        <p>Sudah punya akun? <a href="login.php">Login di sini</a></p>
+    </div>
 </body>
 </html>

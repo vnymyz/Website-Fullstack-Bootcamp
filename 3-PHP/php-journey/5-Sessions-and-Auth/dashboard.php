@@ -11,11 +11,14 @@ require_once "includes/auth-check.php";
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p>Halo, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>! Kamu berhasil login.</p>
+    <div class="card dashboard-info">
+        <h1>Dashboard</h1>
+        <p>Halo, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>! Kamu berhasil login.</p>
 
-    <p><a href="logout.php">Logout</a></p>
+        <a href="logout.php" class="btn-logout">Logout</a>
+    </div>
 </body>
 </html>

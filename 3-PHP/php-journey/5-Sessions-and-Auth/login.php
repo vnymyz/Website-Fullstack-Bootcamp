@@ -50,32 +50,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Login</h1>
+    <div class="card">
+        <h1>Login</h1>
 
-    <?php if ($msg === 'registered'): ?>
-        <p style="color: green;">Register berhasil, silakan login.</p>
-    <?php endif; ?>
+        <?php if ($msg === 'registered'): ?>
+            <div class="alert">Register berhasil, silakan login.</div>
+        <?php endif; ?>
 
-    <?php if (!empty($errors)): ?>
-        <ul style="color: red;">
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+        <?php if (!empty($errors)): ?>
+            <ul class="alert-error">
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
 
-    <form method="POST" action="login.php">
-        <label>Username:</label><br>
-        <input type="text" name="username" value="<?= htmlspecialchars($username) ?>"><br><br>
+        <form method="POST" action="login.php">
+            <label>Username:</label>
+            <input type="text" name="username" value="<?= htmlspecialchars($username) ?>">
 
-        <label>Password:</label><br>
-        <input type="password" name="password"><br><br>
+            <label>Password:</label>
+            <input type="password" name="password">
 
-        <button type="submit">Login</button>
-    </form>
+            <button type="submit">Login</button>
+        </form>
 
-    <p>Belum punya akun? <a href="register.php">Register di sini</a></p>
+        <p>Belum punya akun? <a href="register.php">Register di sini</a></p>
+    </div>
 </body>
 </html>
