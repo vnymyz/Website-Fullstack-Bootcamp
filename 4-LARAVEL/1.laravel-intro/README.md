@@ -29,6 +29,7 @@ Project ini buat latihan belajar Laravel. Catatan di bawah dibuat buat pemula ya
 - [Praktik Kedelapan Belas: Policy](#praktik-kedelapan-belas-policy)
 - [Praktik Kesembilan Belas: API Resource + Testing pakai Thunder Client](#praktik-kesembilan-belas-api-resource--testing-pakai-thunder-client)
 - [Praktik Kedua Puluh: Testing Otomatis (PHPUnit)](#praktik-kedua-puluh-testing-otomatis-phpunit)
+- [Praktik Kedua Puluh Satu: Landing Page Publik + Sidebar Dashboard](#praktik-kedua-puluh-satu-landing-page-publik--sidebar-dashboard)
 - [Roadmap Belajar Selanjutnya](#roadmap-belajar-selanjutnya)
 
 ## Apa itu Laravel?
@@ -4692,6 +4693,7 @@ class PostTest extends TestCase
 ```
 
 Penjelasan tiap bagian:
+
 - `use RefreshDatabase;` — trait ini yang bikin database (SQLite in-memory) di-migrate ulang dari nol **sebelum tiap method test**, jadi test satu gak kena efek samping dari test lainnya (selalu mulai dari kondisi bersih).
 - `$this->get('/posts')` / `$this->post(...)` / `$this->put(...)` — simulasiin request HTTP kayak beneran buka browser, tanpa buka browser beneran.
 - `$this->actingAs($user)` — simulasiin "login sebagai `$user`", gantiin proses manual isi form login.
@@ -4724,29 +4726,349 @@ php artisan test
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Error `no such table: posts` pas jalanin test | Pastiin `use RefreshDatabase;` ada di class test — trait ini yang migrate database testing otomatis |
-| Test lambat banget | Wajar kalau pertama kali jalan (compile ulang cache), abis itu harusnya cepet karena pakai SQLite in-memory, bukan MySQL |
-| `Class "Database\Factories\PostFactory" not found` pas testing | Sama kayak Praktik 14 — cek `Post.php` udah ada `use HasFactory;` |
-| Test `test_admin_bisa_edit_post_siapa_aja` gagal padahal kodenya bener | Cek lagi `User::factory()->create(['role' => 'admin'])` — pastiin kolom `role` beneran ke-set (cek `Fillable` di `User.php` dari fix Praktik 11) |
-| Takut testing ngerusak data asli di MySQL | Gak perlu khawatir — `phpunit.xml` udah nge-set testing pakai SQLite in-memory terpisah total dari database MySQL `vanya_laravel` yang dipakai sehari-hari |
+| Masalah                                                                | Solusi                                                                                                                                                     |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error `no such table: posts` pas jalanin test                          | Pastiin `use RefreshDatabase;` ada di class test — trait ini yang migrate database testing otomatis                                                        |
+| Test lambat banget                                                     | Wajar kalau pertama kali jalan (compile ulang cache), abis itu harusnya cepet karena pakai SQLite in-memory, bukan MySQL                                   |
+| `Class "Database\Factories\PostFactory" not found` pas testing         | Sama kayak Praktik 14 — cek `Post.php` udah ada `use HasFactory;`                                                                                          |
+| Test `test_admin_bisa_edit_post_siapa_aja` gagal padahal kodenya bener | Cek lagi `User::factory()->create(['role' => 'admin'])` — pastiin kolom `role` beneran ke-set (cek `Fillable` di `User.php` dari fix Praktik 11)           |
+| Takut testing ngerusak data asli di MySQL                              | Gak perlu khawatir — `phpunit.xml` udah nge-set testing pakai SQLite in-memory terpisah total dari database MySQL `vanya_laravel` yang dipakai sehari-hari |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kedua Puluh
 
-| File | Perubahan |
-|---|---|
+| File                         | Perubahan                                         |
+| ---------------------------- | ------------------------------------------------- |
 | `tests/Feature/PostTest.php` | File baru — 5 test skenario CRUD Post + otorisasi |
 
 ### Ringkasan Praktik Kedua Puluh
 
-| Sebelum (Praktik 1-19) | Sesudah (Praktik 20) |
-|---|---|
-| Ngecek fitur = manual buka browser, klik-klik | Ngecek fitur = `php artisan test`, otomatis dalam hitungan detik |
-| Gampang lupa ngecek 1-2 skenario | Semua skenario penting ke-cover di kode test, gak ada yang kelewat |
+| Sebelum (Praktik 1-19)                                                 | Sesudah (Praktik 20)                                                                                     |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Ngecek fitur = manual buka browser, klik-klik                          | Ngecek fitur = `php artisan test`, otomatis dalam hitungan detik                                         |
+| Gampang lupa ngecek 1-2 skenario                                       | Semua skenario penting ke-cover di kode test, gak ada yang kelewat                                       |
 | Gak ada cara cepet mastiin fitur lama gak rusak abis nambah fitur baru | Jalanin `php artisan test` abis tiap perubahan besar, langsung ketauan kalau ada yang rusak (regression) |
 
 > Ini nutup topik-topik inti Laravel buat bikin project CRUD yang solid. Sisa satu lagi di Roadmap: **Deploy** — naikin project ke hosting beneran, biar bisa diakses orang lain via internet. Kamu udah bilang mau nunggu murid-murid selesai bikin project masing-masing dulu buat itu, jadi bisa disimpen buat sesi berikutnya.
+
+## Praktik Kedua Puluh Satu: Landing Page Publik + Sidebar Dashboard
+
+Sejauh ini `/` masih halaman welcome bawaan Laravel, dan area abis login (`/dashboard`, `/posts`, `/admin/users`) masih pakai navbar atas bawaan Breeze. Praktik ini nambah **landing page publik** (bisa dibuka tanpa login, nampilin post terbaru) dan ganti navigasi area login jadi **sidebar kiri** — biar struktur web ini lebih mirip aplikasi/dashboard beneran, cocok jadi template project.
+
+Konsep baru: **layout terpisah per konteks** (1 layout buat halaman publik, 1 layout buat halaman abis login), dan data statistik simpel di Dashboard.
+
+### 1. Bikin Layout Sidebar
+
+**📁 File baru: `resources/views/layouts/sidebar.blade.php`**:
+
+```blade
+<aside x-data="{ open: false }" class="w-64 bg-white border-r border-gray-200 shrink-0">
+    <div class="p-6 border-b border-gray-100">
+        <a href="/dashboard" class="text-lg font-bold text-blue-600">Laravel Intro</a>
+    </div>
+
+    <nav class="p-4 space-y-1">
+        <a href="/dashboard"
+            class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+            Dashboard
+        </a>
+
+        <a href="/posts"
+            class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium {{ request()->is('posts*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+            Posts
+        </a>
+
+        @if (auth()->user()->role === 'admin')
+            <a href="/admin/users"
+                class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium {{ request()->is('admin/users*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+                User Management
+            </a>
+        @endif
+
+        <a href="{{ route('profile.edit') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('profile.edit') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+            Profile
+        </a>
+    </nav>
+
+    <div class="p-4 mt-auto border-t border-gray-100">
+        <div class="px-3 mb-2">
+            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->name }}</p>
+            <p class="text-xs text-gray-400">{{ auth()->user()->email }}</p>
+        </div>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="w-full text-left px-3 py-2 rounded text-sm text-red-600 hover:bg-red-50">
+                Logout
+            </button>
+        </form>
+    </div>
+</aside>
+```
+
+Penjelasan:
+
+- Link **User Management** cuma muncul kalau role `admin` — pola yang sama kayak navbar lama, cuma dipindah ke sidebar.
+- Warna highlight (`bg-blue-50 text-blue-700`) otomatis nempel di menu yang lagi aktif, dicek pakai `request()->is(...)`/`request()->routeIs(...)` — sama persis konsep yang udah dipelajari waktu benerin navbar Breeze.
+
+### 2. Rombak Layout Utama Jadi Struktur Sidebar
+
+**📁 File: `resources/views/layouts/app.blade.php`** — timpa seluruh isinya:
+
+```blade
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Laravel Intro')</title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+    <div class="flex min-h-screen">
+        @include('layouts.sidebar')
+
+        <div class="flex-1 flex flex-col min-w-0">
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <h1 class="font-semibold text-gray-800">@yield('title', 'Dashboard')</h1>
+            </header>
+
+            <main class="@yield('container', 'max-w-2xl') w-full mx-auto p-6">
+                @yield('content')
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>
+```
+
+Penjelasan:
+
+- `<div class="flex min-h-screen">` — bikin sidebar & area konten sejajar ke samping (`flex`), tinggi minimal 1 layar penuh.
+- `@include('layouts.sidebar')` — ganti `@include('layouts.navigation')` yang lama.
+- `<header>` di atas konten nampilin `@yield('title', ...)` yang sama kayak dipakai buat `<title>` tab browser — jadi 1 baris `@section('title', '...')` di tiap halaman (`hello.blade.php`, `posts/index.blade.php`, dst) otomatis ngatur judul tab **dan** heading di header, gak perlu nulis dua kali.
+- Semua halaman yang udah `@extends('layouts.app')` (Praktik 1-20) **otomatis** kepakein sidebar baru ini, gak perlu diubah satu-satu.
+
+> Setelah ini, `resources/views/layouts/navigation.blade.php` (navbar lama bawaan Breeze) udah **gak dipakai lagi** — boleh dihapus kalau mau, atau dibiarin aja (gak ganggu, cuma jadi file nganggur).
+
+### 3. Bikin Layout buat Halaman Publik
+
+Landing page (`/`) beda konteks — bisa diakses tanpa login, jadi gak masuk akal pakai sidebar (sidebar isinya Logout, Profile, dll — gak relevan buat tamu). Bikin layout terpisah:
+
+**📁 File baru: `resources/views/layouts/public.blade.php`**:
+
+```blade
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@yield('title', 'Laravel Intro')</title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+    <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+        <a href="/" class="text-lg font-bold text-blue-600">Laravel Intro</a>
+
+        <div class="flex gap-4 items-center">
+            @auth
+                <a href="/dashboard" class="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Dashboard
+                </a>
+            @else
+                <a href="/login" class="text-sm text-gray-600 hover:text-gray-900">Login</a>
+                <a href="/register" class="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Register
+                </a>
+            @endauth
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6">
+        @yield('content')
+    </main>
+</body>
+
+</html>
+```
+
+`@auth` / `@else` / `@endauth` — Blade directive dari Praktik 8: kalau lagi login, tombol jadi **Dashboard**; kalau belum, tombolnya **Login/Register**.
+
+### 4. Bikin View Landing Page
+
+**📁 File baru: `resources/views/home.blade.php`**:
+
+```blade
+@extends('layouts.public')
+
+@section('title', 'Beranda')
+
+@section('content')
+    <div class="text-center py-12">
+        <h1 class="text-3xl font-bold text-gray-800">Selamat Datang di Laravel Intro</h1>
+        <p class="text-gray-500 mt-2">Website latihan belajar Laravel — CRUD Post, Auth, Role, dan lainnya.</p>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-4">Post Terbaru</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @forelse ($posts as $post)
+            <div class="bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col">
+                @if ($post->imageUrl())
+                    <img src="{{ $post->imageUrl() }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
+                @else
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        Tanpa gambar
+                    </div>
+                @endif
+
+                <div class="p-4 flex flex-col flex-1">
+                    <h3 class="font-semibold text-lg mb-1">{{ $post->title }}</h3>
+                    <p class="text-gray-600 text-sm line-clamp-3 flex-1">{{ $post->body }}</p>
+                    <p class="text-xs text-gray-400 mt-3">Ditulis oleh {{ $post->user->name ?? 'Tidak diketahui' }}</p>
+                </div>
+            </div>
+        @empty
+            <p class="text-gray-500 text-sm col-span-full">Belum ada post.</p>
+        @endforelse
+    </div>
+@endsection
+```
+
+Penjelasan: card-nya **sengaja gak ada tombol Edit/Hapus** — ini halaman publik, tamu yang belum login gak boleh ngutak-atik data. Beda dari `/posts` (Praktik 16) yang punya tombol Edit/Hapus tergantung Policy.
+
+### 5. Update Route — `/` jadi Landing Page, `/dashboard` bawa Statistik
+
+**📁 File: `routes/web.php`** — ganti bagian awal:
+
+```php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HelloController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Models\Post;
+use App\Models\User;
+
+Route::get('/', function () {
+    $posts = Post::latest()->take(6)->get();
+
+    return view('home', ['posts' => $posts]);
+});
+
+Route::get('/hello', [HelloController::class, 'index']);
+Route::get('/hello/{name}', [HelloController::class, 'show']);
+
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    $stats = [
+        'my_posts' => $user->posts()->count(),
+    ];
+
+    if ($user->role === 'admin') {
+        $stats['total_posts'] = Post::count();
+        $stats['total_users'] = User::count();
+    }
+
+    return view('dashboard', ['stats' => $stats]);
+})->middleware(['auth', 'verified'])->name('dashboard');
+```
+
+Penjelasan:
+
+- Route `/` sekarang **publik** (gak ada `middleware('auth')`), ambil 6 post terbaru (`->latest()->take(6)`), kirim ke `home.blade.php`.
+- Route `/dashboard` sekarang ngitung statistik: `$user->posts()->count()` — manggil relasi `hasMany` dari `User.php` (Praktik 9), ngitung berapa post milik user yang login. Kalau dia admin, ditambah `total_posts` & `total_users` (data buat semua orang, bukan cuma dia).
+
+### 6. Update View Dashboard — Nampilin Statistik
+
+**📁 File: `resources/views/dashboard.blade.php`** — timpa seluruh isinya:
+
+```blade
+@extends('layouts.app')
+
+@section('title', 'Dashboard')
+
+@section('content')
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white border rounded-lg shadow-sm p-6">
+            <p class="text-sm text-gray-500">Post Kamu</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ $stats['my_posts'] }}</p>
+        </div>
+
+        @if (isset($stats['total_posts']))
+            <div class="bg-white border rounded-lg shadow-sm p-6">
+                <p class="text-sm text-gray-500">Total Post (Semua User)</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $stats['total_posts'] }}</p>
+            </div>
+
+            <div class="bg-white border rounded-lg shadow-sm p-6">
+                <p class="text-sm text-gray-500">Total User Terdaftar</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $stats['total_users'] }}</p>
+            </div>
+        @endif
+    </div>
+
+    <div class="mt-6">
+        <a href="/posts/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Tambah Post
+        </a>
+    </div>
+@endsection
+```
+
+`@if (isset($stats['total_posts']))` — kotak statistik "Total Post"/"Total User" cuma muncul buat admin, soalnya key itu cuma di-set kalau `$user->role === 'admin'` (step 5). User biasa cuma liat "Post Kamu" doang.
+
+### 7. Cek hasilnya
+
+1. **Logout dulu** (atau buka di browser mode Incognito) — akses `http://127.0.0.1:8000/` — harus muncul landing page baru, ada post terbaru (tanpa tombol Edit/Hapus), navbar atas cuma Login/Register.
+2. Login — akses `/` lagi, navbar sekarang nampilin tombol **Dashboard** (bukan Login/Register).
+3. Klik Dashboard (atau akses `/dashboard`) — sekarang tampilannya **sidebar kiri** (bukan navbar atas lagi), isi kartu statistik "Post Kamu" (+ 2 kartu tambahan kalau login sebagai admin).
+4. Klik menu **Posts** di sidebar — pindah ke `/posts`, sidebar tetep ada, halaman list post tetep berfungsi normal kayak sebelumnya.
+5. Login sebagai **user biasa** (bukan admin) — cek menu **User Management** gak muncul di sidebar.
+6. Login sebagai **admin** — menu **User Management** muncul, dan kartu statistik "Total Post"/"Total User" muncul di Dashboard.
+
+### Cheatsheet Troubleshooting
+
+| Masalah                                                           | Solusi                                                                                                                                                                       |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Landing page (`/`) ikut ke-redirect ke `/login`                   | Pastiin route `/` **gak** dibungkus `middleware('auth')` — beda dari route `/posts` yang emang sengaja wajib login                                                           |
+| Sidebar gak muncul di halaman tertentu                            | Pastiin halaman itu masih `@extends('layouts.app')`, bukan `@extends('layouts.public')`                                                                                      |
+| Error `Call to a member function posts() on null` di `/dashboard` | Route `/dashboard` harus tetep di dalam middleware `auth` — `auth()->user()` bakal `null` kalau belum login                                                                  |
+| Landing page error `Attempt to read property "name" on null`      | Sama kayak kasus lama di Praktik 9 — ada Post yang `user_id`-nya `NULL`, pastiin pakai `{{ $post->user->name ?? 'Tidak diketahui' }}`, bukan `{{ $post->user->name }}` polos |
+| Menu sidebar gak ke-highlight pas lagi di halaman itu             | Cek `request()->is(...)` / `request()->routeIs(...)` di `sidebar.blade.php` cocok sama pattern URL/nama route halaman itu                                                    |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kedua Puluh Satu
+
+| File                                        | Perubahan                                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `resources/views/layouts/sidebar.blade.php` | File baru — sidebar kiri (Dashboard, Posts, User Management, Profile, Logout)      |
+| `resources/views/layouts/app.blade.php`     | Rombak total — dari navbar atas jadi struktur sidebar + header                     |
+| `resources/views/layouts/public.blade.php`  | File baru — layout buat halaman publik (navbar simpel, Login/Register)             |
+| `resources/views/home.blade.php`            | File baru — landing page publik, nampilin 6 post terbaru                           |
+| `routes/web.php`                            | Route `/` ganti jadi landing page (publik); route `/dashboard` bawa data statistik |
+| `resources/views/dashboard.blade.php`       | Rombak — nampilin kartu statistik, bukan cuma teks placeholder                     |
+
+### Ringkasan Praktik Kedua Puluh Satu
+
+| Sebelum (Praktik 1-20)                           | Sesudah (Praktik 21)                                                          |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `/` = halaman welcome bawaan Laravel             | `/` = landing page publik, nampilin post terbaru                              |
+| Area login pakai navbar atas                     | Area login pakai sidebar kiri                                                 |
+| Dashboard cuma teks "You're logged in!"          | Dashboard nampilin statistik (jumlah post, khusus admin ada total sistem)     |
+| Gak ada bedanya tampilan buat tamu vs user login | Ada 2 layout terpisah: `layouts.public` (tamu) dan `layouts.app` (abis login) |
+
+> Struktur ini yang biasanya jadi starting point project "beneran" — landing page buat marketing/showcase, dashboard buat kerja abis login. Cocok jadi template dasar buat murid-murid kamu mulai project masing-masing, tinggal ganti "Post" jadi entitas lain (produk, artikel, tugas, dll) sesuai kebutuhan project mereka.
 
 ## Roadmap Belajar Selanjutnya
 
@@ -4754,18 +5076,18 @@ Catatan urutan topik dari sini sampai siap bikin project Laravel sendiri / ujian
 
 ### Status: 20 dari 21 Poin Selesai ✅
 
-| # | Topik | Status |
-|---|---|---|
-| 1-11 | Dasar Laravel s.d. User Management (Routing, Controller, Blade, Eloquent, CRUD, Tailwind, MySQL, Breeze, Relasi, Role) | ✅ Selesai |
-| 12 | Slug + Single Post View | ✅ Selesai (Praktik 12) |
-| 13 | Upload/Link Gambar | ✅ Selesai (Praktik 13) |
-| 14 | Database Seeder | ✅ Selesai (Praktik 14) |
-| 15 | Search & Filter | ✅ Selesai (Praktik 15) |
-| 16 | Pagination & Card Grid | ✅ Selesai (Praktik 16) |
-| 17 | Form Request | ✅ Selesai (Praktik 17) |
-| 18 | Policy | ✅ Selesai (Praktik 18) |
-| 19 | API Resource + Testing pakai Thunder Client | ✅ Selesai (Praktik 19) |
-| 20 | Testing Otomatis (PHPUnit) | ✅ Selesai (Praktik 20) — 30/30 test PASS |
-| 21 | **Deploy** ke hosting beneran | ⏳ Ditunda — nunggu murid-murid selesai bikin project masing-masing dulu |
+| #    | Topik                                                                                                                  | Status                                                                   |
+| ---- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1-11 | Dasar Laravel s.d. User Management (Routing, Controller, Blade, Eloquent, CRUD, Tailwind, MySQL, Breeze, Relasi, Role) | ✅ Selesai                                                               |
+| 12   | Slug + Single Post View                                                                                                | ✅ Selesai (Praktik 12)                                                  |
+| 13   | Upload/Link Gambar                                                                                                     | ✅ Selesai (Praktik 13)                                                  |
+| 14   | Database Seeder                                                                                                        | ✅ Selesai (Praktik 14)                                                  |
+| 15   | Search & Filter                                                                                                        | ✅ Selesai (Praktik 15)                                                  |
+| 16   | Pagination & Card Grid                                                                                                 | ✅ Selesai (Praktik 16)                                                  |
+| 17   | Form Request                                                                                                           | ✅ Selesai (Praktik 17)                                                  |
+| 18   | Policy                                                                                                                 | ✅ Selesai (Praktik 18)                                                  |
+| 19   | API Resource + Testing pakai Thunder Client                                                                            | ✅ Selesai (Praktik 19)                                                  |
+| 20   | Testing Otomatis (PHPUnit)                                                                                             | ✅ Selesai (Praktik 20) — 30/30 test PASS                                |
+| 21   | **Deploy** ke hosting beneran                                                                                          | ⏳ Ditunda — nunggu murid-murid selesai bikin project masing-masing dulu |
 
 > Tinggal **1 topik** lagi buat nutup roadmap ini: **Deploy**. Semua fondasi teknis (routing, database, auth, otorisasi, API, testing) udah kekuasai — Deploy itu murni soal mindahin project dari localhost ke server beneran, gak nambah konsep pemrograman baru yang signifikan.

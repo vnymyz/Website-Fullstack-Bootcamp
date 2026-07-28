@@ -5,16 +5,31 @@ use App\Http\Controllers\HelloController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Models\Post;
+use App\Models\User;
 
 Route::get('/', function () {
-    return view('welcome');
+    $posts = Post::latest()->take(6)->get();
+
+    return view('home', ['posts' => $posts]);
 });
 
 Route::get('/hello', [HelloController::class, 'index']);
 Route::get('/hello/{name}', [HelloController::class, 'show']);
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+
+    $stats = [
+        'my_posts' => $user->posts()->count(),
+    ];
+
+    if ($user->role === 'admin') {
+        $stats['total_posts'] = Post::count();
+        $stats['total_users'] = User::count();
+    }
+
+    return view('dashboard', ['stats' => $stats]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // semua route yang ada di dalam group ini harus wajib login dulu
