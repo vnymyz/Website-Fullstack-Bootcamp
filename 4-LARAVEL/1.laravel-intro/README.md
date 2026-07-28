@@ -28,6 +28,7 @@ Project ini buat latihan belajar Laravel. Catatan di bawah dibuat buat pemula ya
 - [Praktik Ketujuh Belas: Form Request](#praktik-ketujuh-belas-form-request)
 - [Praktik Kedelapan Belas: Policy](#praktik-kedelapan-belas-policy)
 - [Praktik Kesembilan Belas: API Resource + Testing pakai Thunder Client](#praktik-kesembilan-belas-api-resource--testing-pakai-thunder-client)
+- [Praktik Kedua Puluh: Testing Otomatis (PHPUnit)](#praktik-kedua-puluh-testing-otomatis-phpunit)
 - [Roadmap Belajar Selanjutnya](#roadmap-belajar-selanjutnya)
 
 ## Apa itu Laravel?
@@ -788,6 +789,7 @@ class PostController extends Controller
 ```
 
 Penjelasan:
+
 - `$request->validate([...])` — kalau input kosong/salah format, Laravel otomatis redirect balik + simpan error message. Gak perlu `if (empty(...))` manual.
 - `Post::create($validated)` / `$post->update($validated)` — `$validated` itu array data yang udah lolos validasi.
 - `redirect('/posts')` — abis create/update/delete, balik ke halaman list.
@@ -906,12 +908,12 @@ Ubah `resources/views/posts/index.blade.php` jadi:
 
 ### Ringkasan Praktik Kelima
 
-| Sebelum (Praktik 4) | Sesudah (Praktik 5) |
-|---|---|
-| Cuma **Read** (`/posts` doang) | **CRUD lengkap**: Create, Read, Update, Delete |
-| Data ditambah manual lewat tinker | Data ditambah/diubah/dihapus lewat form web |
-| Belum ada validasi | Ada validasi (`$request->validate()`) |
-| `Post::find($id)` manual (kalau ada) | Route model binding (`Post $post` otomatis) |
+| Sebelum (Praktik 4)                  | Sesudah (Praktik 5)                            |
+| ------------------------------------ | ---------------------------------------------- |
+| Cuma **Read** (`/posts` doang)       | **CRUD lengkap**: Create, Read, Update, Delete |
+| Data ditambah manual lewat tinker    | Data ditambah/diubah/dihapus lewat form web    |
+| Belum ada validasi                   | Ada validasi (`$request->validate()`)          |
+| `Post::find($id)` manual (kalau ada) | Route model binding (`Post $post` otomatis)    |
 
 > Ini CRUD pertama yang beneran "app", bukan cuma latihan. Murid yang udah ngerti PDO manual bakal langsung relate: `$_POST` → `$request`, `if (empty(...))` → `$request->validate()`, `header('Location: ...')` → `redirect(...)`.
 
@@ -1101,11 +1103,11 @@ Refresh `http://127.0.0.1:8000/posts` — harus udah ada warna, spacing, button 
 
 ### Ringkasan Praktik Keenam
 
-| Sebelum (Praktik 1-5) | Sesudah (Praktik 6) |
-|---|---|
-| HTML polos, gak ada styling | Pakai Tailwind utility classes |
-| `php artisan serve` doang | `php artisan serve` + `npm run dev` jalan bareng |
-| `layouts/app.blade.php` belum load CSS | Ada `@vite(...)` di `<head>` |
+| Sebelum (Praktik 1-5)                  | Sesudah (Praktik 6)                              |
+| -------------------------------------- | ------------------------------------------------ |
+| HTML polos, gak ada styling            | Pakai Tailwind utility classes                   |
+| `php artisan serve` doang              | `php artisan serve` + `npm run dev` jalan bareng |
+| `layouts/app.blade.php` belum load CSS | Ada `@vite(...)` di `<head>`                     |
 
 > Tailwind cuma nambah `class="..."` di HTML/Blade — Controller, Model, Route sama sekali gak berubah. Ini nunjukin View itu independen dari logic (M & C).
 
@@ -1179,20 +1181,20 @@ Ini bakal bikin ulang semua tabel (`posts`, `users`, dll) di database MySQL yang
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| `SQLSTATE[HY000] [1049] Unknown database` | Nama `DB_DATABASE` di `.env` gak sama persis kayak nama database di phpMyAdmin — cek typo |
-| `SQLSTATE[HY000] [2002] No connection could be made` | MySQL di Laragon belum nyala — buka Laragon, klik Start All |
-| Perubahan `.env` kayak belum kepakai | Jalankan `php artisan config:clear` |
-| Tabel gak muncul di phpMyAdmin | Belum jalanin `php artisan migrate` setelah ganti `.env` |
+| Masalah                                              | Solusi                                                                                    |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `SQLSTATE[HY000] [1049] Unknown database`            | Nama `DB_DATABASE` di `.env` gak sama persis kayak nama database di phpMyAdmin — cek typo |
+| `SQLSTATE[HY000] [2002] No connection could be made` | MySQL di Laragon belum nyala — buka Laragon, klik Start All                               |
+| Perubahan `.env` kayak belum kepakai                 | Jalankan `php artisan config:clear`                                                       |
+| Tabel gak muncul di phpMyAdmin                       | Belum jalanin `php artisan migrate` setelah ganti `.env`                                  |
 
 ### Ringkasan Praktik Ketujuh
 
-| Sebelum (SQLite) | Sesudah (MySQL) |
-|---|---|
+| Sebelum (SQLite)                                       | Sesudah (MySQL)                                     |
+| ------------------------------------------------------ | --------------------------------------------------- |
 | `DB_CONNECTION=sqlite`, data di file `database.sqlite` | `DB_CONNECTION=mysql`, data di server MySQL Laragon |
-| Cek data lewat DB Browser for SQLite / tinker | Cek data lewat phpMyAdmin (Browse tabel) |
-| Model, Controller, Migration | **Sama persis, gak berubah** |
+| Cek data lewat DB Browser for SQLite / tinker          | Cek data lewat phpMyAdmin (Browse tabel)            |
+| Model, Controller, Migration                           | **Sama persis, gak berubah**                        |
 
 > Ini nunjukin kekuatan Eloquent ORM: kode `Post::all()`, `Post::create()`, dll gak peduli database-nya SQLite, MySQL, atau PostgreSQL — tinggal ganti config `.env`, semua kode lain tetap jalan.
 
@@ -1230,10 +1232,12 @@ Which Breeze stack would you like to install?
 Pilih **Blade with Alpine** (sesuai apa yang udah dipelajari — Blade template, bukan React/Vue). Tekan Enter.
 
 Nanti ditanya lagi:
+
 - **Dark mode** — pilih sesuai selera (default gapapa).
 - **Testing framework: PHPUnit atau Pest** — pilih **PHPUnit**. Project ini udah default pakai PHPUnit (cek `phpunit.xml` & `composer.json`), jadi biar konsisten, gak usah pilih Pest.
 
 Breeze otomatis bikin:
+
 - Route login/register di `routes/auth.php`
 - Controller di `app/Http/Controllers/Auth/`
 - View di `resources/views/auth/` (`login.blade.php`, `register.blade.php`, dll) — udah pakai Tailwind
@@ -1403,6 +1407,7 @@ require __DIR__ . '/auth.php';
 ```
 
 Penjelasan:
+
 - `Route::middleware('auth')->group(function () { ... })` — semua route di dalam `{ }` ini wajib login dulu.
 - Kalau belum login terus akses `/posts`, otomatis di-redirect ke `/login`.
 - `ProfileController` udah otomatis dibuat sama installer Breeze di `app/Http/Controllers/ProfileController.php`, tinggal daftarin route-nya aja.
@@ -1467,6 +1472,7 @@ Tambah juga di sini:
 ```
 
 Penjelasan:
+
 - `route('dashboard')` dipakai buat route `/posts` gak bisa, soalnya route `/posts` gak dikasih `->name(...)`. Makanya pakai `href="/posts"` langsung (URL manual).
 - `:active="request()->is('posts*')"` — nge-cek apakah URL sekarang diawali `/posts` (termasuk `/posts/create`, `/posts/5/edit`, dll), buat kasih highlight/active state di link.
 - `request()->routeIs('dashboard')` beda cara — itu ngecek berdasarkan **nama route** (`->name('dashboard')`), bukan URL. Dua-duanya valid, tinggal pilih sesuai ada/gaknya nama route.
@@ -1477,31 +1483,31 @@ Refresh halaman manapun yang lagi login (`/dashboard`, `/posts`, dll) — navbar
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kedelapan
 
-| File | Perubahan |
-|---|---|
-| `resources/views/layouts/app.blade.php` | Ditimpa balik ke gaya `@yield('content')` (step 3) |
-| `resources/views/dashboard.blade.php` | Dikonversi dari `<x-app-layout>` ke `@extends`/`@section` (step 3) |
-| `resources/views/profile/edit.blade.php` | Dikonversi dari `<x-app-layout>` ke `@extends`/`@section` (step 3) |
-| `routes/web.php` | Tambah middleware `auth` buat route `/posts/*`, pastiin route `dashboard` & `profile.*` tetep ada (step 6) |
-| `resources/views/layouts/navigation.blade.php` | Tambah link "Posts" di desktop & mobile nav (step 8) |
+| File                                           | Perubahan                                                                                                  |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `resources/views/layouts/app.blade.php`        | Ditimpa balik ke gaya `@yield('content')` (step 3)                                                         |
+| `resources/views/dashboard.blade.php`          | Dikonversi dari `<x-app-layout>` ke `@extends`/`@section` (step 3)                                         |
+| `resources/views/profile/edit.blade.php`       | Dikonversi dari `<x-app-layout>` ke `@extends`/`@section` (step 3)                                         |
+| `routes/web.php`                               | Tambah middleware `auth` buat route `/posts/*`, pastiin route `dashboard` & `profile.*` tetep ada (step 6) |
+| `resources/views/layouts/navigation.blade.php` | Tambah link "Posts" di desktop & mobile nav (step 8)                                                       |
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| `Class "Laravel\Breeze\BreezeServiceProvider" not found` | Jalankan `composer dump-autoload`, lalu ulang `php artisan breeze:install` |
-| Halaman login/register tampil polos (gak ada style) | Pastiin `npm install` & `npm run dev` udah dijalanin ulang setelah install Breeze |
-| Akses `/posts` gak ke-redirect ke login | Cek lagi `routes/web.php` — route harus dibungkus `Route::middleware('auth')->group(...)` |
-| Error `Route [login] not defined` | Baris `require __DIR__ . '/auth.php';` belum ada / kehapus dari `routes/web.php` |
-| Error `Undefined variable $slot` di halaman manapun | `resources/views/layouts/app.blade.php` ketimpa installer Breeze jadi versi `<x-app-layout>` — perbaiki sesuai step 3 |
-| `Route [dashboard] not defined` / `Route [profile.edit] not defined` abis register/login | Route bawaan Breeze ikut kehapus pas edit `routes/web.php` — cek lagi contoh lengkap di step 6 |
+| Masalah                                                                                  | Solusi                                                                                                                |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `Class "Laravel\Breeze\BreezeServiceProvider" not found`                                 | Jalankan `composer dump-autoload`, lalu ulang `php artisan breeze:install`                                            |
+| Halaman login/register tampil polos (gak ada style)                                      | Pastiin `npm install` & `npm run dev` udah dijalanin ulang setelah install Breeze                                     |
+| Akses `/posts` gak ke-redirect ke login                                                  | Cek lagi `routes/web.php` — route harus dibungkus `Route::middleware('auth')->group(...)`                             |
+| Error `Route [login] not defined`                                                        | Baris `require __DIR__ . '/auth.php';` belum ada / kehapus dari `routes/web.php`                                      |
+| Error `Undefined variable $slot` di halaman manapun                                      | `resources/views/layouts/app.blade.php` ketimpa installer Breeze jadi versi `<x-app-layout>` — perbaiki sesuai step 3 |
+| `Route [dashboard] not defined` / `Route [profile.edit] not defined` abis register/login | Route bawaan Breeze ikut kehapus pas edit `routes/web.php` — cek lagi contoh lengkap di step 6                        |
 
 ### Ringkasan Praktik Kedelapan
 
-| Sebelum (Praktik 1-7) | Sesudah (Praktik 8) |
-|---|---|
-| `/posts` bisa diakses siapa aja | `/posts` wajib login dulu |
-| Belum ada konsep user/akun | Ada Register, Login, Logout (tabel `users`) |
+| Sebelum (Praktik 1-7)           | Sesudah (Praktik 8)                                     |
+| ------------------------------- | ------------------------------------------------------- |
+| `/posts` bisa diakses siapa aja | `/posts` wajib login dulu                               |
+| Belum ada konsep user/akun      | Ada Register, Login, Logout (tabel `users`)             |
 | Semua route "flat" di `web.php` | Route dikelompokkin pakai `middleware('auth')->group()` |
 
 > Ini pondasi buat topik selanjutnya: **role admin vs user** (nambah kolom `role` di tabel `users`) dan **relasi Post-User** (`Post belongsTo User`, biar user cuma bisa edit post miliknya sendiri) — dua-duanya baru masuk akal setelah ada Authentication.
@@ -1538,6 +1544,7 @@ public function down(): void
 ```
 
 Penjelasan:
+
 - `$table->foreignId('user_id')` — bikin kolom `user_id` (integer), otomatis nyambung ke tabel `users` kolom `id`.
 - `->constrained()` — bikin ini jadi **foreign key** beneran (database bakal nolak insert kalau `user_id`-nya gak ada di tabel `users`).
 - `->cascadeOnDelete()` — kalau User dihapus, semua Post miliknya ikut kehapus otomatis (biar gak ada Post "yatim" tanpa pemilik).
@@ -1671,6 +1678,7 @@ public function store(Request $request)
 ```
 
 Penjelasan:
+
 - `{{ $post->user->name }}` — ini **eager loading otomatis** Eloquent: manggil `$post->user` langsung nge-query tabel `users` ambil data pemiliknya, berkat relasi `belongsTo` di step 3.
 - `@if ($post->user_id === auth()->id())` — tombol Edit/Delete cuma muncul kalau `user_id` di post itu sama dengan id user yang lagi login.
 
@@ -1731,21 +1739,21 @@ public function destroy(Post $post)
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kesembilan
 
-| File | Perubahan |
-|---|---|
-| `database/migrations/..._add_user_id_to_posts_table.php` | Migration baru, tambah kolom `user_id` + foreign key |
-| `app/Models/Post.php` | Tambah `user_id` ke `$fillable`, tambah method `user()` (`belongsTo`) |
-| `app/Models/User.php` | Tambah method `posts()` (`hasMany`) |
-| `app/Http/Controllers/PostController.php` | `store()` isi `user_id` otomatis; `edit()`, `update()`, `destroy()` dikasih pengecekan kepemilikan |
-| `resources/views/posts/index.blade.php` | Tampilin nama penulis, sembunyiin tombol Edit/Hapus kalau bukan pemilik |
+| File                                                     | Perubahan                                                                                          |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `database/migrations/..._add_user_id_to_posts_table.php` | Migration baru, tambah kolom `user_id` + foreign key                                               |
+| `app/Models/Post.php`                                    | Tambah `user_id` ke `$fillable`, tambah method `user()` (`belongsTo`)                              |
+| `app/Models/User.php`                                    | Tambah method `posts()` (`hasMany`)                                                                |
+| `app/Http/Controllers/PostController.php`                | `store()` isi `user_id` otomatis; `edit()`, `update()`, `destroy()` dikasih pengecekan kepemilikan |
+| `resources/views/posts/index.blade.php`                  | Tampilin nama penulis, sembunyiin tombol Edit/Hapus kalau bukan pemilik                            |
 
 ### Ringkasan Praktik Kesembilan
 
-| Sebelum (Praktik 1-8) | Sesudah (Praktik 9) |
-|---|---|
-| Post gak punya pemilik | Tiap Post `belongsTo` satu User |
+| Sebelum (Praktik 1-8)                         | Sesudah (Praktik 9)                        |
+| --------------------------------------------- | ------------------------------------------ |
+| Post gak punya pemilik                        | Tiap Post `belongsTo` satu User            |
 | Siapa aja login bisa edit/hapus post siapapun | Cuma pemilik yang bisa edit/hapus post-nya |
-| Belum ada Authorization | Ada pengecekan kepemilikan (`abort(403)`) |
+| Belum ada Authorization                       | Ada pengecekan kepemilikan (`abort(403)`)  |
 
 > Ini jadi fondasi buat **role admin vs user** — admin nanti bisa "skip" pengecekan `user_id` ini dan boleh edit/hapus post siapa aja, user biasa tetep kebatas post miliknya sendiri.
 
@@ -1909,6 +1917,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 ```
 
 Penjelasan:
+
 - `->middleware(['auth', 'admin'])` — dua lapis: harus login DULU (`auth`), baru dicek harus admin (`admin`, dari middleware yang dibikin di step 3).
 - `->prefix('admin')` — semua URL di dalam group ini otomatis diawali `/admin/...` (jadi `/admin/users`, bukan cuma `/users`).
 - `->name('admin.')` — semua route dikasih nama diawali `admin.` (jadi `admin.users.index`, `admin.users.updateRole`), biar gampang dipanggil di Blade pakai `route(...)`.
@@ -2071,35 +2080,35 @@ public function destroy(Post $post)
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| `Call to a member function role() on null` / error soal `auth()->user()` | Pastiin route dibungkus middleware `auth` dulu sebelum `admin` — urutannya `['auth', 'admin']`, bukan `['admin']` doang |
-| Route `/admin/users` gak ke-block buat user biasa | Cek `bootstrap/app.php` — alias `admin` harus kedaftar bener, dan route di `web.php` harus pakai `->middleware(['auth', 'admin'])` |
-| Ubah role gak nyimpen / gak ada efek | Pastiin form pakai `@method('PATCH')` dan route-nya `Route::patch(...)`, bukan `Route::put(...)` atau `Route::post(...)` |
-| Semua user ke-set jadi admin abis daftar (mass assignment exploit) | Jangan pernah tambahin `role` ke `Fillable`/`$fillable` di `User.php` — set role manual pakai `$user->role = ...; $user->save();` |
+| Masalah                                                                        | Solusi                                                                                                                                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Call to a member function role() on null` / error soal `auth()->user()`       | Pastiin route dibungkus middleware `auth` dulu sebelum `admin` — urutannya `['auth', 'admin']`, bukan `['admin']` doang                                               |
+| Route `/admin/users` gak ke-block buat user biasa                              | Cek `bootstrap/app.php` — alias `admin` harus kedaftar bener, dan route di `web.php` harus pakai `->middleware(['auth', 'admin'])`                                    |
+| Ubah role gak nyimpen / gak ada efek                                           | Pastiin form pakai `@method('PATCH')` dan route-nya `Route::patch(...)`, bukan `Route::put(...)` atau `Route::post(...)`                                              |
+| Semua user ke-set jadi admin abis daftar (mass assignment exploit)             | Jangan pernah tambahin `role` ke `Fillable`/`$fillable` di `User.php` — set role manual pakai `$user->role = ...; $user->save();`                                     |
 | Link User Management error `Attempt to read property "role" on null` di navbar | Pastiin `@if (auth()->user()->role === 'admin')` cuma dipanggil di halaman yang udah pasti user login (di dalam layout yang di-`@include` cuma buat halaman ber-auth) |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kesepuluh
 
-| File | Perubahan |
-|---|---|
-| `database/migrations/..._add_role_to_users_table.php` | Migration baru, tambah kolom `role` (default `user`) |
-| `app/Http/Middleware/EnsureUserIsAdmin.php` | Middleware baru, cek `role === 'admin'` |
-| `bootstrap/app.php` | Daftarin alias middleware `admin` |
-| `app/Http/Controllers/Admin/UserController.php` | Controller baru — `index()` (list user), `updateRole()` (ubah role) |
-| `routes/web.php` | Tambah group route `/admin/users` pakai middleware `['auth', 'admin']` |
-| `resources/views/admin/users/index.blade.php` | View baru — tabel user + form ubah role |
-| `resources/views/layouts/navigation.blade.php` | Tambah link "User Management", cuma keliatan buat admin |
-| `app/Http/Controllers/PostController.php` | `edit()`, `update()`, `destroy()` — admin bisa bypass pengecekan kepemilikan |
-| `resources/views/posts/index.blade.php` | Tombol Edit/Hapus muncul kalau pemilik **atau** admin |
+| File                                                  | Perubahan                                                                    |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `database/migrations/..._add_role_to_users_table.php` | Migration baru, tambah kolom `role` (default `user`)                         |
+| `app/Http/Middleware/EnsureUserIsAdmin.php`           | Middleware baru, cek `role === 'admin'`                                      |
+| `bootstrap/app.php`                                   | Daftarin alias middleware `admin`                                            |
+| `app/Http/Controllers/Admin/UserController.php`       | Controller baru — `index()` (list user), `updateRole()` (ubah role)          |
+| `routes/web.php`                                      | Tambah group route `/admin/users` pakai middleware `['auth', 'admin']`       |
+| `resources/views/admin/users/index.blade.php`         | View baru — tabel user + form ubah role                                      |
+| `resources/views/layouts/navigation.blade.php`        | Tambah link "User Management", cuma keliatan buat admin                      |
+| `app/Http/Controllers/PostController.php`             | `edit()`, `update()`, `destroy()` — admin bisa bypass pengecekan kepemilikan |
+| `resources/views/posts/index.blade.php`               | Tombol Edit/Hapus muncul kalau pemilik **atau** admin                        |
 
 ### Ringkasan Praktik Kesepuluh
 
-| Sebelum (Praktik 1-9) | Sesudah (Praktik 10) |
-|---|---|
+| Sebelum (Praktik 1-9)                          | Sesudah (Praktik 10)                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------ |
 | Semua user setara, cuma bisa edit post sendiri | Ada 2 role: `admin` (bisa semua) dan `user` (kebatas post sendiri) |
-| Belum ada middleware custom | Ada `EnsureUserIsAdmin` buat proteksi route khusus admin |
-| Belum ada halaman kelola user | Ada `/admin/users` — admin bisa liat & ubah role semua user |
+| Belum ada middleware custom                    | Ada `EnsureUserIsAdmin` buat proteksi route khusus admin           |
+| Belum ada halaman kelola user                  | Ada `/admin/users` — admin bisa liat & ubah role semua user        |
 
 > Ini nutup topik Authentication & Authorization dasar. Next yang udah direncanain: **slug + halaman single post** (`/posts/judul-post` ganti `/posts/{id}`), lalu **upload/link gambar** buat tiap Post.
 
@@ -2191,6 +2200,7 @@ class UserController extends Controller
 ```
 
 Penjelasan:
+
 - `Hash::make($validated['password'])` — password **wajib** di-hash sebelum disimpan, jangan pernah simpan password mentah/plain text ke database.
 - `'email' => 'required|email|unique:users,email'` — validasi `unique` mastiin gak ada 2 user pakai email yang sama.
 - Method `store()` di sini pakai `User::create($validated)` langsung, termasuk `role`. Ini **beda** dari form `/register` biasa (yang gak boleh terima `role` dari user biasa) — di sini aman karena yang akses cuma admin (udah dijaga middleware `admin`), jadi khusus di Controller ini boleh set `role` manual.
@@ -2340,6 +2350,7 @@ Penjelasan:
 ```
 
 Penjelasan:
+
 - `@if ($user->id !== auth()->id())` — tombol Hapus disembunyiin buat baris akun diri sendiri (selaras sama pengecekan di Controller step 2 — dua lapis proteksi, sama kayak pola di Praktik 9).
 - `session('error')` — nampilin pesan error dari `->with('error', ...)` di Controller (misal pas gagal hapus akun sendiri).
 - `confirm('Yakin hapus...')` — dialog konfirmasi browser sebelum submit form Delete, mencegah klik gak sengaja.
@@ -2355,20 +2366,20 @@ Penjelasan:
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kesebelas
 
-| File | Perubahan |
-|---|---|
-| `routes/web.php` | Tambah route `GET /admin/users/create`, `POST /admin/users`, `DELETE /admin/users/{user}` |
-| `app/Http/Controllers/Admin/UserController.php` | Tambah method `create()`, `store()`, `destroy()` |
-| `resources/views/admin/users/create.blade.php` | View baru — form tambah user |
-| `resources/views/admin/users/index.blade.php` | Tambah tombol "+ Tambah User" dan tombol "Hapus" per baris |
+| File                                            | Perubahan                                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `routes/web.php`                                | Tambah route `GET /admin/users/create`, `POST /admin/users`, `DELETE /admin/users/{user}` |
+| `app/Http/Controllers/Admin/UserController.php` | Tambah method `create()`, `store()`, `destroy()`                                          |
+| `resources/views/admin/users/create.blade.php`  | View baru — form tambah user                                                              |
+| `resources/views/admin/users/index.blade.php`   | Tambah tombol "+ Tambah User" dan tombol "Hapus" per baris                                |
 
 ### Ringkasan Praktik Kesebelas
 
-| Sebelum (Praktik 10) | Sesudah (Praktik 11) |
-|---|---|
-| User Management cuma Read + Update | User Management jadi CRUD penuh (Create, Read, Update, Delete) |
-| User baru cuma bisa masuk lewat `/register` | Admin bisa tambah user manual, termasuk langsung set role |
-| Gak ada cara hapus akun dari UI | Admin bisa hapus user (kecuali akunnya sendiri) |
+| Sebelum (Praktik 10)                        | Sesudah (Praktik 11)                                           |
+| ------------------------------------------- | -------------------------------------------------------------- |
+| User Management cuma Read + Update          | User Management jadi CRUD penuh (Create, Read, Update, Delete) |
+| User baru cuma bisa masuk lewat `/register` | Admin bisa tambah user manual, termasuk langsung set role      |
+| Gak ada cara hapus akun dari UI             | Admin bisa hapus user (kecuali akunnya sendiri)                |
 
 ## Praktik Kedua Belas: Slug + Single Post View
 
@@ -2455,6 +2466,7 @@ class Post extends Model
 ```
 
 Penjelasan:
+
 - `static::creating(function (Post $post) { ... })` — ini **Model Event**: kode di dalamnya otomatis kejalan tiap kali ada Post baru mau disimpan (`Post::create(...)`), sebelum data masuk database. Gak perlu manggil manual di Controller.
 - `Str::slug($title)` — helper Laravel, ubah teks jadi format URL: lowercase, spasi jadi strip. Contoh: `"Belajar Laravel Itu Seru!"` → `"belajar-laravel-itu-seru"`.
 - `generateUniqueSlug()` — ngecek slug udah dipakai apa belum. Kalau ada 2 post judulnya sama persis (misal 2x "Hello World"), slug kedua otomatis jadi `hello-world-1`, bukan dobel `hello-world`.
@@ -2480,6 +2492,7 @@ Route::middleware('auth')->group(function () {
 ```
 
 Penjelasan:
+
 - `{post:slug}` — sintaks route model binding custom. Biasanya `{post}` nyari Post berdasarkan `id` (primary key default), tapi `{post:slug}` bilang ke Laravel "cari berdasarkan kolom `slug`, bukan `id`".
 - Route ini **harus** ditaruh setelah `/posts/create` (URL statis) — kalau kebalik, Laravel bakal nganggep `create` itu isi dari `{post:slug}` dan coba nyari Post dengan slug `"create"` (gak ketemu, error 404). Route `{post}/edit` aman di posisi manapun karena punya 2 segment URL, beda pola sama `{post:slug}` yang cuma 1 segment.
 
@@ -2559,31 +2572,31 @@ Karena route-nya udah pakai `{post:slug}`, Laravel otomatis nyariin Post yang sl
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Error pas migrate: `Duplicate entry '' for key 'posts_slug_unique'` | Ada post lama dengan slug kosong. Kosongin tabel `posts` di phpMyAdmin, atau `php artisan migrate:fresh` |
-| Klik judul post, muncul 404 | Pastiin route `{post:slug}` ditaruh **sebelum** `{post}/edit` tapi **setelah** `/posts/create` di `routes/web.php` |
-| Slug kosong / `NULL` pas bikin post baru | Cek `app/Models/Post.php` — method `booted()` harus ada dan `static::creating(...)` gak typo |
-| Akses `/posts/create` malah kena error "Post not found" | Route `{post:slug}` ketaruh **sebelum** route `/posts/create` — balik urutannya |
+| Masalah                                                             | Solusi                                                                                                             |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Error pas migrate: `Duplicate entry '' for key 'posts_slug_unique'` | Ada post lama dengan slug kosong. Kosongin tabel `posts` di phpMyAdmin, atau `php artisan migrate:fresh`           |
+| Klik judul post, muncul 404                                         | Pastiin route `{post:slug}` ditaruh **sebelum** `{post}/edit` tapi **setelah** `/posts/create` di `routes/web.php` |
+| Slug kosong / `NULL` pas bikin post baru                            | Cek `app/Models/Post.php` — method `booted()` harus ada dan `static::creating(...)` gak typo                       |
+| Akses `/posts/create` malah kena error "Post not found"             | Route `{post:slug}` ketaruh **sebelum** route `/posts/create` — balik urutannya                                    |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kedua Belas
 
-| File | Perubahan |
-|---|---|
-| `database/migrations/..._add_slug_to_posts_table.php` | Migration baru, tambah kolom `slug` (unique) |
-| `app/Models/Post.php` | Tambah `booted()` + `generateUniqueSlug()`, auto-generate slug dari title |
-| `routes/web.php` | Tambah route `GET /posts/{post:slug}` |
-| `app/Http/Controllers/PostController.php` | Tambah method `show()` |
-| `resources/views/posts/show.blade.php` | View baru — halaman detail 1 post |
-| `resources/views/posts/index.blade.php` | Judul post jadi link ke halaman detail |
+| File                                                  | Perubahan                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| `database/migrations/..._add_slug_to_posts_table.php` | Migration baru, tambah kolom `slug` (unique)                              |
+| `app/Models/Post.php`                                 | Tambah `booted()` + `generateUniqueSlug()`, auto-generate slug dari title |
+| `routes/web.php`                                      | Tambah route `GET /posts/{post:slug}`                                     |
+| `app/Http/Controllers/PostController.php`             | Tambah method `show()`                                                    |
+| `resources/views/posts/show.blade.php`                | View baru — halaman detail 1 post                                         |
+| `resources/views/posts/index.blade.php`               | Judul post jadi link ke halaman detail                                    |
 
 ### Ringkasan Praktik Kedua Belas
 
-| Sebelum (Praktik 1-11) | Sesudah (Praktik 12) |
-|---|---|
-| Belum ada halaman detail post | Ada `/posts/{slug}` — halaman detail lengkap |
-| URL bakal pakai angka (`/posts/5`) | URL pakai slug (`/posts/judul-post`) |
-| Judul post di list gak bisa diklik | Judul jadi link ke halaman detail |
+| Sebelum (Praktik 1-11)             | Sesudah (Praktik 12)                         |
+| ---------------------------------- | -------------------------------------------- |
+| Belum ada halaman detail post      | Ada `/posts/{slug}` — halaman detail lengkap |
+| URL bakal pakai angka (`/posts/5`) | URL pakai slug (`/posts/judul-post`)         |
+| Judul post di list gak bisa diklik | Judul jadi link ke halaman detail            |
 
 > Slug ini juga jadi dasar penting buat SEO kalau nanti project di-deploy beneran — URL yang pakai kata-kata jelas lebih gampang di-index Google dibanding URL angka doang.
 
@@ -2695,6 +2708,7 @@ class Post extends Model
 ```
 
 Penjelasan `imageUrl()`:
+
 - Kolom `image` di database nyimpen 2 kemungkinan isi: **path file lokal** (misal `posts/abc123.jpg`, hasil upload) atau **link URL penuh** (misal `https://images.unsplash.com/...`, hasil user tempel link).
 - Method ini yang mutusin cara nampilinnya: kalau udah `http://`/`https://` (link luar), pakai apa adanya. Kalau bukan (path lokal), bungkus pakai `asset('storage/...')` biar jadi URL lengkap yang bisa diakses browser.
 - View (`index.blade.php`, `show.blade.php`) tinggal manggil `$post->imageUrl()`, gak perlu mikirin logic-nya lagi.
@@ -2759,6 +2773,7 @@ public function update(Request $request, Post $post)
 ```
 
 Penjelasan:
+
 - `'image' => 'nullable|image|max:2048'` — validasi: kalau diisi, harus file gambar beneran (jpg/png/dll), maksimal 2MB (`2048` KB).
 - `'image_url' => 'nullable|url'` — validasi: kalau diisi, harus format URL yang valid.
 - `$request->hasFile('image')` — true kalau user pilih file lewat `<input type="file">`.
@@ -2983,33 +2998,33 @@ Penjelasan:
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| File ke-upload tapi gambar gak muncul (404/broken image) | Belum jalanin `php artisan storage:link` |
-| Error `The image failed to upload` / validasi gagal terus | Cek ekstensi file (harus jpg/png/gif/dll) dan ukuran (maks 2MB sesuai `max:2048`) |
+| Masalah                                                                                                                                                             | Solusi                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File ke-upload tapi gambar gak muncul (404/broken image)                                                                                                            | Belum jalanin `php artisan storage:link`                                                                                                                                                                                                                 |
+| Error `The image failed to upload` / validasi gagal terus                                                                                                           | Cek ekstensi file (harus jpg/png/gif/dll) dan ukuran (maks 2MB sesuai `max:2048`)                                                                                                                                                                        |
 | Field `image` kebawa kosong padahal udah pilih file, atau muncul error validasi **"The image field must be an image"** walau file yang di-upload jelas jpg/png asli | `<form>` lupa ditambah `enctype="multipart/form-data"`. Tanpa ini, browser gak beneran ngirim isi file-nya, jadi Laravel nganggep field itu bukan file gambar valid. Cek di `create.blade.php` **dan** `edit.blade.php` — dua-duanya harus ada `enctype` |
-| Gambar dari link URL gak muncul, padahal link-nya valid | Cek `imageUrl()` di Model — pastiin `Str::startsWith` ngecek `http://`/`https://`, dan link yang ditempel emang link gambar langsung (bukan link halaman web biasa) |
-| Edit post tapi gambar lama malah ilang padahal gak diganti | Cek logic `update()` di Controller — bagian `else { unset($validated['image']); }` harus ada |
+| Gambar dari link URL gak muncul, padahal link-nya valid                                                                                                             | Cek `imageUrl()` di Model — pastiin `Str::startsWith` ngecek `http://`/`https://`, dan link yang ditempel emang link gambar langsung (bukan link halaman web biasa)                                                                                      |
+| Edit post tapi gambar lama malah ilang padahal gak diganti                                                                                                          | Cek logic `update()` di Controller — bagian `else { unset($validated['image']); }` harus ada                                                                                                                                                             |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Ketiga Belas
 
-| File | Perubahan |
-|---|---|
-| `database/migrations/..._add_image_to_posts_table.php` | Migration baru, tambah kolom `image` (nullable) |
-| `app/Models/Post.php` | Tambah `image` ke `$fillable`, tambah method `imageUrl()` |
-| `app/Http/Controllers/PostController.php` | `store()` & `update()` — handle upload file dan link URL |
-| `resources/views/posts/create.blade.php` | Tambah `enctype`, input upload file + input link URL |
-| `resources/views/posts/edit.blade.php` | Sama kayak create, plus preview gambar lama |
-| `resources/views/posts/index.blade.php` | Tambah thumbnail gambar di tiap baris post |
-| `resources/views/posts/show.blade.php` | Tambah gambar full-size di halaman detail |
+| File                                                   | Perubahan                                                 |
+| ------------------------------------------------------ | --------------------------------------------------------- |
+| `database/migrations/..._add_image_to_posts_table.php` | Migration baru, tambah kolom `image` (nullable)           |
+| `app/Models/Post.php`                                  | Tambah `image` ke `$fillable`, tambah method `imageUrl()` |
+| `app/Http/Controllers/PostController.php`              | `store()` & `update()` — handle upload file dan link URL  |
+| `resources/views/posts/create.blade.php`               | Tambah `enctype`, input upload file + input link URL      |
+| `resources/views/posts/edit.blade.php`                 | Sama kayak create, plus preview gambar lama               |
+| `resources/views/posts/index.blade.php`                | Tambah thumbnail gambar di tiap baris post                |
+| `resources/views/posts/show.blade.php`                 | Tambah gambar full-size di halaman detail                 |
 
 ### Ringkasan Praktik Ketiga Belas
 
-| Sebelum (Praktik 1-12) | Sesudah (Praktik 13) |
-|---|---|
-| Post cuma punya title + body | Post bisa punya gambar (opsional) |
-| Belum ada file upload | Ada upload file (`storage/app/public/posts/`) |
-| — | Bisa juga isi link URL gambar langsung (misal Unsplash) |
+| Sebelum (Praktik 1-12)       | Sesudah (Praktik 13)                                    |
+| ---------------------------- | ------------------------------------------------------- |
+| Post cuma punya title + body | Post bisa punya gambar (opsional)                       |
+| Belum ada file upload        | Ada upload file (`storage/app/public/posts/`)           |
+| —                            | Bisa juga isi link URL gambar langsung (misal Unsplash) |
 
 > Ini nutup fitur inti CRUD Post. Sisa roadmap (search, pagination, Form Request, Policy, dst) lebih ke **rapiin & scale-up**, bukan fitur baru yang keliatan di UI.
 
@@ -3051,6 +3066,7 @@ class UserSeeder extends Seeder
 ```
 
 Penjelasan:
+
 - `User::factory()->create([...])` — bikin 1 user, tapi field yang dikasih manual (`name`, `email`, `role`) nimpa nilai random dari Factory. Field lain (`password`, dll) tetep pakai default Factory.
 - `User::factory(5)->create()` — bikin 5 user random sekaligus, semua field (nama, email) di-generate otomatis pakai [Faker](https://fakerphp.github.io/) (library data dummy).
 - `UserFactory.php` (`database/factories/`) udah otomatis dibuat sama Breeze — cek isinya, default password semua user hasil factory adalah `password` (plain text, di-hash otomatis).
@@ -3120,6 +3136,7 @@ class PostFactory extends Factory
 ```
 
 Penjelasan:
+
 - `fake()->sentence(4)` — bikin kalimat random 4 kata, dipakai buat title.
 - `fake()->paragraphs(3, true)` — bikin 3 paragraf random, digabung jadi 1 string (`true` = return string, bukan array), dipakai buat body.
 - `protected array $images` — daftar link foto asli dari [Unsplash](https://unsplash.com), bukan placeholder abstrak. `fake()->randomElement($this->images)` milih 1 secara acak dari daftar ini buat tiap post, jadi **selalu ada gambar** (gak ada lagi kemungkinan kosong).
@@ -3155,6 +3172,7 @@ class PostSeeder extends Seeder
 ```
 
 Penjelasan:
+
 - `$users = User::all()` — ambil semua user yang udah ke-seed dari `UserSeeder` (step 1).
 - `->recycle($users)` — biar tiap Post yang dibikin "numpang" salah satu User yang udah ada (dipilih random), bukan bikin User baru lagi buat tiap Post. Tanpa ini, Laravel defaultnya bikin 1 User baru per Post yang butuh relasi (boros & gak realistis).
 - `Post::factory(15)->create()` — bikin 15 Post dummy.
@@ -3212,31 +3230,31 @@ php artisan db:seed
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Error `Class "Database\Factories\PostFactory" not found` | Jalankan ulang `composer dump-autoload`, atau pastiin nama file & class-nya `PostFactory` (persis) |
-| Semua Post bikin User baru, jumlah `users` meledak jadi ratusan | `->recycle($users)` kelewat / typo — cek lagi `PostSeeder.php` |
-| `SQLSTATE... role` gak ke-set pas seed admin | Pastiin `role` udah ada di `#[Fillable(...)]` di `User.php` (fix dari [Praktik Kesebelas](#praktik-kesebelas-lengkapi-crud-user-management-tambah--hapus-user)) |
-| Password login admin salah terus | Default password Factory adalah `password` (bukan `Password123` dll) — cek `UserFactory.php` kalau lupa |
-| Gambar gak muncul di kartu post hasil seeder | Wajar kalau lagi offline — link Unsplash di `$images` butuh internet buat nge-load gambarnya. Cek juga link-nya masih aktif (buka manual di browser) |
-| Semua post gambarnya sama persis | Wajar kalau `$images` isinya cuma 1-2 link, atau data yang di-seed dikit — coba tambah lebih banyak link di array `$images`, atau perbesar `Post::factory(15)` di `PostSeeder.php` |
+| Masalah                                                         | Solusi                                                                                                                                                                             |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error `Class "Database\Factories\PostFactory" not found`        | Jalankan ulang `composer dump-autoload`, atau pastiin nama file & class-nya `PostFactory` (persis)                                                                                 |
+| Semua Post bikin User baru, jumlah `users` meledak jadi ratusan | `->recycle($users)` kelewat / typo — cek lagi `PostSeeder.php`                                                                                                                     |
+| `SQLSTATE... role` gak ke-set pas seed admin                    | Pastiin `role` udah ada di `#[Fillable(...)]` di `User.php` (fix dari [Praktik Kesebelas](#praktik-kesebelas-lengkapi-crud-user-management-tambah--hapus-user))                    |
+| Password login admin salah terus                                | Default password Factory adalah `password` (bukan `Password123` dll) — cek `UserFactory.php` kalau lupa                                                                            |
+| Gambar gak muncul di kartu post hasil seeder                    | Wajar kalau lagi offline — link Unsplash di `$images` butuh internet buat nge-load gambarnya. Cek juga link-nya masih aktif (buka manual di browser)                               |
+| Semua post gambarnya sama persis                                | Wajar kalau `$images` isinya cuma 1-2 link, atau data yang di-seed dikit — coba tambah lebih banyak link di array `$images`, atau perbesar `Post::factory(15)` di `PostSeeder.php` |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Keempat Belas
 
-| File | Perubahan |
-|---|---|
-| `database/seeders/UserSeeder.php` | Seeder baru — bikin 1 admin + 5 user random |
-| `database/factories/PostFactory.php` | Factory baru — template data dummy Post |
-| `database/seeders/PostSeeder.php` | Seeder baru — bikin 15 Post dummy, numpang User yang ada |
+| File                                  | Perubahan                                                               |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| `database/seeders/UserSeeder.php`     | Seeder baru — bikin 1 admin + 5 user random                             |
+| `database/factories/PostFactory.php`  | Factory baru — template data dummy Post                                 |
+| `database/seeders/PostSeeder.php`     | Seeder baru — bikin 15 Post dummy, numpang User yang ada                |
 | `database/seeders/DatabaseSeeder.php` | Update — panggil `UserSeeder` & `PostSeeder` lewat `$this->call([...])` |
 
 ### Ringkasan Praktik Keempat Belas
 
-| Sebelum (Praktik 1-13) | Sesudah (Praktik 14) |
-|---|---|
+| Sebelum (Praktik 1-13)                                | Sesudah (Praktik 14)                                             |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
 | Isi data dummy manual (register + isi form satu-satu) | `php artisan migrate:fresh --seed` — sekali command, semua keisi |
-| Belum ada Factory buat Post | Ada `PostFactory`, bisa generate berapa aja post dummy |
-| Testing app butuh isi data manual tiap reset | Reset + isi data cuma 1 command, testing jadi jauh lebih cepat |
+| Belum ada Factory buat Post                           | Ada `PostFactory`, bisa generate berapa aja post dummy           |
+| Testing app butuh isi data manual tiap reset          | Reset + isi data cuma 1 command, testing jadi jauh lebih cepat   |
 
 > Ini bukan cuma buat belajar — di kerjaan beneran, Seeder & Factory juga dipakai buat **automated testing** (nanti di poin 19 Roadmap), biar test gak perlu database production asli.
 
@@ -3265,6 +3283,7 @@ public function index(Request $request)
 ```
 
 Penjelasan:
+
 - `Post::when($request->search, function ($query, $search) { ... })` — `when()` cuma jalanin closure di dalamnya **kalau** `$request->search` ada isinya (gak `null`/kosong). Kalau user belum ngetik apa-apa di kotak search, query jalan normal kayak biasa (`Post::all()`-nya setara).
 - `$query->where('title', 'like', '%' . $search . '%')` — cari post yang **title-nya mengandung** kata kunci, di posisi manapun (`%` di depan & belakang = wildcard, artinya "apa aja boleh sebelum/sesudah kata kunci").
 - `->latest()` — urutin post terbaru duluan (`ORDER BY created_at DESC`), biar makin masuk akal daripada urutan acak.
@@ -3352,6 +3371,7 @@ Route::get('/posts', [PostController::class, 'index']);
 ```
 
 Penjelasan:
+
 - `<form method="GET" action="/posts">` — pakai `GET`, bukan `POST`. Search itu sifatnya "baca data" doang, bukan ubah data, dan `GET` otomatis nyimpen kata kunci di URL (`?search=laravel`), jadi bisa di-bookmark/share.
 - `name="search"` di `<input>` — nama ini **harus sama persis** dengan yang dibaca di Controller (`$request->search`).
 - `@forelse ... @empty ... @endforelse` — versi `@foreach` yang punya "fallback" kalau data-nya kosong. Kalau `$posts` kosong (gak ada hasil cocok), otomatis tampilin pesan di `@empty` — gak perlu `@if (count($posts) > 0)` manual.
@@ -3368,27 +3388,27 @@ Penjelasan:
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Search gak ngefilter apa-apa, selalu nampilin semua post | Cek `name="search"` di `<input>` sama persis kayak `$request->search` di Controller |
-| Kotak search jadi kosong lagi setelah submit | Pastiin `value="{{ $search }}"` ada di `<input>`, dan `'search' => $request->search` dikirim dari Controller ke view |
-| Error `Undefined variable $search` | View dipanggil tanpa key `search` di `view('posts.index', [...])` — cek Controller step 1 |
-| Search "nemplok" gak reset pas klik link lain di navbar | Wajar — search cuma nempel di URL `/posts?search=...`, pindah ke halaman lain otomatis ilang karena beda URL |
+| Masalah                                                  | Solusi                                                                                                               |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Search gak ngefilter apa-apa, selalu nampilin semua post | Cek `name="search"` di `<input>` sama persis kayak `$request->search` di Controller                                  |
+| Kotak search jadi kosong lagi setelah submit             | Pastiin `value="{{ $search }}"` ada di `<input>`, dan `'search' => $request->search` dikirim dari Controller ke view |
+| Error `Undefined variable $search`                       | View dipanggil tanpa key `search` di `view('posts.index', [...])` — cek Controller step 1                            |
+| Search "nemplok" gak reset pas klik link lain di navbar  | Wajar — search cuma nempel di URL `/posts?search=...`, pindah ke halaman lain otomatis ilang karena beda URL         |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kelima Belas
 
-| File | Perubahan |
-|---|---|
+| File                                      | Perubahan                                                                       |
+| ----------------------------------------- | ------------------------------------------------------------------------------- |
 | `app/Http/Controllers/PostController.php` | `index()` — tambah `Request $request`, logic `when()` buat search, `->latest()` |
-| `resources/views/posts/index.blade.php` | Tambah form search (`GET`), ganti `@foreach` jadi `@forelse`/`@empty` |
+| `resources/views/posts/index.blade.php`   | Tambah form search (`GET`), ganti `@foreach` jadi `@forelse`/`@empty`           |
 
 ### Ringkasan Praktik Kelima Belas
 
-| Sebelum (Praktik 1-14) | Sesudah (Praktik 15) |
-|---|---|
-| `/posts` selalu nampilin semua data | Bisa difilter lewat kotak search |
-| Urutan post gak jelas/acak | Post terbaru tampil duluan (`->latest()`) |
-| `@foreach` polos | `@forelse`/`@empty` — ada pesan kalau hasil kosong |
+| Sebelum (Praktik 1-14)              | Sesudah (Praktik 15)                               |
+| ----------------------------------- | -------------------------------------------------- |
+| `/posts` selalu nampilin semua data | Bisa difilter lewat kotak search                   |
+| Urutan post gak jelas/acak          | Post terbaru tampil duluan (`->latest()`)          |
+| `@foreach` polos                    | `@forelse`/`@empty` — ada pesan kalau hasil kosong |
 
 > `when()` ini pola yang sering banget dipakai di Laravel buat query yang "kondisional" — nanti kalau nambah filter lain (misal filter by kategori, filter by tanggal), tinggal tambah `->when(...)` lagi berantai, gak perlu `if-else` bertingkat manual.
 
@@ -3417,6 +3437,7 @@ public function index(Request $request)
 ```
 
 Penjelasan:
+
 - `->paginate(6)` — ganti `->get()`. Angka `6` artinya 6 post per halaman (pas buat grid 3 kolom, 2 baris). Laravel otomatis ngitung total halaman, nentuin data mana yang ditampilin sesuai `?page=2`, `?page=3`, dst di URL.
 - `->withQueryString()` — biar query string lain (kayak `?search=laravel` dari Praktik 15) **tetep kebawa** pas pindah ke halaman berikutnya. Tanpa ini, klik "Next" bakal ilangin hasil pencarian.
 - `$posts` sekarang bukan `Collection` biasa lagi, tapi objek `LengthAwarePaginator` — tetep bisa di-`@foreach`/`@forelse` kayak biasa di view, cuma punya method tambahan kayak `->links()` (buat nampilin tombol Next/Previous).
@@ -3508,6 +3529,7 @@ Penjelasan:
 ```
 
 Penjelasan:
+
 - `@section('container', 'max-w-6xl')` — pola yang sama kayak dipakai di `/admin/users` sebelumnya, biar halaman ini lebih lebar dari default `max-w-2xl` (muat 3 kolom kartu).
 - `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6` — 1 kolom di layar HP, 2 kolom di tablet, 3 kolom di desktop. Ini **responsive design** dasar pakai Tailwind.
 - Gambar sekarang `w-full h-48 object-cover` — full lebar kartu, tinggi tetap 48 (192px), gak gepeng.
@@ -3542,31 +3564,31 @@ Ini bikin file baru **📁 File: `resources/views/vendor/pagination/tailwind.bla
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Tombol pagination gak muncul sama sekali | Total post kamu kurang dari 6 (angka di `paginate(6)`) — pagination cuma muncul kalau datanya lebih dari 1 halaman. Coba turunin ke `paginate(3)` buat testing |
-| Klik halaman 2, hasil search ilang balik ke semua post | `->withQueryString()` kelewat gak ditambah di Controller |
-| Card tinggi-nya gak sejajar antar kolom | Cek `flex flex-col flex-1` ada di wrapper konten (div dalam kartu) |
-| `line-clamp-3` gak motong teks (teks panjang tetep penuh) | Pastiin Tailwind versi 4 (cek `package.json` — kalau Tailwind v3 ke bawah, butuh install plugin `@tailwindcss/line-clamp` terpisah) |
-| Pagination keliatan rata tengah padahal mau rata kanan | Cek class `flex justify-end` (bukan `justify-center`) di div pembungkus `{{ $posts->links() }}` |
-| Udah publish view tapi perubahan warna gak kepakai | Cek file ada di `resources/views/vendor/pagination/tailwind.blade.php` (bukan di folder lain), dan `npm run dev` masih jalan buat compile ulang class Tailwind baru |
+| Masalah                                                   | Solusi                                                                                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tombol pagination gak muncul sama sekali                  | Total post kamu kurang dari 6 (angka di `paginate(6)`) — pagination cuma muncul kalau datanya lebih dari 1 halaman. Coba turunin ke `paginate(3)` buat testing      |
+| Klik halaman 2, hasil search ilang balik ke semua post    | `->withQueryString()` kelewat gak ditambah di Controller                                                                                                            |
+| Card tinggi-nya gak sejajar antar kolom                   | Cek `flex flex-col flex-1` ada di wrapper konten (div dalam kartu)                                                                                                  |
+| `line-clamp-3` gak motong teks (teks panjang tetep penuh) | Pastiin Tailwind versi 4 (cek `package.json` — kalau Tailwind v3 ke bawah, butuh install plugin `@tailwindcss/line-clamp` terpisah)                                 |
+| Pagination keliatan rata tengah padahal mau rata kanan    | Cek class `flex justify-end` (bukan `justify-center`) di div pembungkus `{{ $posts->links() }}`                                                                     |
+| Udah publish view tapi perubahan warna gak kepakai        | Cek file ada di `resources/views/vendor/pagination/tailwind.blade.php` (bukan di folder lain), dan `npm run dev` masih jalan buat compile ulang class Tailwind baru |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Keenam Belas
 
-| File | Perubahan |
-|---|---|
-| `app/Http/Controllers/PostController.php` | `index()` — `->get()` jadi `->paginate(6)->withQueryString()` |
-| `resources/views/posts/index.blade.php` | Rombak jadi grid card (gambar atas), tambah `{{ $posts->links() }}` di atas & bawah, rata kanan (`flex justify-end`) |
-| `resources/views/vendor/pagination/tailwind.blade.php` | (Opsional) Hasil publish, buat kustomisasi warna/tampilan pagination lebih lanjut |
+| File                                                   | Perubahan                                                                                                            |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `app/Http/Controllers/PostController.php`              | `index()` — `->get()` jadi `->paginate(6)->withQueryString()`                                                        |
+| `resources/views/posts/index.blade.php`                | Rombak jadi grid card (gambar atas), tambah `{{ $posts->links() }}` di atas & bawah, rata kanan (`flex justify-end`) |
+| `resources/views/vendor/pagination/tailwind.blade.php` | (Opsional) Hasil publish, buat kustomisasi warna/tampilan pagination lebih lanjut                                    |
 
 ### Ringkasan Praktik Keenam Belas
 
-| Sebelum (Praktik 1-15) | Sesudah (Praktik 16) |
-|---|---|
-| Semua post tampil sekaligus, list vertikal | Dibagi per halaman (6 post/halaman), tampilan grid |
-| Card horizontal (gambar kiri, teks kanan) | Card vertikal (gambar atas, konten bawah) — kayak kartu blog umum |
-| Belum responsive khusus (cuma 1 kolom) | Grid 1/2/3 kolom tergantung lebar layar |
-| Belum ada pagination | Pagination di atas & bawah, warna nyatu tema putih website |
+| Sebelum (Praktik 1-15)                     | Sesudah (Praktik 16)                                              |
+| ------------------------------------------ | ----------------------------------------------------------------- |
+| Semua post tampil sekaligus, list vertikal | Dibagi per halaman (6 post/halaman), tampilan grid                |
+| Card horizontal (gambar kiri, teks kanan)  | Card vertikal (gambar atas, konten bawah) — kayak kartu blog umum |
+| Belum responsive khusus (cuma 1 kolom)     | Grid 1/2/3 kolom tergantung lebar layar                           |
+| Belum ada pagination                       | Pagination di atas & bawah, warna nyatu tema putih website        |
 
 > Pagination itu bukan cuma soal tampilan — ini juga soal **performa**. Tanpa pagination, `Post::all()` bakal narik SEMUA baris dari database sekaligus walau cuma mau nampilin 9. Makin banyak data, makin lambat. `paginate()` cuma narik data secukupnya per halaman.
 
@@ -3574,14 +3596,14 @@ Ini bikin file baru **📁 File: `resources/views/vendor/pagination/tailwind.bla
 
 Beberapa penyesuaian kecil yang dilakuin setelah versi awal Praktik 16, biar tampilan & data dummy makin pas:
 
-| # | Perubahan | File | Detail |
-|---|---|---|---|
-| 1 | Jumlah post per halaman diturunin | `app/Http/Controllers/PostController.php` | `paginate(9)` → `paginate(6)` |
-| 2 | Pagination ditaruh 2 kali | `resources/views/posts/index.blade.php` | `{{ $posts->links() }}` muncul di **atas** (bawah search bar) dan di **bawah** (akhir grid) |
-| 3 | Pagination diratain ke kanan | `resources/views/posts/index.blade.php` | Class `flex justify-center` diganti jadi `flex justify-end` |
-| 4 | Wrapper card putih di pagination dihapus | `resources/views/posts/index.blade.php` | Div `bg-white rounded-lg shadow-sm p-3` dihapus — tombol pagination bawaan Laravel udah putih/abu-abu dari sananya, jadi udah nyatu sama tema tanpa perlu dibungkus card lagi |
-| 5 | View pagination di-publish (opsional) | `resources/views/vendor/pagination/tailwind.blade.php` | Dijalanin `php artisan vendor:publish --tag=laravel-pagination` — biar bisa kustomisasi warna/tampilan pagination lebih lanjut kalau perlu nanti |
-| 6 | Gambar dummy Seeder diganti | `database/factories/PostFactory.php` | `fake()->imageUrl()` (Picsum, 30% kemungkinan kosong) diganti jadi `protected array $images` isi 8 link foto [Unsplash](https://unsplash.com) asli + `fake()->randomElement($this->images)` — sekarang **semua** post hasil seeder pasti punya gambar, gak ada lagi yang kosong |
+| #   | Perubahan                                | File                                                   | Detail                                                                                                                                                                                                                                                                          |
+| --- | ---------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Jumlah post per halaman diturunin        | `app/Http/Controllers/PostController.php`              | `paginate(9)` → `paginate(6)`                                                                                                                                                                                                                                                   |
+| 2   | Pagination ditaruh 2 kali                | `resources/views/posts/index.blade.php`                | `{{ $posts->links() }}` muncul di **atas** (bawah search bar) dan di **bawah** (akhir grid)                                                                                                                                                                                     |
+| 3   | Pagination diratain ke kanan             | `resources/views/posts/index.blade.php`                | Class `flex justify-center` diganti jadi `flex justify-end`                                                                                                                                                                                                                     |
+| 4   | Wrapper card putih di pagination dihapus | `resources/views/posts/index.blade.php`                | Div `bg-white rounded-lg shadow-sm p-3` dihapus — tombol pagination bawaan Laravel udah putih/abu-abu dari sananya, jadi udah nyatu sama tema tanpa perlu dibungkus card lagi                                                                                                   |
+| 5   | View pagination di-publish (opsional)    | `resources/views/vendor/pagination/tailwind.blade.php` | Dijalanin `php artisan vendor:publish --tag=laravel-pagination` — biar bisa kustomisasi warna/tampilan pagination lebih lanjut kalau perlu nanti                                                                                                                                |
+| 6   | Gambar dummy Seeder diganti              | `database/factories/PostFactory.php`                   | `fake()->imageUrl()` (Picsum, 30% kemungkinan kosong) diganti jadi `protected array $images` isi 8 link foto [Unsplash](https://unsplash.com) asli + `fake()->randomElement($this->images)` — sekarang **semua** post hasil seeder pasti punya gambar, gak ada lagi yang kosong |
 
 > Perubahan #6 sebenernya di file punya [Praktik Keempat Belas](#praktik-keempat-belas-database-seeder) (Seeder), tapi dicatat di sini juga soalnya dilakuin bareng sesi perbaikan tampilan Praktik 16 ini.
 
@@ -3888,6 +3910,7 @@ class StorePostRequest extends FormRequest
 ```
 
 Penjelasan:
+
 - `authorize()` — return `true`/`false`, nentuin apakah request ini **boleh diproses sama sekali**. Di sini cukup cek user udah login (`auth()->check()`) — soalnya route `/posts` udah dibungkus middleware `auth` dari Praktik 8, tapi nulis ulang di sini bikin Form Request-nya "mandiri", gak gantung ke middleware doang.
 - `rules()` — isinya persis kayak array yang dulu ditulis manual di `$request->validate([...])`. Sekarang tinggal dipindah ke sini.
 
@@ -3920,6 +3943,7 @@ public function store(StorePostRequest $request)
 ```
 
 Penjelasan:
+
 - Type-hint parameter diganti dari `Request $request` jadi `StorePostRequest $request` — ini yang bikin Laravel otomatis manggil `authorize()` dan `rules()` **sebelum** method `store()` sempat jalan. Kalau validasi gagal, otomatis redirect balik ke form + error (perilaku sama kayak sebelumnya). Kalau `authorize()` return `false`, otomatis muncul halaman 403.
 - `$request->validated()` — ganti `$request->validate([...])`. Bedanya: `validate()` nge-jalanin validasi DAN return hasilnya sekaligus; `validated()` cuma **ambil hasil validasi** yang udah dijalanin duluan sama Form Request-nya.
 - Sisa logic (`hasFile`, `image_url`, dst dari Praktik 13) **gak berubah**, tetep di Controller — Form Request cuma ngurus validasi & otorisasi, bukan logic bisnis.
@@ -3961,6 +3985,7 @@ class UpdatePostRequest extends FormRequest
 ```
 
 Penjelasan:
+
 - `$this->route('post')` — ambil Post yang udah di-resolve lewat route model binding (`{post}` di URL `/posts/{post}`), sama persis objek yang biasanya jadi parameter kedua di method `update()`.
 - `authorize()` di sini **gantiin** pengecekan manual `if ($post->user_id !== auth()->id() && ...) { abort(403); }` yang dulu ditulis di dalam method `update()` — sekarang logic itu pindah ke sini, jalan otomatis sebelum method-nya dieksekusi.
 
@@ -4007,28 +4032,28 @@ Perhatiin: pengecekan `if ($post->user_id !== auth()->id() && ...) { abort(403);
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Error "This action is unauthorized" padahal harusnya boleh | Cek logic `authorize()` — default bawaan `make:request` itu `return false;`, gampang kelupaan diganti |
-| Validasi gak jalan sama sekali, form kesimpen walau kosong | Cek type-hint parameter di Controller — harus `StorePostRequest $request` / `UpdatePostRequest $request`, bukan `Request $request` biasa |
+| Masalah                                                            | Solusi                                                                                                                                        |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error "This action is unauthorized" padahal harusnya boleh         | Cek logic `authorize()` — default bawaan `make:request` itu `return false;`, gampang kelupaan diganti                                         |
+| Validasi gak jalan sama sekali, form kesimpen walau kosong         | Cek type-hint parameter di Controller — harus `StorePostRequest $request` / `UpdatePostRequest $request`, bukan `Request $request` biasa      |
 | Error `Call to a member function route() on null` di `authorize()` | Typo nama parameter route — cek nama parameter di `routes/web.php` (`{post}`) harus sama persis sama yang dipanggil di `$this->route('post')` |
-| Field `image`/`image_url` ilang setelah pindah ke Form Request | Pastiin `rules()` di Form Request masih include field itu — gampang kelewat pas mindahin dari `$request->validate([...])` lama |
+| Field `image`/`image_url` ilang setelah pindah ke Form Request     | Pastiin `rules()` di Form Request masih include field itu — gampang kelewat pas mindahin dari `$request->validate([...])` lama                |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Ketujuh Belas
 
-| File | Perubahan |
-|---|---|
-| `app/Http/Requests/StorePostRequest.php` | File baru — validasi + otorisasi buat Create |
-| `app/Http/Requests/UpdatePostRequest.php` | File baru — validasi + otorisasi buat Update |
+| File                                      | Perubahan                                                                                                                        |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `app/Http/Requests/StorePostRequest.php`  | File baru — validasi + otorisasi buat Create                                                                                     |
+| `app/Http/Requests/UpdatePostRequest.php` | File baru — validasi + otorisasi buat Update                                                                                     |
 | `app/Http/Controllers/PostController.php` | `store()` & `update()` — ganti type-hint, hapus `$request->validate([...])` manual & pengecekan kepemilikan manual di `update()` |
 
 ### Ringkasan Praktik Ketujuh Belas
 
-| Sebelum (Praktik 1-16) | Sesudah (Praktik 17) |
-|---|---|
-| Validasi ditulis manual, dobel di `store()` & `update()` | Validasi satu tempat per Form Request, gak ada duplikasi |
-| Otorisasi (`abort(403)`) campur sama logic Controller | Otorisasi `update()` pindah ke `authorize()`, lebih rapi |
-| Controller ngurus validasi + logic bisnis sekaligus | Controller fokus logic bisnis doang, validasi didelegasiin |
+| Sebelum (Praktik 1-16)                                   | Sesudah (Praktik 17)                                       |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| Validasi ditulis manual, dobel di `store()` & `update()` | Validasi satu tempat per Form Request, gak ada duplikasi   |
+| Otorisasi (`abort(403)`) campur sama logic Controller    | Otorisasi `update()` pindah ke `authorize()`, lebih rapi   |
+| Controller ngurus validasi + logic bisnis sekaligus      | Controller fokus logic bisnis doang, validasi didelegasiin |
 
 > Form Request ini langkah awal ke pola **Single Responsibility** — tiap class punya 1 tanggung jawab jelas: Controller ngurus alur, Form Request ngurus "boleh gak & valid gak", Model ngurus data. Makin gede project, makin kerasa manfaatnya.
 
@@ -4069,6 +4094,7 @@ class PostPolicy
 ```
 
 Penjelasan:
+
 - Tiap method Policy nerima 2 parameter: `$user` (siapa yang lagi login) dan `$post` (data yang mau diakses), return `true`/`false`.
 - Nama method (`update`, `delete`) itu **konvensi** — nanti dipanggil pakai nama yang sama (`$this->authorize('update', $post)`, `@can('update', $post)`), Laravel otomatis nyambungin ke method yang cocok.
 - Laravel 11/12 (versi project ini) **otomatis nemuin** Policy ini tanpa perlu didaftarin manual — cukup taruh di `app/Policies/`, namanya `{Model}Policy` (misal `PostPolicy` buat Model `Post`), otomatis "ke-link". Versi Laravel lama (sebelum 11) butuh daftarin manual di `AuthServiceProvider`.
@@ -4117,6 +4143,7 @@ public function destroy(Post $post)
 ```
 
 Penjelasan:
+
 - `$this->authorize('update', $post)` — otomatis manggil `PostPolicy::update($user, $post)`. Kalau return `false`, Laravel otomatis `abort(403)` — gak perlu nulis manual lagi.
 - Baris `if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') { abort(403); }` yang lama **udah gak perlu**, dihapus total.
 
@@ -4189,30 +4216,30 @@ Ganti `@if ($post->user_id === auth()->id() || auth()->user()->role === 'admin')
 
 ### Cheatsheet Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| Error `Call to undefined method PostController::authorize()` | Trait `AuthorizesRequests` belum ditambah ke `app/Http/Controllers/Controller.php` (step 2) |
-| `@can('update', $post)` gak pernah nampilin apa-apa, padahal harusnya boleh | Cek nama method di `PostPolicy` — harus persis `update`/`delete`, dan parameter urutannya `(User $user, Post $post)` |
-| Policy keliatan gak "nyambung" ke Model Post | Cek lokasi file harus di `app/Policies/PostPolicy.php` dan namanya persis `PostPolicy` — auto-discovery Laravel butuh penamaan konvensi ini |
-| Semua orang (termasuk bukan pemilik) masih bisa lolos akses | Cek Controller/Form Request masih manggil `PostPolicy` yang bener, bukan sisa kode lama yang lupa dihapus |
+| Masalah                                                                     | Solusi                                                                                                                                      |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error `Call to undefined method PostController::authorize()`                | Trait `AuthorizesRequests` belum ditambah ke `app/Http/Controllers/Controller.php` (step 2)                                                 |
+| `@can('update', $post)` gak pernah nampilin apa-apa, padahal harusnya boleh | Cek nama method di `PostPolicy` — harus persis `update`/`delete`, dan parameter urutannya `(User $user, Post $post)`                        |
+| Policy keliatan gak "nyambung" ke Model Post                                | Cek lokasi file harus di `app/Policies/PostPolicy.php` dan namanya persis `PostPolicy` — auto-discovery Laravel butuh penamaan konvensi ini |
+| Semua orang (termasuk bukan pemilik) masih bisa lolos akses                 | Cek Controller/Form Request masih manggil `PostPolicy` yang bener, bukan sisa kode lama yang lupa dihapus                                   |
 
 ### Ringkasan File yang Ditambah/Diubah di Praktik Kedelapan Belas
 
-| File | Perubahan |
-|---|---|
-| `app/Policies/PostPolicy.php` | File baru — method `update()` dan `delete()`, pusat logic otorisasi Post |
-| `app/Http/Controllers/Controller.php` | Tambah trait `AuthorizesRequests` |
-| `app/Http/Controllers/PostController.php` | `edit()` & `destroy()` — ganti `abort(403)` manual jadi `$this->authorize(...)` |
-| `app/Http/Requests/UpdatePostRequest.php` | `authorize()` — ganti logic manual jadi `$this->user()->can('update', ...)` |
-| `resources/views/posts/index.blade.php`, `show.blade.php` | Ganti `@if (...) @endif` manual jadi `@can('update', $post) @endcan` |
+| File                                                      | Perubahan                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `app/Policies/PostPolicy.php`                             | File baru — method `update()` dan `delete()`, pusat logic otorisasi Post        |
+| `app/Http/Controllers/Controller.php`                     | Tambah trait `AuthorizesRequests`                                               |
+| `app/Http/Controllers/PostController.php`                 | `edit()` & `destroy()` — ganti `abort(403)` manual jadi `$this->authorize(...)` |
+| `app/Http/Requests/UpdatePostRequest.php`                 | `authorize()` — ganti logic manual jadi `$this->user()->can('update', ...)`     |
+| `resources/views/posts/index.blade.php`, `show.blade.php` | Ganti `@if (...) @endif` manual jadi `@can('update', $post) @endcan`            |
 
 ### Ringkasan Praktik Kedelapan Belas
 
-| Sebelum (Praktik 1-17) | Sesudah (Praktik 18) |
-|---|---|
-| Logic "boleh edit/hapus" ditulis manual di 3+ tempat | Logic terpusat di 1 class `PostPolicy` |
+| Sebelum (Praktik 1-17)                                                    | Sesudah (Praktik 18)                                          |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Logic "boleh edit/hapus" ditulis manual di 3+ tempat                      | Logic terpusat di 1 class `PostPolicy`                        |
 | Tiap tempat manggil `auth()->id()`/`auth()->user()->role` sendiri-sendiri | Semua manggil `PostPolicy` lewat `authorize()`/`can()`/`@can` |
-| Ubah aturan = harus edit banyak file | Ubah aturan = cukup edit `PostPolicy` doang |
+| Ubah aturan = harus edit banyak file                                      | Ubah aturan = cukup edit `PostPolicy` doang                   |
 
 > Ini pola **DRY (Don't Repeat Yourself)** versi Authorization. Sama kayak Form Request misahin validasi dari Controller (Praktik 17), Policy misahin "siapa boleh ngapain" dari Controller, Form Request, DAN View sekaligus — jadi satu sumber kebenaran (single source of truth).
 
@@ -4231,6 +4258,7 @@ php artisan install:api
 ```
 
 Command ini otomatis:
+
 - Install package `laravel/sanctum` (buat autentikasi token)
 - Bikin file baru `routes/api.php`
 - Daftarin routing API ke `bootstrap/app.php`
@@ -4254,6 +4282,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     // ...
 ```
+
+> ⚠️ **Penting:** kalau `bootstrap/app.php` atau `app/Models/User.php` kamu **udah pernah dimodifikasi manual sebelumnya** (misal `bootstrap/app.php` udah ada custom middleware alias dari Praktik 10, atau `User.php` udah ada `#[Fillable(...)]` custom dari Praktik 11/19), `install:api` **bisa gagal nge-patch otomatis** — file-nya kedetect "udah beda dari default", jadi Laravel skip auto-edit-nya tanpa kasih tau. Selalu **cek manual** 2 hal ini abis jalanin `install:api`:
+>
+> **📁 File: `bootstrap/app.php`** — pastiin ada baris `api: __DIR__ . '/../routes/api.php',` di dalam `->withRouting(...)`. Kalau kelewat, tambahin manual persis di bawah baris `web: ...`.
+>
+> **📁 File: `app/Models/User.php`** — pastiin ada `use Laravel\Sanctum\HasApiTokens;` di bagian `use` paling atas, dan `HasApiTokens` masuk ke daftar trait yang dipakai (`use HasApiTokens, HasFactory, Notifiable;`). Kalau kelewat, tambahin manual.
+>
+> Kalau dua-duanya kelewat, `/api/*` bakal 404 semua dan token API gak akan bisa dibikin (`$user->createToken(...)` error).
 
 ### 2. Bikin API Resource buat Post
 
@@ -4291,6 +4327,7 @@ class PostResource extends JsonResource
 ```
 
 Penjelasan:
+
 - `$this->id`, `$this->title`, dst — di dalam Resource, `$this` merujuk ke instance `Post` yang lagi diformat (bukan ke Resource itu sendiri).
 - Field yang di-return **cuma yang didaftarin di sini** — kolom lain di database (misal `user_id` mentah) otomatis gak ikut ke-expose ke API, kecuali sengaja ditambahin.
 - `'author' => $this->user->name` — bisa manggil relasi Eloquent (`belongsTo` dari Praktik 9) langsung di sini, hasilnya di-embed jadi field biasa di JSON.
@@ -4367,6 +4404,7 @@ class PostController extends Controller
 ```
 
 Penjelasan:
+
 - `PostResource::collection($posts)` — format banyak data sekaligus (buat `index()`), otomatis nge-loop tiap Post lewat `PostResource`.
 - `new PostResource($post)` — format 1 data doang (buat `show()`, `store()`, `update()`).
 - `$this->authorize('update', $post)` — **Policy dari Praktik 18 langsung kepakai lagi di sini**, gak perlu nulis ulang logic otorisasi. Ini bukti nyata manfaat Policy: satu aturan, dipakai di web DAN API.
@@ -4411,6 +4449,7 @@ Route::middleware('auth:sanctum')->group(function () {
 ```
 
 Penjelasan:
+
 - `/login` — endpoint khusus API buat login, **beda** dari `/login` versi web (Breeze). Nerima email+password, kalau bener, generate **token** (bukan session) pakai `createToken()` dari Sanctum, token itu yang dipakai buat "login" di request API berikutnya.
 - `GET /posts` dan `GET /posts/{post}` — **publik**, gak butuh login (siapa aja boleh baca daftar/detail post).
 - `POST`, `PUT`, `DELETE` — dibungkus `middleware('auth:sanctum')`, wajib nyertain token valid di header, kalau enggak otomatis `401 Unauthorized`.
@@ -4422,92 +4461,311 @@ Penjelasan:
 3. Klik **New Request**.
 
 **Test A — GET daftar post (publik, gak perlu login):**
+
 - Method: `GET`
 - URL: `http://127.0.0.1:8000/api/posts`
 - Klik **Send** — harus muncul response JSON isi daftar post (format sesuai `PostResource`).
 
 **Test B — Login buat dapetin token:**
+
 - Method: `POST`
 - URL: `http://127.0.0.1:8000/api/login`
 - Tab **Body** → pilih **JSON** → isi:
-  ```json
-  {
-      "email": "admin@example.com",
-      "password": "password"
-  }
-  ```
+    ```json
+    {
+        "email": "admin@example.com",
+        "password": "password"
+    }
+    ```
 - Klik **Send** — response harus ada `{"token": "1|xxxxxxxxxxxxx..."}`. **Copy token itu.**
 
 **Test C — Bikin post baru (butuh token):**
+
 - Method: `POST`
 - URL: `http://127.0.0.1:8000/api/posts`
 - Tab **Headers** → tambah:
-  - `Authorization` → `Bearer <token yang di-copy tadi>`
-  - `Accept` → `application/json`
+    - `Authorization` → `Bearer <token yang di-copy tadi>`
+    - `Accept` → `application/json`
 - Tab **Body** → JSON:
-  ```json
-  {
-      "title": "Post dari Thunder Client",
-      "body": "Ini dibikin lewat API, bukan lewat form."
-  }
-  ```
+    ```json
+    {
+        "title": "Post dari Thunder Client",
+        "body": "Ini dibikin lewat API, bukan lewat form."
+    }
+    ```
 - Klik **Send** — harus muncul response JSON post yang baru dibikin.
 
 **Test D — Coba tanpa token (harus ditolak):**
+
 - Ulangi Test C, tapi **hapus** header `Authorization`.
 - Klik **Send** — harus muncul `401 Unauthorized`.
 
 ### 6. Cek hasilnya
 
-1. `GET /api/posts` berhasil tanpa login, response berupa JSON array.
-2. `POST /api/login` pakai kredensial bener → dapet token; pakai kredensial salah → `401`.
-3. `POST /api/posts` pakai token valid → post baru kesimpen, cek juga muncul di `/posts` versi web (satu database yang sama).
-4. `POST /api/posts` tanpa token → `401`.
-5. Coba `PUT /api/posts/{id}` buat post **bukan punya token itu** (pakai token user biasa, target post orang lain) → harus `403`, bukti Policy dari Praktik 18 tetep berlaku di jalur API.
+**Test 1 — `GET /api/posts` tanpa login**
+
+1. New Request → Method **GET** → URL `http://127.0.0.1:8000/api/posts`.
+2. Gak usah isi Headers/Body apa-apa.
+3. Klik **Send**.
+4. Cek: Status **200**, tab Response isi JSON array daftar post.
+
+**Test 2 — `POST /api/login`, kredensial bener vs salah**
+
+1. New Request → Method **POST** → URL `http://127.0.0.1:8000/api/login`.
+2. Tab **Body** → pilih **JSON** → isi:
+    ```json
+    { "email": "admin@example.com", "password": "password" }
+    ```
+3. Klik **Send** → cek Status **200**, response ada `{"token": "..."}`. **Copy** value token-nya (tanpa tanda kutip).
+4. Ganti password jadi salah (misal `"password123"`), Send lagi → cek Status **401**.
+
+**Test 3 — `POST /api/posts` pakai token valid**
+
+1. New Request → Method **POST** → URL `http://127.0.0.1:8000/api/posts`.
+2. Tab **Headers** → tambah:
+    - `Authorization` → `Bearer <token dari Test 2>` (**wajib** ada kata `Bearer` + spasi sebelum tokennya, kalau kelewat bakal `401`)
+    - `Accept` → `application/json`
+3. Tab **Body** → JSON:
+    ```json
+    { "title": "Post dari Thunder Client", "body": "Testing API" }
+    ```
+4. Klik **Send** → cek Status **201**/**200**, response JSON post baru.
+5. Buka browser, `http://127.0.0.1:8000/posts` — post itu harus muncul juga di situ (bukti 1 database yang sama dipakai bareng antara web & API).
+
+**Test 4 — `POST /api/posts` tanpa token**
+
+1. Duplicate/edit request Test 3, tapi **hapus** header `Authorization`-nya.
+2. Klik **Send** → cek Status **401**.
+
+**Test 5 — `PUT /api/posts/{id}` ke post orang lain (bukti Policy tetep berlaku)**
+
+1. Cek phpMyAdmin, cari `id` post yang **bukan** punya user dari token yang lagi dipakai. Kalau token yang dipegang itu punya **admin**, `authorize()` bakal selalu ngizinin (sesuai Policy dari Praktik 18) — jadi buat bener-bener nge-test penolakan, login pakai akun **user biasa** dulu di Test 2, pakai token user biasa itu di sini.
+2. New Request → Method **PUT** → URL `http://127.0.0.1:8000/api/posts/{id}` (ganti `{id}` sesuai post orang lain).
+3. Tab **Headers** → `Authorization: Bearer <token user biasa>`, `Accept: application/json`.
+4. Tab **Body** → JSON: `{ "title": "Coba edit", "body": "Coba edit punya orang" }`.
+5. Klik **Send** → cek Status **403**.
+
+> Kalau semua status-nya sesuai (200, 401, 401, 200, 401, 403), berarti API Resource, Sanctum, dan Policy semuanya udah nyambung bener di jalur API.
+
+### Cheatsheet Troubleshooting
+
+| Masalah                                                                | Solusi                                                                                                                                                                                             |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route `/api/posts` muncul 404                                          | Cek `bootstrap/app.php` udah ada baris `api: __DIR__.'/../routes/api.php'` — kalau belum, jalankan ulang `php artisan install:api`                                                                 |
+| Error `Class "Laravel\Sanctum\HasApiTokens" not found` di Model `User` | Cek `app/Models/User.php` — trait `HasApiTokens` harus ditambah otomatis sama `install:api`, kalau kelewat tambah manual: `use Laravel\Sanctum\HasApiTokens;` + `use HasApiTokens;` di dalam class |
+| `POST /api/login` selalu balikin 401 walau kredensial bener            | Cek `Auth::attempt()` — pastiin kolom `email`/`password` di request cocok sama yang di database                                                                                                    |
+| `401 Unauthorized` padahal udah kirim token                            | Cek header `Authorization` formatnya harus **persis** `Bearer <token>` (ada spasi setelah "Bearer")                                                                                                |
+| Response HTML/error 500 alih-alih JSON                                 | Cek `bootstrap/app.php` ada `shouldRenderJsonWhen(fn ($request) => $request->is('api/*'))` — biar error di route API otomatis diformat JSON, bukan halaman HTML                                    |
+
+### Ringkasan File yang Ditambah/Diubah di Praktik Kesembilan Belas
+
+| File                                                              | Perubahan                                                                  |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `routes/api.php`                                                  | File baru — route `/login`, `/posts` (publik & terautentikasi)             |
+| `bootstrap/app.php`                                               | Otomatis ketambahan `api: __DIR__.'/../routes/api.php'` dari `install:api` |
+| `app/Http/Resources/PostResource.php`                             | File baru — format JSON buat Post                                          |
+| `app/Http/Controllers/Api/PostController.php`                     | Controller baru khusus API, return `PostResource`                          |
+| `database/migrations/..._create_personal_access_tokens_table.php` | Migration baru dari Sanctum (token storage)                                |
+
+### Ringkasan Praktik Kesembilan Belas
+
+| Sebelum (Praktik 1-18)                 | Sesudah (Praktik 19)                                               |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| Cuma ada web routes (return HTML)      | Ada API routes juga (return JSON)                                  |
+| Autentikasi pakai session (cookie)     | Autentikasi API pakai token (Sanctum)                              |
+| Testing manual lewat browser/klik-klik | Testing manual lewat Thunder Client (GET/POST/PUT/DELETE langsung) |
+| Policy cuma kepake di web              | Policy yang sama kepake juga di API (`$this->authorize(...)`)      |
+
+> Ini fondasi kalau nanti project Laravel-nya mau "dipisah" jadi backend doang, dikonsumsi frontend terpisah (React/Vue/mobile app) — pola `routes/api.php` + `Resource` + token Sanctum ini yang biasa dipakai buat itu.
+
+## Praktik Kedua Puluh: Testing Otomatis (PHPUnit)
+
+Sejauh ini, tiap kali abis nambah/ubah fitur, cara ngeceknya selalu **manual** — buka browser, klik-klik, isi form, liat hasilnya. Cara ini gampang salah (lupa ngecek satu skenario) dan lama-lama (makin banyak fitur, makin banyak yang harus dicek ulang tiap ada perubahan). Testing otomatis benerin ini: nulis kode yang **ngetes kode**, tinggal jalanin 1 command, semua skenario ke-cek otomatis dalam hitungan detik.
+
+Konsep baru: **Feature Test** (ngetes alur lengkap: request → route → controller → response, mirip yang udah manual dites sejauh ini tapi otomatis), `RefreshDatabase` (database bersih tiap test), dan `actingAs()` (simulasiin user login tanpa buka browser).
+
+### 0. Database Testing Udah Kesiapin dari Awal
+
+**📁 File: `phpunit.xml`** — cek udah ada baris ini (bawaan default project Laravel, gak perlu diubah):
+
+```xml
+<env name="DB_CONNECTION" value="sqlite"/>
+<env name="DB_DATABASE" value=":memory:"/>
+```
+
+Artinya: pas jalanin test, Laravel otomatis pakai database **SQLite di memori** (bukan MySQL `vanya_laravel` yang dipakai buat development sehari-hari). Database ini dibikin ulang dari nol tiap kali test jalan, terus ilang lagi abis selesai — jadi **data asli kamu di MySQL gak bakal ke-ganggu/ke-hapus** sama sekali walau testing-nya ngetes Create/Update/Delete.
+
+### 1. Kenalan sama Test yang Udah Ada
+
+Laravel/Breeze udah otomatis nyediain beberapa test contoh di `tests/Feature/`. Coba jalanin dulu buat mastiin semuanya jalan normal:
+
+```bash
+php artisan test
+```
+
+Harus muncul list test dengan tanda centang ijo (PASS). Ini bukti environment testing kamu udah siap sebelum nulis test sendiri.
+
+### 2. Bikin Feature Test buat Post
+
+```bash
+php artisan make:test PostTest
+```
+
+**📁 File: `tests/Feature/PostTest.php`** — isi beberapa skenario penting yang udah manual dites sejauh ini:
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Post;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class PostTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_guest_tidak_bisa_akses_halaman_posts(): void
+    {
+        $response = $this->get('/posts');
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_user_login_bisa_liat_daftar_post(): void
+    {
+        $user = User::factory()->create();
+        Post::factory(3)->create();
+
+        $response = $this->actingAs($user)->get('/posts');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_user_bisa_bikin_post_baru(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/posts', [
+            'title' => 'Judul Test',
+            'body' => 'Isi body buat testing.',
+        ]);
+
+        $response->assertRedirect('/posts');
+        $this->assertDatabaseHas('posts', [
+            'title' => 'Judul Test',
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_user_gak_bisa_edit_post_orang_lain(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $owner->id]);
+
+        $response = $this->actingAs($otherUser)->put("/posts/{$post->id}", [
+            'title' => 'Judul Diubah Paksa',
+            'body' => 'Coba edit punya orang.',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('posts', ['title' => $post->title]);
+    }
+
+    public function test_admin_bisa_edit_post_siapa_aja(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $post = Post::factory()->create();
+
+        $response = $this->actingAs($admin)->put("/posts/{$post->id}", [
+            'title' => 'Diedit Admin',
+            'body' => 'Admin boleh edit post siapa aja.',
+        ]);
+
+        $response->assertRedirect('/posts');
+        $this->assertDatabaseHas('posts', ['title' => 'Diedit Admin']);
+    }
+}
+```
+
+Penjelasan tiap bagian:
+- `use RefreshDatabase;` — trait ini yang bikin database (SQLite in-memory) di-migrate ulang dari nol **sebelum tiap method test**, jadi test satu gak kena efek samping dari test lainnya (selalu mulai dari kondisi bersih).
+- `$this->get('/posts')` / `$this->post(...)` / `$this->put(...)` — simulasiin request HTTP kayak beneran buka browser, tanpa buka browser beneran.
+- `$this->actingAs($user)` — simulasiin "login sebagai `$user`", gantiin proses manual isi form login.
+- `User::factory()->create()` / `Post::factory()->create([...])` — pakai Factory yang **udah dibikin dari Praktik 14** (Seeder), sekarang dipakai ulang buat testing. Ini bukti manfaat nyata Factory: bukan cuma buat isi data dummy, tapi juga jadi bahan baku testing.
+- `$response->assertStatus(200)` / `assertRedirect(...)` — ngecek response HTTP sesuai yang diharapin.
+- `$this->assertDatabaseHas('posts', [...])` — ngecek data beneran kesimpen (atau gak kesimpen) di database, bukan cuma ngecek response doang.
+
+### 3. Jalankan Test
+
+```bash
+php artisan test --filter=PostTest
+```
+
+`--filter=PostTest` — biar cuma jalanin test di `PostTest.php` doang, gak semua test project (lebih cepet pas lagi fokus ke 1 fitur).
+
+Buat jalanin **semua** test sekaligus (termasuk punya Breeze):
+
+```bash
+php artisan test
+```
+
+### 4. Cek hasilnya
+
+1. Semua test di `PostTest` harus **PASS** (centang ijo), gak ada yang FAIL (silang merah).
+2. Coba **sengaja rusak** kode buat mastiin test-nya beneran ngetes sesuatu: buka `PostController.php`, di method `update()` hapus baris `$this->authorize('update', $post);` (via `UpdatePostRequest`) — atau buat gampangnya, sementara comment logic Policy di `PostPolicy::update()` jadi `return true;` semua.
+3. Jalanin lagi `php artisan test --filter=PostTest` — test `test_user_gak_bisa_edit_post_orang_lain` harus **FAIL**, soalnya sekarang semua orang bisa edit post siapa aja (proteksinya emang sengaja dirusak).
+4. **Balikin lagi** kode yang tadi dirusak, jalanin test sekali lagi — harus PASS semua lagi.
+
+> Ini inti dari testing otomatis: test yang bagus itu **bisa gagal** kalau kodenya beneran rusak. Kalau semua test selalu PASS walau kodenya dirusak, berarti test-nya gak ngetes apa-apa.
 
 ### Cheatsheet Troubleshooting
 
 | Masalah | Solusi |
 |---|---|
-| Route `/api/posts` muncul 404 | Cek `bootstrap/app.php` udah ada baris `api: __DIR__.'/../routes/api.php'` — kalau belum, jalankan ulang `php artisan install:api` |
-| Error `Class "Laravel\Sanctum\HasApiTokens" not found` di Model `User` | Cek `app/Models/User.php` — trait `HasApiTokens` harus ditambah otomatis sama `install:api`, kalau kelewat tambah manual: `use Laravel\Sanctum\HasApiTokens;` + `use HasApiTokens;` di dalam class |
-| `POST /api/login` selalu balikin 401 walau kredensial bener | Cek `Auth::attempt()` — pastiin kolom `email`/`password` di request cocok sama yang di database |
-| `401 Unauthorized` padahal udah kirim token | Cek header `Authorization` formatnya harus **persis** `Bearer <token>` (ada spasi setelah "Bearer") |
-| Response HTML/error 500 alih-alih JSON | Cek `bootstrap/app.php` ada `shouldRenderJsonWhen(fn ($request) => $request->is('api/*'))` — biar error di route API otomatis diformat JSON, bukan halaman HTML |
+| Error `no such table: posts` pas jalanin test | Pastiin `use RefreshDatabase;` ada di class test — trait ini yang migrate database testing otomatis |
+| Test lambat banget | Wajar kalau pertama kali jalan (compile ulang cache), abis itu harusnya cepet karena pakai SQLite in-memory, bukan MySQL |
+| `Class "Database\Factories\PostFactory" not found` pas testing | Sama kayak Praktik 14 — cek `Post.php` udah ada `use HasFactory;` |
+| Test `test_admin_bisa_edit_post_siapa_aja` gagal padahal kodenya bener | Cek lagi `User::factory()->create(['role' => 'admin'])` — pastiin kolom `role` beneran ke-set (cek `Fillable` di `User.php` dari fix Praktik 11) |
+| Takut testing ngerusak data asli di MySQL | Gak perlu khawatir — `phpunit.xml` udah nge-set testing pakai SQLite in-memory terpisah total dari database MySQL `vanya_laravel` yang dipakai sehari-hari |
 
-### Ringkasan File yang Ditambah/Diubah di Praktik Kesembilan Belas
+### Ringkasan File yang Ditambah/Diubah di Praktik Kedua Puluh
 
 | File | Perubahan |
 |---|---|
-| `routes/api.php` | File baru — route `/login`, `/posts` (publik & terautentikasi) |
-| `bootstrap/app.php` | Otomatis ketambahan `api: __DIR__.'/../routes/api.php'` dari `install:api` |
-| `app/Http/Resources/PostResource.php` | File baru — format JSON buat Post |
-| `app/Http/Controllers/Api/PostController.php` | Controller baru khusus API, return `PostResource` |
-| `database/migrations/..._create_personal_access_tokens_table.php` | Migration baru dari Sanctum (token storage) |
+| `tests/Feature/PostTest.php` | File baru — 5 test skenario CRUD Post + otorisasi |
 
-### Ringkasan Praktik Kesembilan Belas
+### Ringkasan Praktik Kedua Puluh
 
-| Sebelum (Praktik 1-18) | Sesudah (Praktik 19) |
+| Sebelum (Praktik 1-19) | Sesudah (Praktik 20) |
 |---|---|
-| Cuma ada web routes (return HTML) | Ada API routes juga (return JSON) |
-| Autentikasi pakai session (cookie) | Autentikasi API pakai token (Sanctum) |
-| Testing manual lewat browser/klik-klik | Testing manual lewat Thunder Client (GET/POST/PUT/DELETE langsung) |
-| Policy cuma kepake di web | Policy yang sama kepake juga di API (`$this->authorize(...)`) |
+| Ngecek fitur = manual buka browser, klik-klik | Ngecek fitur = `php artisan test`, otomatis dalam hitungan detik |
+| Gampang lupa ngecek 1-2 skenario | Semua skenario penting ke-cover di kode test, gak ada yang kelewat |
+| Gak ada cara cepet mastiin fitur lama gak rusak abis nambah fitur baru | Jalanin `php artisan test` abis tiap perubahan besar, langsung ketauan kalau ada yang rusak (regression) |
 
-> Ini fondasi kalau nanti project Laravel-nya mau "dipisah" jadi backend doang, dikonsumsi frontend terpisah (React/Vue/mobile app) — pola `routes/api.php` + `Resource` + token Sanctum ini yang biasa dipakai buat itu.
+> Ini nutup topik-topik inti Laravel buat bikin project CRUD yang solid. Sisa satu lagi di Roadmap: **Deploy** — naikin project ke hosting beneran, biar bisa diakses orang lain via internet. Kamu udah bilang mau nunggu murid-murid selesai bikin project masing-masing dulu buat itu, jadi bisa disimpen buat sesi berikutnya.
 
 ## Roadmap Belajar Selanjutnya
 
 Catatan urutan topik dari sini sampai siap bikin project Laravel sendiri / ujian praktik. Belum jadi Praktik detail, ini cuma daftar rencana biar gak lupa.
 
-> ✅ Slug + Single Post View, Upload/Link Gambar, dan Database Seeder udah selesai jadi Praktik 12, 13, 14. Lanjut dari sini:
+### Status: 20 dari 21 Poin Selesai ✅
 
-15. **Search & Filter** — cari post berdasarkan judul (`Post::where('title', 'like', ...)`).
-16. **Pagination** — batesin jumlah post yang tampil per halaman (`Post::paginate(10)`), penting kalau datanya udah banyak.
-17. **Form Request** — pindahin validasi dari Controller ke class terpisah (`php artisan make:request StorePostRequest`), lebih rapi buat form yang makin kompleks.
-18. **Policy** — ganti pengecekan manual `if ($post->user_id !== auth()->id())` jadi `Gate`/`Policy` resmi Laravel (`php artisan make:policy PostPolicy --model=Post`), best practice buat Authorization.
-19. **API Resource + Testing pakai Postman/Thunder Client** — bikin route API terpisah (`routes/api.php`), return data JSON pakai `Resource Controller`, terus di-test manual pakai **Postman** atau **Thunder Client** (extension VS Code). Ini dasar kalau nanti Laravel dipakai jadi backend buat frontend terpisah (React/Vue) atau aplikasi mobile.
-20. **Testing otomatis (PHPUnit)** — nulis test kode biar mastiin fitur gak rusak pas nambah fitur baru, tanpa harus ngetes manual click-click terus.
-21. **Deploy** — naikin project ke hosting beneran (Railway/Hostinger/VPS), bukan cuma jalan di localhost.
+| # | Topik | Status |
+|---|---|---|
+| 1-11 | Dasar Laravel s.d. User Management (Routing, Controller, Blade, Eloquent, CRUD, Tailwind, MySQL, Breeze, Relasi, Role) | ✅ Selesai |
+| 12 | Slug + Single Post View | ✅ Selesai (Praktik 12) |
+| 13 | Upload/Link Gambar | ✅ Selesai (Praktik 13) |
+| 14 | Database Seeder | ✅ Selesai (Praktik 14) |
+| 15 | Search & Filter | ✅ Selesai (Praktik 15) |
+| 16 | Pagination & Card Grid | ✅ Selesai (Praktik 16) |
+| 17 | Form Request | ✅ Selesai (Praktik 17) |
+| 18 | Policy | ✅ Selesai (Praktik 18) |
+| 19 | API Resource + Testing pakai Thunder Client | ✅ Selesai (Praktik 19) |
+| 20 | Testing Otomatis (PHPUnit) | ✅ Selesai (Praktik 20) — 30/30 test PASS |
+| 21 | **Deploy** ke hosting beneran | ⏳ Ditunda — nunggu murid-murid selesai bikin project masing-masing dulu |
 
-> Poin 1-18 udah cukup buat bikin project CRUD lengkap yang solid (blog, todo app, dsb) dan cukup buat kebanyakan ujian praktik Laravel dasar-menengah. Poin 19-21 topik lanjutan kalau mau proyeknya lebih serius / siap dipakai orang lain.
+> Tinggal **1 topik** lagi buat nutup roadmap ini: **Deploy**. Semua fondasi teknis (routing, database, auth, otorisasi, API, testing) udah kekuasai — Deploy itu murni soal mindahin project dari localhost ke server beneran, gak nambah konsep pemrograman baru yang signifikan.
