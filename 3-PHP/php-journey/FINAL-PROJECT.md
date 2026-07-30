@@ -9,13 +9,13 @@ Pick one domain — task list, small inventory, simple blog posts, or event RSVP
 - **Auth:** register, login, logout, hashed passwords, session-protected pages.
 - **Roles:** `admin` and `user`. Admin can manage all records + manage users' roles. Regular user can only manage their own records (`user_id` column ties records to owner).
 - **CRUD:** full create/read/update/delete on main entity, server-side validated, prepared statements only.
-- **MVC structure:** organized per Stage 9 pattern — models/, views/, controllers/, single front controller.
+- **MVC structure:** organized per Stage 10 pattern — models/, views/, controllers/, single front controller.
 - **UI:** Bootstrap (or Tailwind if she's chosen to upgrade), responsive, flash messages on actions (created/updated/deleted).
 - **Security baseline:** htmlspecialchars on all output, prepared statements on all queries, CSRF token on forms, no plaintext passwords.
 
 ## Explicitly out of scope (don't let it creep in)
 - No AJAX/API/JSON endpoints — plain form POST/GET only.
-- No file uploads unless she's already comfortable with Stage 9/10 material.
+- No file uploads unless she's already comfortable with Stage 10/11 material.
 - No multi-table JOINs beyond the simple `user_id` ownership foreign key.
 - No third-party PHP packages/Composer — that's Laravel's job next.
 

@@ -45,6 +45,22 @@ Masih database `toko_belajar` yang sama, tambah table baru `users`. Jalanin `set
 - `session_start()` harus di baris paling atas, sebelum ada `echo`/HTML apapun — kalau telat manggil ini pas udah ada output, muncul error "headers already sent".
 - Pola proteksi halaman: `require_once "includes/auth-check.php";` di baris pertama tiap file yang mau dilindungi. Manual, belum otomatis — itu alasan kenapa gampang lupa/ke-skip, makanya harus dibiasain dari awal nulis file baru.
 
+### `unset()` vs `session_unset()` — jangan ketuker
+
+Dua fungsi ini beda konteks, walau namanya mirip:
+
+- **`unset($variabel)`** — fungsi PHP umum (bukan khusus session), buat ngehapus 1 variabel biasa dari memory. Contoh:
+  ```php
+  $nama = "Budi";
+  unset($nama);
+  echo $nama; // error "undefined variable", soalnya $nama udah gak ada
+  ```
+  Bisa dipake ke elemen array juga: `unset($_SESSION['username'])` — ini cuma ngehapus SATU key `username` dari `$_SESSION`, key lain (`user_id`, `role`, dst) masih ada.
+
+- **`session_unset()`** — fungsi khusus session, ngosongin **SEMUA isi** `$_SESSION` sekaligus (setara `$_SESSION = []`), tapi session-nya sendiri (cookie, session ID di server) masih hidup/aktif. Beda sama `session_destroy()` yang ngehapus session-nya di server.
+
+Di `logout.php`, dipake `session_unset()` (bukan `unset($_SESSION)`) karena maunya SEMUA data session ke-kosongin sekaligus, gak cuma 1 key doang. Kalau butuh hapus 1 data session spesifik aja (misal cuma mau lupain `role` doang tapi user tetep login), baru pakai `unset($_SESSION['role'])`.
+
 ## File di Folder Ini
 
 ```

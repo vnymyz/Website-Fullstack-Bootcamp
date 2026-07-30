@@ -149,20 +149,51 @@ Files:
 
 ---
 
-## `7-Bootstrap-Integration/`
-**Goal:** make everything from Stage 1-6 look decent, fast, using a framework instead of custom CSS.
+## `7-Buku-dan-Favorite/`
+**Goal:** first real "content" feature built on top of Stage 4-6 (CRUD + Auth + Role) — books shown to users, admin manages the catalog, logged-in users can favorite books. Bridges the gap between isolated CRUD/auth exercises and an actual small feature that combines them.
+
+Topics:
+- New table `buku` (admin-managed catalog) and `favorit` (many-to-many between `users` and `buku`, first real use of a join table).
+- Admin CRUD for `buku` (reuses the Stage 4 CRUD pattern, admin-only via `admin-check.php`).
+- Public/user-facing catalog page (`katalog.php`) — logged-in users can favorite/unfavorite a book.
+- Dashboard shows relevant data pulled from the database instead of static text: user dashboard shows "my favorites," admin dashboard adds book/favorite counts to the existing stat cards.
+- Homepage shows a small "latest books" preview — first time `index.php` reads from the database instead of being static copy.
+
+Files:
+```
+7-Buku-dan-Favorite/
+  config/db.php
+  includes/auth-check.php
+  includes/admin-check.php
+  includes/admin-sidebar.php
+  setup.sql
+  index.php
+  register.php / login.php / logout.php
+  dashboard.php
+  katalog.php
+  favorit-toggle.php
+  admin/dashboard.php
+  admin/buku.php
+```
+
+**Checkpoint:** she can explain why `favorit` needs its own table instead of a column on `users` or `buku` (many-to-many relationship), and why the favorite toggle has to re-check `$_SESSION['user_id']` server-side instead of trusting a hidden form field for which user is favoriting.
+
+---
+
+## `8-Bootstrap-Integration/`
+**Goal:** make everything from Stage 1-7 look decent, fast, using a framework instead of custom CSS.
 
 Topics:
 - CDN vs local Bootstrap.
 - Grid system (container/row/col), navbar, forms, tables, buttons, alerts, modals.
-- Retrofit CRUD app (Stage 4) and Auth (Stage 5) pages with Bootstrap components.
+- Retrofit CRUD app (Stage 4), Auth (Stage 5), and the book catalog (Stage 7) pages with Bootstrap components.
 - Flash messages using session (e.g. "Item deleted" alert after redirect) — combines PHP sessions + Bootstrap alert component.
 
 **Mini exercise:** restyle the Stage 4 CRUD table + forms with Bootstrap, add a Bootstrap navbar showing "Login" or "Logout (username)" depending on session state.
 
 ---
 
-## `8-Tailwind-Upgrade/`
+## `9-Tailwind-Upgrade/`
 **Goal:** introduce utility-first CSS as the "upgrade," once Bootstrap fundamentals are solid.
 
 Topics:
@@ -173,7 +204,7 @@ Topics:
 
 ---
 
-## `9-MVC-Pattern/`
+## `10-MVC-Pattern/`
 **Goal:** reorganize what she's already built into Model-View-Controller, by hand, before Laravel does it for her.
 
 Topics:
@@ -186,7 +217,7 @@ Topics:
 
 Files:
 ```
-9-MVC-Pattern/
+10-MVC-Pattern/
   config/db.php
   models/Book.php
   views/books/index.php
@@ -202,7 +233,7 @@ Files:
 
 ---
 
-## `10-Security-Hardening/`
+## `11-Security-Hardening/`
 **Goal:** consolidate all the security lessons scattered through Stages 2-6 into deliberate practice.
 
 Topics recap + drills:
@@ -216,10 +247,10 @@ Topics recap + drills:
 
 ---
 
-## `11-Final-Project/`
+## `12-Final-Project/`
 See `FINAL-PROJECT.md` for full spec.
 
 ---
 
 ## Suggested Pacing
-Roughly one stage per session/week depending on session length; Stage 4 (CRUD) and Stage 5 (Auth) are the heaviest and can each span 2 sessions. Insert a closed-book checkpoint before moving from Stage 4→5, 5→6, and 6→10 (the ones already marked above) — same rule as her HTML/CSS/JS exam: practical build + bug hunt, not multiple choice, AI allowed only in a small final window if at all.
+Roughly one stage per session/week depending on session length; Stage 4 (CRUD) and Stage 5 (Auth) are the heaviest and can each span 2 sessions. Insert a closed-book checkpoint before moving from Stage 4→5, 5→6, 6→7, and 7→11 (the ones already marked above) — same rule as her HTML/CSS/JS exam: practical build + bug hunt, not multiple choice, AI allowed only in a small final window if at all.

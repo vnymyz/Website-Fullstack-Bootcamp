@@ -36,11 +36,12 @@ php-journey/
   4-CRUD-App/
   5-Sessions-and-Auth/
   6-Role-Management/
-  7-Bootstrap-Integration/
-  8-Tailwind-Upgrade/
-  9-MVC-Pattern/
-  10-Security-Hardening/
-  11-Final-Project/
+  7-Buku-dan-Favorite/
+  8-Bootstrap-Integration/
+  9-Tailwind-Upgrade/
+  10-MVC-Pattern/
+  11-Security-Hardening/
+  12-Final-Project/
 ```
 
 **Teaching method:**
