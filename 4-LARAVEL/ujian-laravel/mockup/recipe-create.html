@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tambah Resep - Resep Masakan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white border-r border-gray-200 shrink-0 flex flex-col">
+            <div class="p-6 border-b border-gray-100">
+                <a href="dashboard.html" class="text-lg font-bold text-blue-600">🍳 Resep Masakan</a>
+            </div>
+
+            <nav class="p-4 space-y-1 flex-1">
+                <a href="dashboard.html" class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-gray-600 hover:bg-gray-50">Dashboard</a>
+                <a href="recipes.html" class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium bg-blue-50 text-blue-700">Recipes</a>
+                <a href="admin-users.html" class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-gray-600 hover:bg-gray-50">User Management</a>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-gray-600 hover:bg-gray-50">Profile</a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100">
+                <div class="px-3 mb-2">
+                    <p class="text-sm font-medium text-gray-800">Admin</p>
+                    <p class="text-xs text-gray-400">admin@example.com</p>
+                </div>
+                <a href="index.html" class="block w-full text-left px-3 py-2 rounded text-sm text-red-600 hover:bg-red-50">Logout</a>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-w-0">
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <h1 class="font-semibold text-gray-800">Tambah Resep</h1>
+            </header>
+
+            <main class="max-w-2xl w-full mx-auto p-6">
+                <h1 class="text-2xl font-bold mb-4">Tambah Resep</h1>
+
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Judul Resep</label>
+                        <input type="text" placeholder="Contoh: Nasi Goreng Kampung" class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Bahan-bahan</label>
+                        <textarea rows="5" placeholder="1 bahan per baris..." class="w-full border rounded px-3 py-2"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Cara Masak</label>
+                        <textarea rows="6" placeholder="Langkah-langkah memasak..." class="w-full border rounded px-3 py-2"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Upload Foto (opsional)</label>
+                        <input type="file" class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Atau isi Link Foto (opsional)</label>
+                        <input type="url" placeholder="https://images.unsplash.com/..." class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <p class="text-xs text-gray-400">Isi salah satu aja — upload file ATAU link.</p>
+
+                    <button type="button" onclick="location.href='recipes.html'"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Simpan
+                    </button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>
