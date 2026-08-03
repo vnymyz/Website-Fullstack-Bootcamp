@@ -683,6 +683,147 @@ Table admin juga nambah kolom thumbnail kecil buat preview gambarnya.
 
 Sengaja pakai link URL, bukan upload file (`$_FILES`) — alasannya udah dijelasin di bagian "Gambar Buku" di atas.
 
+## Update: Kumpulan Perbaikan Tampilan (UI Fixes)
+
+Nyusul abis fitur-fitur di atas kelar, ada beberapa bug tampilan yang ketauan & dibenerin belakangan. Kalau kamu udah nge-push versi lama ke GitHub, ini daftar lengkap yang perlu di-copas ulang biar sinkron.
+
+### 1. Menu navbar (Home/Buku/About) gak presisi di tengah
+
+**File:** `style.css`. Sebelumnya `.navbar` pakai `display:flex; justify-content:space-between`, posisi menu tengah jadi ikut kegeser tergantung lebar brand vs tombol kanan. Diganti jadi grid 3 kolom:
+```css
+.navbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+.navbar-brand { justify-self: start; }
+.navbar-links { justify-self: center; }
+.navbar-right { justify-self: end; }
+```
+
+### 2. Kartu buku (`.book-card`) ukurannya beda-beda
+
+Judul yang panjang bikin card lebih tinggi dari card sebelahnya. Dibenerin: `.book-card` jadi flex column + `min-height` tetap, judul dibatasin 2 baris, tombol like didorong ke bawah:
+```css
+.book-card {
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+}
+.book-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
+}
+.like-form { margin-top: auto; }
+```
+
+### 3. Tombol like — dari teks jadi icon lingkaran doang
+
+Awalnya tombolnya ada tulisan "Favoritkan"/"Favorit". Diganti jadi lingkaran outline 40x40px isinya icon hati doang (kosong `&#9825;` = belum like, penuh `&#9829;` = udah like). Dua masalah CSS yang ketemu pas ngerjain ini:
+
+- **Tombolnya kejadian jadi kotak gelap full-width** — rule global `form button[type="submit"]` (buat Login/Register) specificity-nya lebih tinggi dari `.btn-like` biasa (2 element-selector vs 1 class). Fix-nya pakai selector lebih spesifik: `.like-form button.btn-like`.
+- **Kotak fokus biru bawaan browser** — ditambahin `appearance: none; outline: none;`.
+
+```php
+<!-- katalog.php -->
+<?php if ($row['favorit_id']): ?>
+    <button type="submit" class="btn-like btn-like-active" title="Batal favorit">&#9829;</button>
+<?php else: ?>
+    <button type="submit" class="btn-like" title="Favoritkan">&#9825;</button>
+<?php endif; ?>
+```
+```css
+.like-form button.btn-like {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid #4a2c1d;
+    appearance: none;
+    outline: none;
+    font-size: 1.7em;
+}
+```
+
+### 4. Tombol & input search gak sejajar
+
+Sama akar masalahnya kayak poin 3 — rule global buat form Login/Register (`width:100%` di button, `margin-bottom:16px` di input) ikut nempel ke form search karena sama-sama `<form>`. Fix-nya kasih selector spesifik + override manual:
+```css
+.search-form button[type="submit"] { width: auto; }
+.search-form input[type="text"] { margin-bottom: 0; }
+```
+
+### 5. Klik pagination / like bikin halaman lompat ke atas
+
+Klik pagination atau like = reload halaman baru (bukan AJAX), browser defaultnya reset scroll ke paling atas. Ditambahin JavaScript kecil di `katalog.php` — simpen posisi scroll ke `sessionStorage` SEBELUM pindah halaman, balikin lagi abis halaman baru kebuka:
+```js
+document.querySelectorAll('.pagination-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+        sessionStorage.setItem('katalogScrollY', window.scrollY);
+    });
+});
+document.querySelectorAll('.like-form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+        sessionStorage.setItem('katalogScrollY', window.scrollY);
+    });
+});
+var scrollTersimpan = sessionStorage.getItem('katalogScrollY');
+if (scrollTersimpan !== null) {
+    window.scrollTo(0, parseInt(scrollTersimpan, 10));
+    sessionStorage.removeItem('katalogScrollY');
+}
+```
+
+### 6. Halaman Kelola Buku dipecah — form gak digabung sama table lagi
+
+`admin/buku.php` awalnya 1 halaman isinya form (tambah/edit) DAN table sekaligus. Sekarang dipecah jadi 3 halaman:
+- **`admin/buku.php`** — cuma list + tombol "+ Tambah Buku" + Edit/Hapus per baris.
+- **`admin/buku-tambah.php`** — halaman sendiri, form kosong.
+- **`admin/buku-edit.php`** — halaman sendiri, nerima `?id=...`, form-nya keisi data lama.
+
+Pesan sukses tetep pola `?msg=...` yang udah dipakai dari sesi-sesi sebelumnya (`created`/`updated`/`deleted`), dibaca & ditampilin di `admin/buku.php`.
+
+### 7. Form & judul "Tambah/Edit Buku" ke-tengah, tombol Simpan/Batal sejajar
+
+Form-nya di-center di area konten (`margin: 0 auto`), judul disamain lebar & posisinya biar sejajar sama form:
+```css
+.form-title {
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    text-align: center;
+}
+.form-buku {
+    max-width: 500px;
+    margin: 20px auto;
+}
+```
+
+Tombol "Simpan"/"Update" + "Batal" awalnya numpuk ke bawah (bukan sampingan) — penyebabnya sama kayak poin 3 & 4, `width:100%` dari rule global ketiban ke tombol submit. Dibungkus 1 div `.form-actions`, tombol Batal dijadiin tombol merah beneran (bukan link teks doang):
+```php
+<div class="form-actions">
+    <button type="submit">Simpan</button>
+    <a href="buku.php" class="btn-batal">Batal</a>
+</div>
+```
+```css
+.form-buku button[type="submit"] { width: auto; }
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+}
+.btn-batal {
+    background-color: #c0392b;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+```
+
+**Pola yang kelihatan berulang dari poin 3, 4, dan 7:** rule CSS global yang dipakai buat form Login/Register (`form input[type=text]`, `form button[type=submit]`) gampang "bocor" ke form-form lain yang gak dimaksud, karena selector-nya cuma modal element `form` + attribute, bukan class spesifik. Kalau bikin form baru dan tampilannya keliatan aneh padahal CSS-nya udah bener, curigain dulu ada rule global yang ke-apply gak sengaja — cek lewat DevTools (Inspect Element, tab Styles, lihat rule mana yang ke-coret/menang).
+
 ## Checkpoint Sebelum Lanjut ke Sesi 8
 
 Sebelum lanjut ke `8-Bootstrap-Integration/`, pastikan bisa jawab/lakuin ini tanpa buka catatan/AI:

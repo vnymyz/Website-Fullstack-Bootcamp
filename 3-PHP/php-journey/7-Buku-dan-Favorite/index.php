@@ -8,6 +8,9 @@ require_once "config/db.php";
 
 $sudahLogin = isset($_SESSION['user_id']);
 
+// asc dari terkecil terbesar
+// desc dari terbesar terkecil
+
 // <-- BARU (dari Sesi 6): index.php sekarang baca dari database,
 // nampilin 3 buku terbaru. Sebelumnya isi homepage statis doang.
 $query = "SELECT id, judul, penulis, tahun_terbit, gambar_url FROM buku ORDER BY id DESC LIMIT 3";
