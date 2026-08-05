@@ -8,6 +8,23 @@ Ujian penutup materi PHP Fullstack (Sesi 1-8). Dua bagian: **Soal Teori** (20 so
 
 > 💡 Ada **mockup tampilan statis** (HTML/CSS/Bootstrap, gak perlu database) di folder [`mockup/`](./mockup/) — buka `mockup/index.html` pakai Live Server buat liat gambaran akhir tampilan website-nya sebelum mulai coding. Cara jalaninnya ada di `mockup/README.md`.
 
+## 🚀 Mulai Dari Sini
+
+Dokumen ini panjang — jangan dibaca sekaligus dari atas ke bawah. Ikutin urutan ini:
+
+1. **Kerjain dulu Soal Teori** (20 soal di bawah) — closed-book, tulis jawabannya di file terpisah (misal `jawaban-teori.md`).
+2. **Buka `mockup/index.html`** pakai Live Server — klik-klik semua halamannya, biar kebayang target akhirnya kayak apa sebelum mulai ngoding.
+3. **Baca bagian "0. Alur Bisnis"** di Soal Project — ini kunci ngerti kenapa ada fitur transaksi/WA/status pembayaran.
+4. **Ikutin "4. Step-by-Step Pengerjaan" satu-satu, jangan loncat.** Tiap step nyebutin sesi mana yang polanya dicontek (misal "pola persis `admin/buku.php`") — buka file itu di folder sesi yang dimaksud, bandingin, baru tulis versi kamu sendiri buat domain properti.
+5. Kalau ada bagian yang bikin bingung, cek dulu section terkaitnya di README ini (Struktur Database / Struktur Folder / Fitur per Role) — biasanya udah dijawab di situ.
+6. Cek **Checklist Sebelum Submit** di paling bawah sebelum ngerasa "selesai".
+
+Kalau masih bingung juga setelah ngikutin urutan di atas, baru tanya — sebutin **udah nyoba step berapa** dan **bingungnya di bagian mana**, biar gampang dibantu.
+
+**Catatan buat yang masih pemula:** ini emang project paling gede di seluruh materi, wajar kalau kerasa berat pas pertama liat. Tapi coba dicek lagi — **hampir semua bagiannya BUKAN hal baru**. Login/register, CRUD, wishlist, search+pagination, styling Bootstrap — itu semua udah pernah dibikin sendiri di Sesi 5-8, cuma sekarang dipraktekin ke domain beda (properti, bukan buku). Yang beneran baru cuma 2: sistem transaksi (tabel `transaksi` + redirect WhatsApp) dan Google Maps embed — dan dua-duanya udah ada contoh kodenya lengkap di README ini.
+
+Jangan coba selesein semua dalam 1 hari. Kerjain 1-2 step dari "Step-by-Step Pengerjaan" per sesi belajar, tes jalan dulu baru lanjut step berikutnya. Kalau stuck di 1 step lebih dari biasanya, itu sinyal buat break dulu, buka lagi sesi yang jadi rujukannya, baca ulang pola aslinya, baru balik lagi — bukan sinyal buat nyerah.
+
 ## Bootstrap vs Tailwind
 
 Dokumentasi resmi, dua-duanya gratis dibaca tanpa akun:
@@ -107,7 +124,14 @@ Kenapa gitu? Karena payment gateway beneran (Midtrans, Xendit, dll) butuh API ke
 
 ### 1. Struktur Database
 
-Masih 1 database (bikin baru, misal `properti_db`), 4 table:
+Masih 1 database (bikin baru, misal `properti_db`), 4 table. Jalanin dulu di phpMyAdmin (tab SQL) buat bikin database-nya, sebelum lanjut ke query `CREATE TABLE` di bawah:
+
+```sql
+CREATE DATABASE properti_db;
+USE properti_db;
+```
+
+`CREATE DATABASE` bikin database kosong baru. `USE` nge-set database mana yang lagi "aktif" dipakai — tanpa ini, query `CREATE TABLE` sesudahnya gak tau mau nyimpen table-nya ke database mana. Bisa juga langsung pilih database-nya lewat sidebar phpMyAdmin (klik nama database di kiri) — kalau gitu, `USE` gak wajib ditulis lagi soalnya udah otomatis "aktif" dari situ.
 
 **`users`** (pola sama Sesi 5/6, tambah 1 kolom):
 
@@ -213,6 +237,53 @@ Pola sama persis `8-Bootstrap-Integration/` — reuse aja `config/db.php`, `incl
     transaksi-detail.php                 <- ?id=..., form update metode+status+bukti pembayaran
     users.php                             <- kelola role user (pola sama Sesi 6/7/8)
 ```
+
+#### 📁 Langkah 0 — Bikin Folder & File Kosong Dulu (Sebelum Nulis Kode Apapun)
+
+Ikutin persis biar strukturnya bener dari awal, gak perlu mikir "taro di mana" pas lagi nulis kode nanti.
+
+1. Buka File Explorer, masuk ke `C:\laragon\www\` (folder tempat `php-journey` juga ada).
+2. Bikin folder baru di situ, kasih nama **`properti-prima`** (atau nama lain, terserah — tapi inget-inget namanya, dipakai pas buka di browser nanti).
+3. Buka folder `properti-prima` itu pakai VS Code (klik kanan folder → "Open with Code", atau buka VS Code → File → Open Folder).
+4. Di dalem VS Code, bikin folder & file kosong ini satu-satu (klik kanan di panel Explorer kiri → New Folder / New File):
+
+```
+properti-prima/
+  config/
+    db.php
+  includes/
+    auth-check.php
+    admin-check.php
+    navbar.php
+    user-sidebar.php
+    admin-sidebar.php
+  admin/
+    dashboard.php
+    properti.php
+    properti-tambah.php
+    properti-edit.php
+    transaksi.php
+    transaksi-detail.php
+    users.php
+  index.php
+  listing.php
+  properti-detail.php
+  kontak.php
+  wishlist-toggle.php
+  ajukan-transaksi.php
+  register.php
+  login.php
+  logout.php
+  dashboard.php
+  wishlist-saya.php
+  pesanan-saya.php
+  profil.php
+  setup.sql
+```
+
+5. Semua file di atas **boleh kosong dulu** — isinya baru ditulis pelan-pelan ngikutin "4. Step-by-Step Pengerjaan" di bawah, gak harus langsung lengkap semua.
+6. Buka Laragon, klik **Start All** (Apache + MySQL nyala).
+7. Tes dulu folder-nya kebaca: buka browser, akses `http://localhost/properti-prima/index.php` — kalau muncul halaman putih kosong (bukan error "Not Found"), berarti struktur foldernya udah bener, tinggal mulai isi kodenya dari `setup.sql` (Step 1).
 
 ### 3. Fitur per Role
 
