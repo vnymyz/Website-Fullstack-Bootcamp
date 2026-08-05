@@ -107,7 +107,7 @@ $activeMenu = 'home';
                 <div class="col-md-4">
                     <div class="card h-100 border-0 shadow-sm text-center p-3">
                         <div class="card-body">
-                            <i class="bi bi-heart fs-1" style="color:#4a2c1d;"></i>
+                            <i class="bi bi-heart fs-1" style="color:#CF4173;"></i>
                             <h5 class="mt-3">Favorit Personal</h5>
                             <p class="text-muted mb-0">Tandain buku yang kamu suka, buka lagi kapan aja lewat dashboard.</p>
                         </div>

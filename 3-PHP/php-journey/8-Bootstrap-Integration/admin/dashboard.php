@@ -37,7 +37,7 @@ $activePage = 'dashboard';
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-body d-flex align-items-center gap-3">
                             <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:56px; height:56px; background-color:#e7f1ff;">
-                                <i class="bi bi-people fs-4 text-primary"></i>
+                                <i class="bi bi-people-fill fs-4 text-primary"></i>
                             </div>
                             <div>
                                 <div class="fs-3 fw-bold"><?= $totalUsers ?></div>
@@ -53,6 +53,7 @@ $activePage = 'dashboard';
                                 <i class="bi bi-book fs-4" style="color:#4a2c1d;"></i>
                             </div>
                             <div>
+                                <!-- fw itu font weight -->
                                 <div class="fs-3 fw-bold"><?= $totalBuku ?></div>
                                 <div class="text-muted small">Total Buku</div>
                             </div>
