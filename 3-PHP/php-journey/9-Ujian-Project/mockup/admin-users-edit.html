@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit User — Estate Prima</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="d-flex">
+        <div class="sidebar-estate p-3 d-flex flex-column flex-shrink-0">
+            <a href="index.html" class="d-flex align-items-center gap-2 mb-1 text-white text-decoration-none fs-5 fw-bold">
+                <i class="bi bi-buildings text-gold"></i> Estate Prima
+            </a>
+            <div class="text-white-50 small mb-3">Admin Panel</div>
+            <hr class="mt-0 border-secondary">
+            <ul class="nav nav-pills flex-column gap-1 mb-auto">
+                <li class="nav-item"><a href="index.html" class="nav-link"><i class="bi bi-house me-1"></i> Kembali ke Home</a></li>
+                <li><hr class="border-secondary my-2"></li>
+                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="admin-properti.html" class="nav-link"><i class="bi bi-buildings me-1"></i> Kelola Properti</a></li>
+                <li class="nav-item"><a href="admin-transaksi.html" class="nav-link"><i class="bi bi-receipt me-1"></i> Kelola Transaksi</a></li>
+                <li class="nav-item"><a href="admin-users.html" class="nav-link active"><i class="bi bi-people me-1"></i> Kelola Users</a></li>
+            </ul>
+            <hr class="border-secondary">
+            <a href="index.html" class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-1">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+
+        <main class="flex-grow-1 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Edit User</h1>
+                    <p class="text-muted small mb-0">Ubah data <strong>budi_santoso</strong> (ID: 2)</p>
+                </div>
+                <a href="admin-users.html" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+            </div>
+
+            <form action="#" method="POST" style="max-width: 560px;">
+                <!-- Di versi PHP nanti: <input type="hidden" name="id" value="2"> biar tau baris mana yang di-UPDATE -->
+
+                <fieldset class="border rounded p-3 p-md-4 mb-4 bg-white shadow-sm">
+                    <legend class="fs-6 fw-semibold text-navy px-2 w-auto">Data Akun</legend>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" value="budi_santoso" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Password Baru</label>
+                            <input type="password" name="password" class="form-control" placeholder="Kosongin kalau gak mau ganti" minlength="8">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Konfirmasi Password Baru</label>
+                            <input type="password" name="konfirmasi_password" class="form-control" placeholder="Kosongin kalau gak mau ganti" minlength="8">
+                        </div>
+                    </div>
+                    <div class="form-text mb-3 mt-n2">
+                        Biarin kosong dua-duanya kalau gak mau ubah password user ini.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">No. WhatsApp</label>
+                        <input type="text" name="no_hp" class="form-control" value="081298765432">
+                    </div>
+
+                    <div class="mb-1">
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-select" required>
+                            <option value="user" selected>user</option>
+                            <option value="admin">admin</option>
+                        </select>
+                        <div class="form-text">Kalau ini akun kamu sendiri yang lagi login, role gak boleh diturunin dari admin (cek server-side, bukan cuma disable di form).</div>
+                    </div>
+                </fieldset>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn text-white d-flex align-items-center gap-2" style="background-color:#16324f;">
+                        <i class="bi bi-check-lg"></i> Simpan Perubahan
+                    </button>
+                    <a href="admin-users.html" class="btn btn-outline-secondary">Batal</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
