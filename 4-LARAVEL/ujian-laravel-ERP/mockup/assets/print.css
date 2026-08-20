@@ -1,0 +1,22 @@
+@media print {
+    .sidebar,
+    .topbar,
+    .page-head,
+    .no-print {
+        display: none !important;
+    }
+    .workspace {
+        width: 100% !important;
+    }
+    .content {
+        max-width: none;
+        padding: 0;
+    }
+    .card {
+        box-shadow: none;
+        border-color: #d7dce5;
+    }
+    body {
+        background: #fff;
+    }
+}
