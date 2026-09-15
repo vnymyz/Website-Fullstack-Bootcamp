@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "judul": "Setup json-server",
+      "prioritas": "tinggi",
+      "selesai": true
+    },
+    {
+      "id": 2,
+      "judul": "Belajar useEffect",
+      "prioritas": "tinggi",
+      "selesai": false
+    },
+    {
+      "id": 3,
+      "judul": "Fetch data dari API",
+      "prioritas": "normal",
+      "selesai": false
+    }
+  ]
+}
