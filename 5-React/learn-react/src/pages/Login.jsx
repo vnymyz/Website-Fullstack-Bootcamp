@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   function handleSubmit(e) {
     e.preventDefault();
     // stub sederhana: asal username diisi, anggap login berhasil
     if (!username.trim()) return;
-    localStorage.setItem("isLoggedIn", "true");
+    login(username);
     navigate("/dashboard");
   }
 

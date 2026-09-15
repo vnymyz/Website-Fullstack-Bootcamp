@@ -6,12 +6,13 @@ import TaskDetail from "./pages/TaskDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 export default function App() {
   // login protected
   function ProtectedRoute({ children }) {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"; // <- stub, nanti sesi 10 ini beneran cek token
-    if (!isLoggedIn) return <Navigate to="/login" />;
+    const { user } = useAuth();
+    if (!user) return <Navigate to="/login" />;
     return children;
   }
 

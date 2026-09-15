@@ -1,4 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
+import Navbar from "./components/Navbar.jsx";
 
 export default function Layout() {
   return (
@@ -7,6 +8,7 @@ export default function Layout() {
         <Link to="/">Beranda</Link>
         <Link to="/tasks">Tugas</Link>
       </nav>
+      <Navbar />
       {/* Outlet = "slot" tempat halaman anak dirender */}
       <Outlet />
     </div>
