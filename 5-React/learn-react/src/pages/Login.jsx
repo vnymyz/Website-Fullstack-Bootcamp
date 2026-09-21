@@ -5,13 +5,12 @@ import { useAuth } from "../context/AuthContext.jsx";
 export default function Login() {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); // <- ambil fungsi login dari papan pengumuman
 
   function handleSubmit(e) {
     e.preventDefault();
-    // stub sederhana: asal username diisi, anggap login berhasil
     if (!username.trim()) return;
-    login(username);
+    login(username); // <- ini yang bikin user keisi
     navigate("/dashboard");
   }
 

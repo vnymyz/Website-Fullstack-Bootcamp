@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    // json-server nulis ke db.json tiap add/edit/hapus; tanpa ini Vite
+    // json-server nulis ke db.json tiap add/toggle/hapus; tanpa ini Vite
     // nganggep itu perubahan kode dan reload seluruh halaman.
     watch: { ignored: ["**/db.json"] },
   },

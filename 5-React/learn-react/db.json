@@ -1,22 +1,32 @@
 {
+  "projects": [
+    { "id": 1, "nama": "Website Portofolio" },
+    { "id": 2, "nama": "Belajar React" }
+  ],
   "tasks": [
     {
       "id": 1,
-      "judul": "Setup json-server",
+      "projectId": 1,
+      "judul": "Desain homepage",
       "prioritas": "tinggi",
-      "selesai": true
+      "deadline": "2026-01-10",
+      "selesai": false
     },
     {
       "id": 2,
-      "judul": "Belajar useEffect",
-      "prioritas": "tinggi",
+      "projectId": 1,
+      "judul": "Setup hosting",
+      "prioritas": "normal",
+      "deadline": "2026-01-15",
       "selesai": false
     },
     {
       "id": 3,
-      "judul": "Fetch data dari API",
-      "prioritas": "normal",
-      "selesai": false
+      "projectId": 2,
+      "judul": "Belajar hooks",
+      "prioritas": "tinggi",
+      "deadline": "2026-01-05",
+      "selesai": true
     }
   ]
 }
