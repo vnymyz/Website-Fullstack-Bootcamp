@@ -2,11 +2,25 @@
 
 Tujuan: bikin SPA berasa multi-halaman pakai `react-router-dom`.
 
-## Install
+**Hasil akhir sesi ini:**
+- Beberapa "halaman" dengan URL beda: `/`, `/tasks`, `/tasks/1`, `/login`, `/dashboard`, dan halaman 404.
+- Navbar yang sama di semua halaman (lewat `Layout` + `Outlet`) — pindah halaman tanpa reload penuh.
+- `/dashboard` yang "dijaga": belum login → dilempar ke `/login` (masih pakai nilai palsu, dibikin beneran di sesi 8).
 
-```
-npm install react-router-dom
-```
+**Sebelum mulai:** sesi 6 selesai, `npm run dev` jalan. Router gak butuh json-server, jadi `npm run api` boleh mati.
+
+**Peta langkah:**
+
+| Langkah | Isi |
+|---|---|
+| Konsep | `BrowserRouter`, `Routes`/`Route`, `Link` vs `<a>` |
+| 1 | Pasang router di `main.jsx` |
+| 2 | Bikin halaman-halaman |
+| 3 | Bikin `Layout` dengan `Outlet` |
+| 4 | Daftar route di `App.jsx` |
+| 5 | Protected route (stub) |
+
+---
 
 ## Konsep Dasar
 
@@ -14,9 +28,23 @@ npm install react-router-dom
 - `<Routes>` + `<Route path="..." element={...} />` — daftar "halaman mana buat URL mana".
 - `<Link to="...">` vs `<a href="...">` — `Link` gak bikin browser reload halaman (tetep SPA), `<a>` biasa bikin full reload (kayak balik ke cara PHP).
 
+**Kenapa ini masih disebut "SPA"?** Cuma ada satu `index.html`. Pas kamu pindah dari `/` ke `/tasks`, React **nukar component** yang ditampilin dan ngubah URL di address bar (lewat History API browser) — tanpa minta halaman baru ke server.
+
+**Bandingin sama PHP:** di PHP, `tasks.php` dan `index.php` itu dua file terpisah, dan pindah = browser minta file baru ke server. Di React, `/tasks` dan `/` itu dua **component** di satu app; "pindah halaman" = ganti component yang aktif.
+
+---
+
 ## Langkah 1 — Setup Router
 
-`src/main.jsx`:
+### 1a. Pasang paket
+
+Di `learn-react/`:
+
+```
+npm install react-router-dom
+```
+
+### 1b. Bungkus `<App />` dengan `<BrowserRouter>` di `src/main.jsx`
 
 ```jsx
 import { StrictMode } from "react";
@@ -34,11 +62,25 @@ createRoot(document.getElementById("root")).render(
 );
 ```
 
+**Ini wajib.** Semua component router (`Routes`, `Link`, `Navigate`, `useNavigate`, ...) cuma bisa jalan **di dalam** `<BrowserRouter>`. Kalau lupa, semua halaman blank dan Console nampilin:
+
+```
+Uncaught Error: useRoutes() may be used only in the context of a <Router> component.
+```
+
+### Cek
+
+- [ ] Halaman lama tetap tampil normal (belum ada route apa pun, tapi gak ada error).
+- [ ] Console (`F12`) bersih.
+
+---
+
 ## Langkah 2 — Halaman-halaman
 
-Bikin folder `src/pages/`, lalu:
+Bikin folder `src/pages/`, lalu file-file di bawah ini satu per satu.
 
-`src/pages/Home.jsx`:
+### 2a. `src/pages/Home.jsx`
+
 ```jsx
 import { Link } from "react-router-dom";
 
@@ -52,7 +94,8 @@ export default function Home() {
 }
 ```
 
-`src/pages/TaskList.jsx`:
+### 2b. `src/pages/TaskList.jsx`
+
 ```jsx
 import { Link } from "react-router-dom";
 
@@ -77,7 +120,10 @@ export default function TaskList() {
 }
 ```
 
-`src/pages/TaskDetail.jsx`:
+`` `/tasks/${t.id}` `` = URL dinamis: `/tasks/1`, `/tasks/2`.
+
+### 2c. `src/pages/TaskDetail.jsx`
+
 ```jsx
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -102,16 +148,61 @@ export default function TaskDetail() {
 }
 ```
 
-`src/pages/NotFound.jsx`:
+**Baca per bagian:**
+- `useParams()` — hook yang balikin bagian dinamis dari URL. Kalau route-nya `tasks/:id` dan URL-nya `/tasks/2`, hasilnya `{ id: "2" }`. **Perhatian: nilainya selalu string**, bukan angka.
+- `useNavigate()` — hook yang ngasih fungsi buat pindah halaman lewat kode (contoh: setelah aksi selesai). `navigate("/tasks")` = pindah ke `/tasks`.
+
+### 2d. `src/pages/NotFound.jsx`
+
 ```jsx
 export default function NotFound() {
   return <div className="p-6"><h1>404 — Halaman gak ketemu</h1></div>;
 }
 ```
 
+### 2e. Halaman sementara buat Protected Route (langkah 5): `Login.jsx` dan `Dashboard.jsx`
+
+Biar demo protected route di langkah 5 bisa jalan (kalau gak ada `/login`, kamu bakal dilempar ke halaman 404), bikin dua halaman kecil ini. **Login-nya masih pura-pura** — dibikin beneran di sesi 8.
+
+`src/pages/Login.jsx`:
+
+```jsx
+export default function Login() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">Login</h1>
+      <p className="text-slate-500">(halaman sementara — form login dibikin di sesi 8)</p>
+    </div>
+  );
+}
+```
+
+`src/pages/Dashboard.jsx`:
+
+```jsx
+export default function Dashboard() {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <p>Halaman ini cuma bisa diakses kalau sudah login.</p>
+    </div>
+  );
+}
+```
+
+### Cek
+
+- [ ] 6 file ada di `src/pages/`: `Home`, `TaskList`, `TaskDetail`, `NotFound`, `Login`, `Dashboard`.
+- [ ] Belum ada yang tampil di browser — normal, belum didaftarin di route.
+
+---
+
 ## Langkah 3 — Layout dengan `Outlet`
 
+Masalah: navbar mau muncul di **semua** halaman. Nulis navbar di tiap halaman itu boros. Solusinya: **Layout** = kerangka yang dipakai bareng, dengan "slot" buat isi halaman.
+
 `src/Layout.jsx`:
+
 ```jsx
 import { Outlet, Link } from "react-router-dom";
 
@@ -129,7 +220,15 @@ export default function Layout() {
 }
 ```
 
+**Baca per bagian:**
+- `<Link to="...">` — link internal, gak reload halaman.
+- `<Outlet />` — tempat React nyelipin halaman yang sesuai URL (`Home`, `TaskList`, ...). Navbar tetap, isi di `Outlet` yang berganti.
+
+---
+
 ## Langkah 4 — Daftar Route di `App.jsx`
+
+Ganti isi `src/App.jsx` (sementara tanpa protected route dulu):
 
 ```jsx
 import { Routes, Route } from "react-router-dom";
@@ -138,6 +237,8 @@ import Home from "./pages/Home.jsx";
 import TaskList from "./pages/TaskList.jsx";
 import TaskDetail from "./pages/TaskDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
 export default function App() {
   return (
@@ -146,6 +247,8 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="tasks" element={<TaskList />} />
         <Route path="tasks/:id" element={<TaskDetail />} />
+        <Route path="login" element={<Login />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
@@ -155,20 +258,77 @@ export default function App() {
 
 `index` = route default pas path-nya persis `/`. `path="*"` = catch-all, jalan kalau gak ada route lain yang cocok (404).
 
-## Protected Route (Stub Dulu, Token Beneran di Sesi 10)
+**Route bersarang:** semua `<Route>` di dalam `<Route path="/" element={<Layout />}>` dirender **di dalam `<Outlet />`-nya `Layout`**. Itulah kenapa navbar muncul di semua halaman.
+
+**`path` tanpa `/` di depan** (`"tasks"`) = relatif terhadap route induk (`/`), jadi hasilnya `/tasks`.
+
+### Cek
+
+Buka satu per satu (ketik di address bar, atau klik link):
+
+- [ ] `/` → "Beranda" + link.
+- [ ] `/tasks` → daftar 2 tugas; klik salah satu → `/tasks/1` dengan "Detail Tugas #1".
+- [ ] Klik "Hapus & Kembali ke List" → muncul alert, lalu balik ke `/tasks`.
+- [ ] `/login`, `/dashboard` → halaman sementaranya tampil.
+- [ ] `/ngasal` → "404 — Halaman gak ketemu".
+- [ ] Navbar tampil di semua halaman, dan klik "Beranda"/"Tugas" **gak reload** halaman.
+
+---
+
+## Langkah 5 — Protected Route (Stub Dulu, Token Beneran di Sesi 10)
+
+**Ide:** sebagian halaman cuma boleh dibuka kalau user udah login. Bikin "satpam": component pembungkus yang ngecek dulu, baru nampilin halamannya atau nendang ke `/login`.
+
+### 5a. Tulis `ProtectedRoute` di `App.jsx` — di LUAR function `App`
 
 ```jsx
+import { Routes, Route, Navigate } from "react-router-dom";
+
 function ProtectedRoute({ children }) {
-  const isLoggedIn = false; // <- stub, nanti sesi 10 ini beneran cek token
+  const isLoggedIn = false; // <- stub, nanti sesi 8 dari Context, sesi 10 dari token
   if (!isLoggedIn) return <Navigate to="/login" />;
   return children;
 }
 
-// pemakaian:
-<Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+export default function App() {
+  return (
+    <Routes>
+      {/* ...route lain... */}
+    </Routes>
+  );
+}
 ```
 
-(Import `Navigate` dari `react-router-dom`.)
+**Penting:** tulis `ProtectedRoute` **di luar** `App` (di atasnya). Kalau ditulis di dalam `App`, dia dibikin ulang tiap `App` render dan state di dalamnya ke-reset — VS Code juga bakal nandain merah: `Components created during render will reset their state each time they are created`.
+
+**Baca per bagian:**
+- `{ children }` — halaman yang dibungkus (`<Dashboard />`).
+- `<Navigate to="/login" />` — component yang langsung mindahin ke URL lain waktu dirender (import `Navigate` dari `react-router-dom`).
+- `return children;` — kalau lolos, tampilkan halaman aslinya.
+- `isLoggedIn = false` = **stub**: nilai palsu yang di-hardcode. Belum ada login beneran.
+
+### 5b. Bungkus route `dashboard`
+
+```jsx
+<Route
+  path="dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+```
+
+### Cek
+
+- [ ] Buka `/dashboard` → **otomatis dilempar ke `/login`**.
+- [ ] Ubah sementara `isLoggedIn = true` → `/dashboard` sekarang kebuka. Balikin ke `false` setelah tes.
+- [ ] Route lain (`/tasks`, dst) tetap kebuka tanpa login. **Cuma route yang dibungkus `<ProtectedRoute>` yang dijaga** — mau ngunci halaman lain, bungkus dengan cara yang sama.
+
+**Ini bukan sistem login beneran.** `false` di-hardcode. Di sesi 8 kamu ganti dengan data dari Context (`user`); di sesi 10 dengan token dari backend.
+
+---
 
 ## Latihan
 
@@ -176,9 +336,25 @@ function ProtectedRoute({ children }) {
 2. Bikin nested route: `/tasks/:id/edit` yang render form edit (boleh dummy dulu).
 3. Coba klik `<Link>` vs bikin satu `<a href="/tasks">` biasa — buka DevTools Network tab, perhatiin bedanya (full page load muncul di `<a>`, gak muncul di `<Link>`).
 
+**Petunjuk soal 3:** di Network tab, centang "Preserve log" dan lihat: klik `<Link>` gak nambah request dokumen `localhost`, sedangkan `<a>` bikin request dokumen baru + semua JS di-download ulang.
+
 ## Catatan buat Kamu
 
 1. Jelasin ke diri sendiri: kenapa `<a href="/tasks">` bikin SPA-nya "rusak" (reload penuh), padahal secara visual hasilnya kelihatan sama kayak `<Link>`?
 2. Tambah tombol "Kembali" di `TaskDetail.jsx` pakai `navigate(-1)` (mundur ke halaman sebelumnya).
+3. Kenapa `useParams()` ngasih `id` berupa string? Apa yang bakal salah kalau kamu bandingin `id === 1` (angka)?
+
+## Kalau Error
+
+| Gejala | Biasanya penyebabnya |
+|---|---|
+| Semua halaman blank + `useRoutes() may be used only in the context of a <Router>` | `<BrowserRouter>` belum dipasang di `main.jsx` |
+| Halaman blank, gak ada error | Lupa `<Outlet />` di `Layout`, atau `element` route salah |
+| `/login` malah 404 | Halaman `Login` belum didaftarin di `Routes` |
+| Klik link → halaman reload penuh | Pakai `<a href>` alih-alih `<Link to>` |
+| Refresh di `/tasks/1` muncul "Cannot GET" (di server produksi) | Server harus ngarahin semua URL ke `index.html` — di Vite dev otomatis, urusan deploy nanti |
+| `Components created during render will reset their state` | `ProtectedRoute` ditulis di dalam `App` — pindah ke luar |
+| `Navigate is not defined` | Lupa import `Navigate` dari `react-router-dom` |
+| `id` dari `useParams` gak cocok dengan data | `id` string, data angka — bandingin dengan `Number(id)` atau `String(t.id)` |
 
 Lanjut ke [08-custom-hook-dan-context.md](08-custom-hook-dan-context.md).
