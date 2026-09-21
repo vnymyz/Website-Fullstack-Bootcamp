@@ -16,7 +16,7 @@ Tujuan: bikin SPA berasa multi-halaman pakai `react-router-dom`.
 | Konsep | `BrowserRouter`, `Routes`/`Route`, `Link` vs `<a>` |
 | 1 | Pasang router di `main.jsx` |
 | 2 | Bikin halaman-halaman |
-| 3 | Bikin `Layout` dengan `Outlet` |
+| 3 | Perbarui `Navbar`, bikin `Layout` dengan `Outlet` (satu navbar aja) |
 | 4 | Daftar route di `App.jsx` |
 | 5 | Protected route (stub) |
 
@@ -197,22 +197,68 @@ export default function Dashboard() {
 
 ---
 
-## Langkah 3 — Layout dengan `Outlet`
+## Langkah 3 — Navbar + Layout dengan `Outlet` (Satu Navbar Aja!)
 
 Masalah: navbar mau muncul di **semua** halaman. Nulis navbar di tiap halaman itu boros. Solusinya: **Layout** = kerangka yang dipakai bareng, dengan "slot" buat isi halaman.
 
-`src/Layout.jsx`:
+**Jebakan yang sering kejadian: navbar jadi dobel.** Dari sesi 2 kamu udah punya component `Navbar.jsx` (Beranda / Tentang / Kontak). Kalau di sesi ini kamu bikin navbar baru langsung di `Layout` **dan** `Navbar.jsx` lama juga ikut kepasang, hasilnya dua bar hitam bertumpuk di atas halaman:
+
+```
+┌──────────────────────────────────────┐
+│ Beranda   Tugas                      │   <- navbar dari Layout
+├──────────────────────────────────────┤
+│ Portofolio Vanya   Beranda Tentang…  │   <- navbar dari Navbar.jsx
+└──────────────────────────────────────┘
+```
+
+Aturannya: **cuma boleh ada satu navbar, dan dipasang di satu tempat: `Layout.jsx`.** Caranya, kita pakai `Navbar.jsx` dari sesi 2 (biar tampilannya sama), ubah linknya jadi Beranda dan Tugas, lalu `Layout` cuma manggil `<Navbar />` — **tanpa** nulis `<nav>` sendiri.
+
+### 3a. Perbarui `Navbar.jsx`
+
+Link di navbar harus pakai `<Link>` (bukan teks biasa) biar klik-nya pindah halaman tanpa reload. Tambah juga `import`-nya.
+
+**File:** `src/components/Navbar.jsx`
+
+**Isi lengkap** (ganti seluruh isinya). Bagian `BARU` = yang berubah dari versi sesi 2:
 
 ```jsx
-import { Outlet, Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // BARU: buat link pindah halaman
+
+// Component = fungsi JS biasa yang return JSX.
+export default function Navbar() {
+  return (
+    <nav className="flex items-center justify-between bg-slate-900 px-6 py-4 text-white">
+      <span className="text-lg font-bold">Portofolio Vanya</span>
+      <ul className="flex gap-4 text-sm">
+        {/* BARU: cuma dua link, dan pakai <Link> */}
+        <li>
+          <Link to="/">Beranda</Link>
+        </li>
+        <li>
+          <Link to="/tasks">Tugas</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+```
+
+**Yang berubah dari sesi 2:** (1) ada `import { Link }` di paling atas, (2) daftar `<li>` sekarang cuma **Beranda** dan **Tugas** (Tentang dan Kontak dihapus dulu), (3) isinya dibungkus `<Link to="...">`.
+
+### 3b. Bikin `Layout.jsx`
+
+**File:** `src/Layout.jsx`
+
+**Isi lengkap** (file baru, atau ganti seluruh isinya kalau udah ada):
+
+```jsx
+import { Outlet } from "react-router-dom";
+import Navbar from "./components/Navbar.jsx";
 
 export default function Layout() {
   return (
     <div>
-      <nav className="flex gap-4 bg-slate-900 p-4 text-white">
-        <Link to="/">Beranda</Link>
-        <Link to="/tasks">Tugas</Link>
-      </nav>
+      <Navbar />
       {/* Outlet = "slot" tempat halaman anak dirender */}
       <Outlet />
     </div>
@@ -221,8 +267,22 @@ export default function Layout() {
 ```
 
 **Baca per bagian:**
-- `<Link to="...">` — link internal, gak reload halaman.
+- `<Navbar />` — **satu-satunya** tempat navbar dipasang di seluruh app.
 - `<Outlet />` — tempat React nyelipin halaman yang sesuai URL (`Home`, `TaskList`, ...). Navbar tetap, isi di `Outlet` yang berganti.
+- `Layout` **gak** nulis `<nav>` sendiri dan gak meng-import `Link`.
+
+### 3c. Pastikan `Navbar` gak dipasang di tempat lain
+
+Cari apakah `<Navbar />` masih nyangkut di file lain. Di VS Code tekan `Ctrl+Shift+F` (cari di seluruh project), ketik `<Navbar` lalu Enter.
+
+- [ ] **Harus muncul cuma di satu file:** `src/Layout.jsx`.
+- [ ] Kalau ada di `src/App.jsx` (sisa dari sesi 2), **hapus** baris `<Navbar />` dan baris `import Navbar ...` di `App.jsx`. Di langkah 4 `App.jsx` ditulis ulang, jadi ini otomatis beres kalau kamu ngikutin langkah 4.
+- [ ] Kalau ada di halaman lain (`Home.jsx`, dst), hapus juga.
+
+### Cek langkah 3
+
+- [ ] Belum ada yang tampil di browser kalau `App.jsx` belum diganti (langkah 4) — normal.
+- [ ] `Ctrl+Shift+F` untuk `<nav` (huruf kecil): harus cuma ketemu di `src/components/Navbar.jsx`. Kalau ketemu juga di `Layout.jsx`, itu sisa navbar lama — hapus.
 
 ---
 
@@ -272,6 +332,7 @@ Buka satu per satu (ketik di address bar, atau klik link):
 - [ ] `/login`, `/dashboard` → halaman sementaranya tampil.
 - [ ] `/ngasal` → "404 — Halaman gak ketemu".
 - [ ] Navbar tampil di semua halaman, dan klik "Beranda"/"Tugas" **gak reload** halaman.
+- [ ] **Cuma ada SATU navbar** di atas halaman (bar hitam "Portofolio Vanya" dengan link Beranda dan Tugas). Kalau ada dua bar bertumpuk, balik ke Langkah 3c.
 
 ---
 
@@ -350,6 +411,8 @@ export default function App() {
 |---|---|
 | Semua halaman blank + `useRoutes() may be used only in the context of a <Router>` | `<BrowserRouter>` belum dipasang di `main.jsx` |
 | Halaman blank, gak ada error | Lupa `<Outlet />` di `Layout`, atau `element` route salah |
+| **Navbar muncul dua kali** (dua bar bertumpuk) | `<Navbar />` dipasang di dua tempat, atau `Layout` masih punya `<nav>` sendiri di samping `<Navbar />`. Sisain satu di `Layout.jsx` aja (Langkah 3) |
+| Link di navbar tidak bisa diklik / halaman reload | Link di `Navbar.jsx` masih teks biasa atau `<a href>`, bukan `<Link to>` |
 | `/login` malah 404 | Halaman `Login` belum didaftarin di `Routes` |
 | Klik link → halaman reload penuh | Pakai `<a href>` alih-alih `<Link to>` |
 | Refresh di `/tasks/1` muncul "Cannot GET" (di server produksi) | Server harus ngarahin semua URL ke `index.html` — di Vite dev otomatis, urusan deploy nanti |
