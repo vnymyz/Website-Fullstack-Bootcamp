@@ -1,32 +1,63 @@
 {
   "projects": [
-    { "id": 1, "nama": "Website Portofolio" },
-    { "id": 2, "nama": "Belajar React" }
+    {
+      "id": "1",
+      "nama": "Website Portofolio"
+    },
+    {
+      "id": "2",
+      "nama": "Belajar React"
+    }
   ],
   "tasks": [
     {
-      "id": 1,
+      "id": "1",
       "projectId": 1,
-      "judul": "Desain homepage",
+      "judul": "Desain homepage baruu",
       "prioritas": "tinggi",
       "deadline": "2026-01-10",
       "selesai": false
     },
     {
-      "id": 2,
+      "id": "2",
       "projectId": 1,
       "judul": "Setup hosting",
       "prioritas": "normal",
       "deadline": "2026-01-15",
-      "selesai": false
+      "selesai": true
     },
     {
-      "id": 3,
+      "id": "3",
       "projectId": 2,
       "judul": "Belajar hooks",
       "prioritas": "tinggi",
       "deadline": "2026-01-05",
       "selesai": true
+    },
+    {
+      "projectId": 1,
+      "judul": "Tugas belajar react golang",
+      "prioritas": "normal",
+      "selesai": false,
+      "deadline": "",
+      "id": "c_lsQtazUKM"
+    },
+    {
+      "projectId": 1,
+      "judul": "testt",
+      "prioritas": "normal",
+      "selesai": true,
+      "deadline": "",
+      "id": "uhHPKlTaen4"
+    },
+    {
+      "projectId": 1,
+      "judul": "awdawdawd",
+      "prioritas": "normal",
+      "selesai": false,
+      "deadline": "",
+      "id": "UWTyBFGv16s"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
