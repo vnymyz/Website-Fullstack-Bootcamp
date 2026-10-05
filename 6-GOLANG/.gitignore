@@ -1,0 +1,77 @@
+# ============================================================
+# .gitignore untuk materi Kelas Golang Fullstack
+# Letakkan di root repository (folder Go-New)
+# ============================================================
+
+# ---------- RAHASIA (jangan pernah di-push) ----------
+# File .env berisi password database dan JWT secret.
+# File .env.example BOLEH di-push (template tanpa rahasia).
+.env
+.env.*
+!.env.example
+
+# ---------- Go ----------
+# Cache module hasil "go get" / "go mod download" (sangat besar, bisa diunduh ulang)
+pkg/
+
+# Hasil kompilasi
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Hasil test, coverage, dan profiling
+*.test
+*.out
+coverage.html
+*.prof
+
+# Folder sementara hot reload (air)
+tmp/
+
+# Workspace lokal Go
+go.work
+go.work.sum
+
+# ---------- Node.js / React (Vite) ----------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- File sementara yang dibuat contoh kode ----------
+tmp-defer.txt
+contoh.txt
+teks.txt
+
+# ---------- Log ----------
+*.log
+logs/
+
+# ---------- Editor dan IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Sistem operasi ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Alat AI / konfigurasi lokal ----------
+.claude/
+
+# ============================================================
+# YANG SENGAJA TETAP DI-PUSH (jangan di-ignore):
+#   go.mod, go.sum                  -> daftar dependency Go
+#   package.json, package-lock.json -> daftar dependency frontend
+#   .env.example                    -> template konfigurasi
+#   database/*.sql                  -> skema dan data contoh
+# ============================================================
